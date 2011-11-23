@@ -13,14 +13,15 @@ class CreateList extends CI_Controller {
     
     public function index()
     {
-        $this->load->view('create_list_view');
+        $this->load->model('create_list_model');
+        $data['vendorList'] = $this->create_list_model->getVendors();
+        $this->load->view('create_list_view', $data);
     }
 
     public function addAction()
     {
         
         $this->load->model('create_list_model');
-        
         $myInstance = new Create_List_Model();
         $myInstance->addList($_POST);
         

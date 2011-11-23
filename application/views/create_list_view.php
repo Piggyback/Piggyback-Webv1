@@ -1,7 +1,3 @@
-<?php
-    $this->load->database();
-?>
-
 <html>
     <head>
         <link rel="stylesheet" type="text/css" href="../assets/css/login_css.css" media="screen" />
@@ -29,25 +25,24 @@
             </br>
 
             <table border='0' cellspacing='0' style='border-collapse: separate' width='400'>
-
+                
                 <?php
-                    $retrieveVendorList = "SELECT name FROM Vendor";
-                    $data = mysql_query($retrieveVendorList) or die(mysql_error());
                     $counter = 0;
-                    while($info = mysql_fetch_array($data))
-                    {
-                        if ($counter % 2 == 0)
+                    
+                    foreach ($vendorList as $row) {
+                        if($counter % 2 ==0)
                             $shade = "<tr bgcolor='#ffffff'>";
                         else
                             $shade = "<tr bgcolor='#f1f1f1'>";
-
-                        echo $shade;            
-                        $vendorName = $info['name'];
-                        echo "<td width = '10%'><input type=checkbox name=box[] value='$vendorName'> </td>
-                            <td width = '85%'>";
+                        
+                        echo $shade;
+                        $vendorName = $row->name;   // string                        
+                        $vendorId = intval($row->vid);  // int
+                        
+                        echo "<td width = '10%'><input type=checkbox name=box[] value=$vendorId> </td> <td width='85%'>";
                         echo $vendorName;
                         echo "</tr>";
-
+                        
                         $counter++;
                     }
                 ?>

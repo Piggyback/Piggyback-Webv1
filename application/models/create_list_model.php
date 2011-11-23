@@ -13,7 +13,22 @@ class Create_List_Model extends CI_Model {
         
         $this->load->database();
     }
-
+    
+    public function getVendors() {
+        $retrieveVendorList = "SELECT name, vid FROM Vendor";
+        $vendorNames = $this->db->query($retrieveVendorList)->result();
+        return $vendorNames;
+    }
+    
+    public function getListInfo() {
+        $uid = 2409887757;          // user list
+        $retrieveListInfo = "SELECT * FROM UserLists WHERE uid = $uid";
+        $listInfo = $this->db->query($retrieveListInfo)->result();
+        
+        return $listInfo;
+    }
+    
+    
     public function addList($fieldData) {        
         // grabs the data from create_list_view
         
@@ -32,62 +47,47 @@ class Create_List_Model extends CI_Model {
         mysql_query($addUserListQuery) or die(mysql_error());
      
         // create individual list that contains vendor information and comments
-        
-        foreach($_POST['box'] as $checkedItem)
+        foreach($fieldData['box'] as $checkedItem)
         {
-            // Get the corresponding VID from the Vendor name
-            $retrieveVendorInfo = "SELECT vid
-                                   FROM Vendor 
-                                   WHERE name = '$checkedItem'";
-            $resourceId = mysql_query($retrieveVendorInfo) or die("My sql error: " . mysql_error());
-            $vid = mysql_fetch_row($resourceId);
-            
-            echo $checkedItem . ": " . $vid[0];
-            echo "</br>";
+            $vid = intval($checkedItem);    // vid is now an int
             
             $comment = "test comment here";
-            $addListQuery = "INSERT INTO List(lid,vid,date,comment) VALUES ($lid, $vid[0], $date, \"$comment\")";
+            $addListQuery = "INSERT INTO List(lid, vid, date, comment)
+                             VALUES ($lid, $vid, $date, \"$comment\")";
             mysql_query($addListQuery) or die("My sql error: " . mysql_error());
         }
-        
-        
         echo "success";
     }
     
     
     public function getList($_POST)
     {
-        
-        
-        $item = $_POST['box'];
-
-        // get all vid from lid
-        $retrieveVID = "SELECT vid
-                        FROM List
-                        WHERE lid = '$item[0]'";
-        $resourceId = mysql_query($retrieveVID) or die("My sql error: " . mysql_error());
-
-        while($row = mysql_fetch_array($resourceId))
+        foreach($_POST['box'] as $checkedItem)
         {
-            $vidItem = $row['vid'];
-            echo $vidItem." ";
+            // get all vid from lid
+            $this->db->select('vid');
+            $this->db->from('List');
+            $this->db->where('lid', intval($checkedItem));
+            $query = $this->db->get();
             
-            $retrieveVName = "SELECT name
-                              FROM Vendor
-                              WHERE vid = '$vidItem'";
-            $resourceId = mysql_query($retrieveVName);
-            while($outputVNames = mysql_fetch_array($resourceId))
+            // print the list name between lists right here
+            
+            foreach ($query->result() as $row)
             {
-                
-                echo $outputVNames['name'];
-                echo "</br>";
-                
+                $vidItem = intval($row->vid);
+                $this->db->select('name');
+                $this->db->from('Vendor');
+                $this->db->where('vid', $vidItem);
+                $queryObj = $this->db->get();
+  
+                foreach($queryObj->result() as $outputVNames)
+                {   
+                    echo $outputVNames->name;
+                    echo "</br>";
+                }
             }
-            
         }
-        
     }
-
 }
 
 ?>

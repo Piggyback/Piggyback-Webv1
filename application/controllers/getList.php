@@ -13,17 +13,15 @@ class GetList extends CI_Controller {
     
     public function index()
     {
-        $this->load->view('get_list_view');
+        $this->load->model('create_list_model');
+        $data['listInfo'] = $this->create_list_model->getListInfo();
+        $this->load->view('get_list_view', $data);
     }
 
     public function getAction()
     {
-        
         $this->load->model('create_list_model');
-        
-        $myInstance = new Create_List_Model();
-        $myInstance->getList($_POST);
-        
+        $this->create_list_model->getList($_POST);
     }
 }
 
