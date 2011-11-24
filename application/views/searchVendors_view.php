@@ -4,7 +4,8 @@
     </head>
     <body>
         <form action="searchVendors/performSearch" method="post" target="searchResults">
-          <input type="text" name="searchText" size="50"/>
+          search for: <input type="text" name="searchText" size="50"/>
+          near: <input type="text" name ="searchLocation" size="35" />
           <input type="submit" name="submitSearch" value="Search for Businesses!" />
         </form>
         

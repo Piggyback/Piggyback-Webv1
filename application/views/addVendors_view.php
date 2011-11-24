@@ -4,7 +4,6 @@ $this->load->database();
 $json = file_get_contents("assets/text/FbPlacesResults.txt");
 $results = json_decode($json);
 
-
 $rootResults = $results->{'data'};
 
 foreach ($rootResults as $vendor) {
