@@ -42,7 +42,10 @@ class searchVendors_model extends CI_Model {
                 $vendorDetailRequest = file_get_contents(MAPS_HOST."/place/details/json?reference=".$reference."&sensor=false&key=".KEY);
                 $vendorArray[] = json_decode($vendorDetailRequest);
             }
-            return $vendorArray;
+            $retArray['srcLat'] = $lat;
+            $retArray['srcLng'] = $long;
+            $retArray['searchResults'] = $vendorArray;
+            return $retArray;
         }
     }
 }
