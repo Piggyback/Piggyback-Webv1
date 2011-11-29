@@ -6,11 +6,8 @@
         
         <!-- add a button or simple user interface to take fields and to generate list -->
 
-        <!-- add username here -->
-        <?php
-            echo $userName . "'s other fantastic lists!";
-        ?>
-            
+        New recommendations from your friends!
+        
         </br>
         </br>
         </br>
@@ -27,17 +24,20 @@
 
                     echo $shade;
                     $listName = $row->name;         // string
-                    $urlencodeListName = urlencode($listName);
                     $listId = intval($row->lid);    // int
-                    echo "<td><a href=../createlist/showList?listId=$listId&listName=$urlencodeListName>";
+                    echo "<td width = '10%'><input type=checkbox name=box[] value=$listId> </td> <td width='85%'>";
+                    //echo $listName . "  (" . mysql_num_rows($row) . ")";
                     echo $listName;
-                    echo "</a></br></tr>";
+                    echo "</br>";
+                    //var_dump($row);
+                    echo "</tr>";
 
                     $counter++;
                 }
             ?>
 
         </table>
-
+        
+        </form>
     </body>
 </html>

@@ -49,8 +49,8 @@ $active_group = 'default';
 $active_record = TRUE;
 
 $db['default']['hostname'] = 'localhost';
-$db['default']['username'] = 'kimhsiao';
-$db['default']['password'] = 'c@l1much0';
+$db['default']['username'] = 'andyjiang';
+$db['default']['password'] = 'r0nd0ud0u';
 $db['default']['database'] = 'piggyback';
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';

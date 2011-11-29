@@ -1,6 +1,7 @@
 <?php
 
 $this->load->database();
+//$res = mysql_connect("localhost","andyjiang","r0nd0ud0u");
 $json = file_get_contents("assets/text/FbPlacesResults.txt");
 $results = json_decode($json);
 
@@ -56,7 +57,10 @@ foreach ($rootResults as $vendor) {
     $existingRow = "SELECT count(vid) 
                     FROM Vendor 
                     WHERE vid = $vid";
+    
     $existingRowResult = mysql_query($existingRow);
+    $num = mysql_num_rows($existingRowResult);
+    echo $num."<BR>";
     if (mysql_num_rows($existingRowResult) == 0) {
         $addVendorQuery = "INSERT INTO Vendor 
                            VALUES ($vid,\"$name\",\"$category\",\"$street\",\"$city\",\"$state\",\"$country\",\"$zip\",$lat,$long)";

@@ -23,11 +23,13 @@
                             FBID: response.id
                     }, function (data) {
                         var friends = JSON.parse(data);
-//                        $('div.friends').html(friends[0]);
-                        $html = "";
-                        jQuery.each(friends, function(index, value) {
-                            )
-                        })
+//                        $('div.friends').html(friends[1]);
+//                        $html = "";
+//                        jQuery.each(friends, function(index, value) {
+//                            $html = $html + index + ': ' + value + '<br/';
+//                        });
+//                        $('div.friends').html($html);
+                        $('div.friends').html(data);
                     });
                 });
 
