@@ -15,30 +15,30 @@
                 });
                 
                 
-                FB.api('/me', function(response) {
-                    // attempt to add user upon login -- duplicated will be ignored
-                    $('div.welcome').html('Welcome ' + response.name + '!');
-                    
-                    jQuery.post("http://192.168.11.12/Piggyback/index.php/home/getFriends", {
-                            FBID: response.id
-                    }, function (data) {
-                        var friends = JSON.parse(data);
-//                        $('div.friends').html(friends[1]);
-//                        $html = "";
-//                        jQuery.each(friends, function(index, value) {
-//                            $html = $html + index + ': ' + value + '<br/';
-//                        });
-//                        $('div.friends').html($html);
-                        $('div.friends').html(data);
-                    });
-                });
+//                FB.api('/me', function(response) {
+//                    // attempt to add user upon login -- duplicated will be ignored
+//                    $('div.welcome').html('Welcome ' + response.name + '! (' + response.id + ')');
+//                    
+//                    jQuery.post("http://192.168.11.28/home/getFriends", {
+//                            FBID: response.id
+//                    }, function (data) {
+////                        var friends = JSON.parse(data);
+////                        $('div.friends').html(friends[1]);
+////                        $html = "";
+////                        jQuery.each(friends, function(index, value) {
+////                            $html = $html + index + ': ' + value + '<br/';
+////                        });
+////                        $('div.friends').html($html);
+//                        $('div.friends').html(data);
+//                    });
+//                });
 
                 
                 // If user is already logged in, redirect to home page
                 FB.getLoginStatus(function(response) {
                     if (response.status != "connected") {
                         // logged in and connected user
-                        window.location = "http://192.168.11.12/Piggyback/index.php/login";
+                        window.location = "http://192.168.11.28/login";
 //                        alert("pass");
                     } else {
                         // no user session available -- continue with login
@@ -51,7 +51,7 @@
                     FB.logout(function(response) {
                         // user is now logged out of service AND facebook
                         // return to login page
-                        window.location = "http://192.168.11.12/Piggyback/index.php/login";
+                        window.location = "http://192.168.11.28/login";
                     });
                 });
                 

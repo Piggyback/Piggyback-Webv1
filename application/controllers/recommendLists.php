@@ -10,9 +10,9 @@ class RecommendLists extends CI_Controller {
   
     public function index()
     {
-        $this->load->model('recommendList_model');
-        $data['userList'] = $this->recommendList_model->getListInfo();
-        $data['friendList'] = $this->recommendList_model->getFriends();
+        $this->load->model('recommend_list_model');
+        $data['userList'] = $this->recommend_list_model->getListInfo();
+        $data['friendList'] = $this->recommend_list_model->getFriends();
         $this->load->view('recommendLists_view', $data);
     }
 
@@ -20,17 +20,16 @@ class RecommendLists extends CI_Controller {
     {
         $fieldData = $_POST;
         
-        $this->load->model('recommendList_model');
-        $this->recommendList_model->addRecommendLists($fieldData);
+        $this->load->model('recommend_list_model');
+        $this->recommend_list_model->addRecommendLists($fieldData);
         
         // call new view for success        
     }
     
     public function getRecommendLists()
     {
-        //$fieldData = $_POST;
-        $this->load->model('recommendList_model');
-        $data['recommendLists'] = $this->recommendList_model->getRecommendLists();
+        $this->load->model('recommend_list_model');
+        $data['recommendLists'] = $this->recommend_list_model->getRecommendLists();
         $this->load->view('displayRecommendLists_view', $data);
     }
 }

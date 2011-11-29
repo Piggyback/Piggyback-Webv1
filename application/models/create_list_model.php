@@ -15,7 +15,7 @@ class Create_List_Model extends CI_Model {
     }
     
     public function getAllVendors() {
-        $retrieveVendorList = "SELECT name, vid FROM Vendor";
+        $retrieveVendorList = "SELECT name, id FROM Vendor";
         $vendorNames = $this->db->query($retrieveVendorList)->result();
         return $vendorNames;
     }
@@ -27,18 +27,13 @@ class Create_List_Model extends CI_Model {
         
         return $listInfo;
     }
-    
-    
+        
     public function addList($fieldData) {        
         // grabs the data from create_list_view
-        
-        // Create a MySQL table in the selected database
-
         $uid = $fieldData['uid'];
         $listName = $fieldData['listName'];
         $date = time();
-        
-        
+                
         // create User List table
         $addUserListQuery = "INSERT INTO UserLists(uid,name,date) VALUES ($uid,\"$listName\",$date)";
         
@@ -51,11 +46,11 @@ class Create_List_Model extends CI_Model {
         // create individual list that contains vendor information and comments
         foreach($fieldData['box'] as $checkedItem)
         {
-            $vid = intval($checkedItem);    // vid is now an int
+            $vid = $checkedItem;    // vid is now an string, varchar
             
             $comment = "test comment here";
             $addListQuery = "INSERT INTO List(lid, vid, date, comment)
-                             VALUES ($lid, $vid, $date, \"$comment\")";
+                             VALUES ($lid, \"$vid\", $date, \"$comment\")";
             mysql_query($addListQuery) or die("My sql error: " . mysql_error());
         }
     }
@@ -66,7 +61,7 @@ class Create_List_Model extends CI_Model {
         
         $this->db->select('*');
         $this->db->from('Vendor');
-        $this->db->join('List', 'List.vid = Vendor.vid', 'left');
+        $this->db->join('List', 'List.vid = Vendor.id', 'left');
         $this->db->where('lid', intval($listId));
        
         $vendorNameList = $this->db->get()->result();
@@ -75,50 +70,6 @@ class Create_List_Model extends CI_Model {
     }
     
     
-//    public function getList($dataBox)
-//    {
-//        foreach($dataBox['box'] as $checkedItem)
-//        {
-//            // use join to return big table with vendor names accessible, given LID
-//            $this->db->select('vid');
-//            $this->db->from('List');
-//            $this->db->where('lid', intval($checkedItem));
-//            $this->db->join('UserLists', 'UserLists.vid = List.vid');
-//            
-//            
-//            $vidResult = $this->db->get()->result();
-//            
-//            
-//            $this->db->select('name');
-//            $this->db->from('Vendor');
-//            $this->db->join('List', 'List.vid = Vendor.vid');
-//            
-//            
-//            
-//            // get all vid from lid (checkedItem)
-//            $this->db->select('vid');
-//            $this->db->from('List');
-//            $this->db->where('lid', intval($checkedItem));
-//            $query = $this->db->get();
-//            
-//            // print the list name between lists right here
-//            
-//            foreach ($query->result() as $row)
-//            {
-//                $vidItem = intval($row->vid);
-//                $this->db->select('name');
-//                $this->db->from('Vendor');
-//                $this->db->where('vid', $vidItem);
-//                $queryObj = $this->db->get();
-//  
-//                foreach($queryObj->result() as $outputVNames)
-//                {   
-//                    echo $outputVNames->name;
-//                    echo "</br>";
-//                }
-//            }
-//        }
-//    }
 }
 
 ?>

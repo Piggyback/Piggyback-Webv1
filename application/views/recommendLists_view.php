@@ -59,10 +59,10 @@
                             $shade = "<tr bgcolor='#f1f1f1'>";
                         
                         echo $shade;              
-                        $userId2 = intval($row->uid2);  // int
+                        $fbid2 = intval($row->fbid2);  // int
                         
-                        echo "<td width = '10%'><input type=checkbox name=uid2[] value=$userId2> </td> <td width='85%'>";
-                        echo $userId2;
+                        echo "<td width = '10%'><input type=checkbox name=uid2[] value=$fbid2> </td> <td width='85%'>";
+                        echo $fbid2;
                         echo "</tr>";
                         
                         $counter++;

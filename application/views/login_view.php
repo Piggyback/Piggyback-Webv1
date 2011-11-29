@@ -19,26 +19,32 @@
                 FB.Event.subscribe('auth.login', function() {
                     FB.api('/me', function(response_me) {
                         //TODO: CHECK IF USER ALREADY EXISTS BEFORE SCANNING FRIENDS / ADD USER AGAIN
-                        // attempt to add user upon login -- duplicated will be ignored
-                        jQuery.post("http://192.168.11.12/Piggyback/index.php/login/addUser", {
-                            FBID: response_me.id,
-                            email: response_me.email,
-                            firstName: response_me.first_name,
-                            lastName: response_me.last_name
-                        }, function () {
-                            // scan 'Users' table for any Facebook friends using the service
-                            FB.api('/me/friends', function(response_friends) {
-                                if(response_friends.data) {
-                                    var jqxhr = jQuery.post('http://192.168.11.12/Piggyback/index.php/login/searchForFriends', {
-                                        data: response_friends.data,
-                                        my_id: response_me.id
+                        jQuery.post("http://192.168.11.28/login/checkIfUserExists", {
+                            FBID: response_me.id
+                        }, function(data) {
+                            if (data == 0) {
+                                jQuery.post("http://192.168.11.28/login/addUser", {
+                                    FBID: response_me.id,
+                                    email: response_me.email,
+                                    firstName: response_me.first_name,
+                                    lastName: response_me.last_name
+                                }, function () {
+                                    // scan 'Users' table for any Facebook friends using the service
+                                    FB.api('/me/friends', function(response_friends) {
+                                        if(response_friends.data) {
+                                            var jqxhr = jQuery.post('http://192.168.11.28/login/searchForFriends', {
+                                                data: response_friends.data,
+                                                my_id: response_me.id
+                                            });
+                                            // redirect page once user is created (or ignored) AND friends are scanned
+                                            jqxhr.complete(function() {window.location = "http://192.168.11.28/home"; });
+                                        }
                                     });
-                                    // redirect page once user is created (or ignored) AND friends are scanned
-                                    jqxhr.complete(function() {window.location = "http://192.168.11.12/Piggyback/index.php/home"; });
-                                }
-                            });
+                                });
+                            } else {
+                                window.location = "http://192.168.11.28/home";
+                            }
                         });
-//                        alert(response.name);
 
                     });
                 });
@@ -47,7 +53,7 @@
                 FB.getLoginStatus(function(response) {
                     if (response && response.status == "connected") {
                         // logged in and connected user
-                        window.location = "http://192.168.11.12/Piggyback/index.php/home";
+                        window.location = "http://192.168.11.28/home";
 //                        alert("pass");
                     } else {
                         // no user session available -- continue with login

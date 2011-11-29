@@ -8,7 +8,7 @@
 
         <!-- add username here -->
         <?php
-            echo $userName . "'s other fantastic lists!";
+            echo $uid . "'s other fantastic lists!";
         ?>
             
         </br>
@@ -29,7 +29,7 @@
                     $listName = $row->name;         // string
                     $urlencodeListName = urlencode($listName);
                     $listId = intval($row->lid);    // int
-                    echo "<td><a href=../createlist/showList?listId=$listId&listName=$urlencodeListName>";
+                    echo "<td><a href=../createList/showList?listId=$listId&listName=$urlencodeListName>";
                     echo $listName;
                     echo "</a></br></tr>";
 

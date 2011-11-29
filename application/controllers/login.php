@@ -7,6 +7,12 @@ class Login extends CI_Controller {
         $this->load->view('login_view');
     }
     
+    public function checkIfUserExists()
+    {
+        $this->load->model('login_model');
+        $this->login_model->check_if_user_exists();
+    }
+    
     public function addUser() 
     {
         echo 1;

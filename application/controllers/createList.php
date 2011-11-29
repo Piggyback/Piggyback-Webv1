@@ -25,6 +25,8 @@ class CreateList extends CI_Controller {
                 
         // with the uid received, load get_list_view
         $data['listInfo'] = $this->create_list_model->getListInfo($fieldData);
+        $data['uid'] = $fieldData['uid'];
+        
         $this->load->view('get_list_view', $data);
         
     }    
@@ -44,6 +46,7 @@ class CreateList extends CI_Controller {
         // get userName
         $data['userName'] = $_GET['userName'];
         $fieldData['uid'] = $_GET['userId'];
+        $data['uid'] = $fieldData['uid'];
         
         // retrieve lists that belong to that user
         $this->load->model('create_list_model');
@@ -71,6 +74,13 @@ class CreateList extends CI_Controller {
         // send new list to view, who will display it
         $this->load->view('showList_view', $data);
     }
+    
+    public function editList()
+    {
+        
+    }
+    
+    
 }
 
 ?>

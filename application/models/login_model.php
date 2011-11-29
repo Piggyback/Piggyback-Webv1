@@ -7,6 +7,18 @@ class Login_model extends CI_Model {
         parent::__construct();
     }
     
+    function check_if_user_exists()
+    {
+        $this->load->database();
+        
+        $this->FBID = $this->input->post('FBID');
+        
+        $this->db->from('Users');
+        $this->db->where('FBID', $this->FBID);
+        echo $this->db->count_all_results();
+        
+    }
+    
     function add_new_user()
     {
         $this->load->database();
@@ -19,7 +31,7 @@ class Login_model extends CI_Model {
 //        $this->db->insert('Users', $this);
         // IMPORTANT: Add escaped quotation marks for string fields.
         // Also, decided to overwrite the default 'insert' query to do potential duplicate addition attempts (wanted to pass them off as warnings instead of errors)
-        $this->db->query('INSERT IGNORE INTO Users (FBID, email, firstName, lastName) VALUES (' . $this->FBID . ', \'' . $this->email. '\', \'' . $this->firstName . '\', \'' . $this->lastName . '\')');
+        $this->db->query('INSERT IGNORE INTO Users (FBID, email, first_name, last_name) VALUES (' . $this->FBID . ', \'' . $this->email. '\', \'' . $this->firstName . '\', \'' . $this->lastName . '\')');
     }
     
     function search_for_friends()

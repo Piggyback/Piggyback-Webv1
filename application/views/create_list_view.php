@@ -34,7 +34,7 @@
                         
                         echo $shade;
                         $vendorName = $row->name;   // string                        
-                        $vendorId = intval($row->vid);  // int
+                        $vendorId = $row->id;  // string, varchar
                         
                         echo "<td width = '10%'><input type=checkbox name=box[] value=$vendorId> </td> <td width='85%'>";
                         echo $vendorName;

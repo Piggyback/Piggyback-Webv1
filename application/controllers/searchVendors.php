@@ -15,9 +15,9 @@ class searchVendors extends CI_Controller {
     
     public function performSearch() 
     {
-        $this->load->model('searchVendors_model');
+        $this->load->model('searchvendors_model');
         //$data['searchResults'] = $this->searchVendors_model->searchVendors();
-        $data = $this->searchVendors_model->searchVendors();
+        $data = $this->searchvendors_model->searchVendors();
         $this->load->view('searchResults_view',$data);
     }
 }
