@@ -1,0 +1,70 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="../assets/css/login_css.css" media="screen" />
+    </head>
+    <body>
+        
+        <!-- add a button or simple user interface to take fields and to generate list -->
+
+        <!-- add username here -->
+        <?php
+            echo $userName . "'s other fantastic lists!";
+        ?>
+            
+        </br>
+        </br>
+<<<<<<< HEAD
+=======
+        Please see below a list of your lists
+>>>>>>> 0c4e3ecb6cf186e0179e62e0a58f5b8cf5577775
+        </br>
+
+<<<<<<< HEAD
+        <table border='0' cellspacing='0' style='border-collapse: separate' width='400'>
+
+            <?php
+                $counter = 0;
+                foreach ($listInfo as $row) {
+                    if($counter % 2 ==0)
+                        $shade = "<tr bgcolor='#ffffff'>";
+                    else
+                        $shade = "<tr bgcolor='#f1f1f1'>";
+
+                    echo $shade;
+                    $listName = $row->name;         // string
+                    $urlencodeListName = urlencode($listName);
+                    $listId = intval($row->lid);    // int
+                    echo "<td><a href=../createlist/showList?listId=$listId&listName=$urlencodeListName>";
+                    echo $listName;
+                    echo "</a></br></tr>";
+
+                    $counter++;
+                }
+            ?>
+=======
+            <table border='0' cellspacing='0' style='border-collapse: separate' width='400'>
+                
+                <?php
+                    $counter = 0;
+                    foreach ($listInfo as $row) {
+                        if($counter % 2 ==0)
+                            $shade = "<tr bgcolor='#ffffff'>";
+                        else
+                            $shade = "<tr bgcolor='#f1f1f1'>";
+                        
+                        echo $shade;
+                        $listName = $row->name;         // string
+                        $listId = intval($row->lid);    // int
+                        echo "<td width = '10%'><input type=checkbox name=box[] value=$listId> </td> <td width='85%'>";
+                        echo $listName;
+                        echo "</tr>";
+                        
+                        $counter++;
+                    }
+                ?>
+>>>>>>> 0c4e3ecb6cf186e0179e62e0a58f5b8cf5577775
+
+        </table>
+
+    </body>
+</html>

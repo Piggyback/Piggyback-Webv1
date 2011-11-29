@@ -58,9 +58,13 @@ foreach ($rootResults as $vendor) {
                     WHERE vid = $vid";
     
     $existingRowResult = mysql_query($existingRow);
+<<<<<<< HEAD
     $num = mysql_num_rows($existingRowResult);
     echo $num."<BR>";
     if (mysql_num_rows($existingRowResult) == 0) {
+=======
+    if ($existingRowResult == 0) {
+>>>>>>> 0c4e3ecb6cf186e0179e62e0a58f5b8cf5577775
         $addVendorQuery = "INSERT INTO Vendor 
                            VALUES ($vid,\"$name\",\"$category\",\"$street\",\"$city\",\"$state\",\"$country\",\"$zip\",$lat,$long)";
         echo $addVendorQuery;        

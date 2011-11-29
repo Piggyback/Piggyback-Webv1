@@ -1,0 +1,11 @@
+include.path=${php.global.include.path}
+<<<<<<< HEAD
+php.version=PHP_5
+=======
+php.version=PHP_53
+>>>>>>> 6a76f5eaa4a0a2c2edb65c59c50c3fe803a70ac4
+source.encoding=UTF-8
+src.dir=.
+tags.asp=false
+tags.short=true
+web.root=.
