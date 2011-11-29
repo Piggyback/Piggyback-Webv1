@@ -1,0 +1,22 @@
+/* 
+    Document   : login_css
+    Created on : Nov 19, 2011, 5:46:33 PM
+    Author     : gaobi
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+root { 
+    display: block;
+}
+
+div.logo {
+    background:url(../images/piggyback.png) no-repeat center;
+    height:50%;
+    width:100%;
+}

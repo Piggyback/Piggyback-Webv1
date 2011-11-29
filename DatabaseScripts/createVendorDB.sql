@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS Vendors (
+	vid INT NOT NULL,
+	name VARCHAR(50) NOT NULL,
+	address VARCHAR(80) NOT NULL,
+	PRIMARY KEY (vid));
+
+LOAD DATA LOCAL INFILE '/PiggyBack-Server/Piggyback/DatabaseScripts/DbLoadData/vendorData.txt' 
+INTO TABLE Vendors
+FIELDS TERMINATED BY ','
+ESCAPED BY '"'
+OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+

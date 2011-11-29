@@ -1,0 +1,12 @@
+copy.src.files=false
+<<<<<<< HEAD
+copy.src.target=
+index.file=
+run.as=LOCAL
+url=http://localhost/Piggyback-Server/
+=======
+copy.src.target=/Applications/MAMP/htdocs/PhpProject1
+index.file=index.php
+run.as=LOCAL
+url=http://localhost/Piggyback/
+>>>>>>> 6a76f5eaa4a0a2c2edb65c59c50c3fe803a70ac4

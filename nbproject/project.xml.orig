@@ -3,7 +3,11 @@
     <type>org.netbeans.modules.php.project</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/php-project/1">
+<<<<<<< HEAD
+            <name>Piggyback-Server</name>
+=======
             <name>Piggyback</name>
+>>>>>>> 6a76f5eaa4a0a2c2edb65c59c50c3fe803a70ac4
         </data>
     </configuration>
 </project>

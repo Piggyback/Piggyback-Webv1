@@ -1,0 +1,3 @@
+1,"Mucho Calimucho","131 Saratoga Ave, Santa Clara, CA 95051"
+2,"Standard Cafe","123 Main Street, San Jose, CA 94302"
+3,"Candy Cane Crave","333 Candy Cane Lane, Candy World, CA 94020"
