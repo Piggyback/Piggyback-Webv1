@@ -10,7 +10,7 @@
     $(function() {
             $( "#accordion" ).accordion({
                     collapsible: true,
-                    autoHeight: false,
+                    autoHeight: true,
                     navigation: true
             });
     });
@@ -22,8 +22,33 @@
 
         <div id="accordion">
 
-            <?php foreach ($inboxItems as $row): ?>
-                <h3><a href="#">Section 1</a></h3>
+            <?php
+                foreach ($inboxItems as $row)
+                {
+                    // determine if $row is a list or single vendor
+                    if ( $row->lid == 0 )
+                    {   
+                        // single vendor
+                        echo "<h3><a href=\"#\">" . $row->name . " ";
+                        echo "<h6>" . $row->firstName . " " . $row->lastName . " says " . "\"" . $row->ReferralsComment . "\"";
+                        echo "</a></h6></h3>";
+                        echo "<div><h6>" . $row->addrNum . " " . $row->addrStreet . "</br>"; // add all list detail here
+                        echo $row->addrCity . " " . $row->addrState . " " . $row->addrZip . "</br>";
+                        echo $row->phone . "</br>";
+                        echo $row->website;
+                        echo "</h6></div>";
+                        // TODO: add buttons (like, comment), dragability, 
+                    } else {
+                        // list 
+                        echo "<h3><a href=\"#\">" . $row->UserListsName . " list</br>";
+                        echo "<h6>" . $row->firstName . " " . $row->lastName . " says " . "\"" . $row->ReferralsComment . "\"";
+                        echo "</p></a></h6></h3>";
+                        echo "<div><p>" . $row->firstName . " " . $row->lastName; // add all list detail here
+                        echo "</div>";
+                    }
+                }
+            ?>
+<!--                <h3><a href="#">Section 1</a></h3>
                 <div>
                         <p>
                 Vendor detail
@@ -47,7 +72,7 @@
                         <p>Cras dictum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lacinia mauris vel est. </p><p>Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. </p>
                 </div>
 
-                ?>
+                ?>-->
 
         </div>
 

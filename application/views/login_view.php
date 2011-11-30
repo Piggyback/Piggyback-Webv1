@@ -1,7 +1,12 @@
 <!-- 
-    @mikegao
-
-    created: 11/29/11
+    Document   : login_view.php
+    Created on : Nov 30, 2011, 6:49:47 AM
+    Author     : gaobi
+    Description:
+        login view
+-->
+<!--
+   TO-DOs:
 -->
 <html>
     <head>

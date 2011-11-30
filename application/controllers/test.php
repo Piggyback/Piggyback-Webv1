@@ -22,7 +22,7 @@ class test extends CI_Controller {
     public function inboxview() {
         $this->load->model('manage_referral_model');
         $data['inboxItems'] = $this->manage_referral_model->get_inbox_items();      // eventually would either need to pass uid from session
-        $this->load->view('received_referrals_view', $data);
+        $this->load->view('inbox_view', $data);
     }
 }
 

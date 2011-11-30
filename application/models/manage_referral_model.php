@@ -112,15 +112,21 @@ class Manage_Referral_Model extends CI_Model {
     public function get_inbox_items()
     {
         // should get uidRecipient from session
-        $uidRecipient = 1;
-        
-        $this->db->select('*');
+        $uidRecipient = 1;  // Seung Hyo
+
+        $this->db->select('*, UserLists.name AS UserListsName, Vendors.name AS VendorsName, UserLists.comment AS UserListsComment, Referrals.comment AS ReferralsComment');
         $this->db->from('Referrals');
         $this->db->join('Users', 'Users.uid = Referrals.uid1', 'left');
-        $this->db->join('UserLists', 'UserLists.lid = Referrals.lid', 'left');
         $this->db->join('ReferralDetails', 'ReferralDetails.rid = Referrals.rid', 'left');
+        $this->db->join('UserLists', 'UserLists.lid = Referrals.lid', 'left');
+        $this->db->join('Vendors', 'Vendors.id = ReferralDetails.vid', 'left');
+        //$this->db->join('Lists', 'Lists.lid = Referrals.lid', 'inner');
+        
         $this->db->where('uid2', $uidRecipient);
+                
         $result = $this->db->get()->result();
+
+        var_dump($result);
 
         return $result;
     }

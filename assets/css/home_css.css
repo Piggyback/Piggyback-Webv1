@@ -1,0 +1,36 @@
+/* 
+    Document   : home_css
+    Created on : Nov 30, 2011, 6:49:47 AM
+    Author     : gaobi
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+root { 
+    display: block;
+}
+
+body{ 
+    font: 62.5% "Trebuchet MS", sans-serif; margin: 50px;
+}
+ul#icons {
+    margin: 0; 
+    padding: 0;
+}
+ul#icons li {
+    margin: 2px; 
+    position: relative; 
+    padding: 4px 0; 
+    cursor: pointer; 
+    float: left;  
+    list-style: none;
+}
+ul#icons span.ui-icon {
+    float: left; 
+    margin: 0 4px;
+}

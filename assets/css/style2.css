@@ -11,6 +11,17 @@ tfoot, thead, tr, th, td {
     vertical-align:baseline;  
 }  
 
+h6 {
+    border:0pt none;  
+    font-family:inherit;  
+    font-size:60%;  
+    font-style:inherit;  
+    font-weight:inherit;  
+    margin:0pt;  
+    padding:0pt;  
+    vertical-align:baseline;
+}
+
 body{  
     background:#fff none repeat scroll 0%;  
     line-height:1;  

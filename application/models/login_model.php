@@ -1,11 +1,15 @@
 <?php
-/**
- * @mikegao
- * 
- * model for all login / user creation; set user session here
- * 
- * created: 11/29/11
- */
+/* 
+    Document   : login_model.php
+    Created on : Nov 30, 2011, 6:49:47 AM
+    Author     : gaobi
+    Description:
+        Login model.
+*/
+
+/* 
+   TO-DOs:
+*/
 
 class Login_model extends CI_Model {
     

@@ -1,59 +1,59 @@
+<!-- 
+    Document   : home_view.php
+    Created on : Nov 30, 2011, 6:49:47 AM
+    Author     : gaobi
+    Description:
+        home view
+-->
+<!--
+   TO-DOs:
+        TODO: Resize logo and link to 'home' url with anchor; is logo a sub-div of top-nav-bar or left-list-pane or none?
+-->
 <html>
     <head>
-        <title>Piggyback Home</title>
+        <title>Piggyback</title>
+        <link rel="stylesheet" media="screen" href="../../assets/jquery-ui-1.8.16.custom/css/custom-theme/jquery-ui-1.8.16.custom.css" type="text/css" />
+        <link rel="stylesheet" type="text/css" href="../assets/css/home_css.css" media="screen" />
         <script type="text/javascript" src="../assets/js/jquery.min.js" ></script>
+        <script type="text/javascript" src="../assets/jquery-ui-1.8.16.custom/js/jquery-ui-1.8.16.custom.min.js"></script>
+        <script>
+	$(function() {
+            $( "#tabs" ).tabs({
+                ajaxOptions: {
+                    error: function( xhr, status, index, anchor ) {
+                        $( anchor.hash ).html(
+                            "Couldn't load this tab. We'll try to fix this as soon as possible.");
+                    }
+                }
+            });
+            
+            //hover states on the static widgets
+            $('ul#icons li').hover(
+                function() { $(this).addClass('ui-state-hover'); }, 
+                function() { $(this).removeClass('ui-state-hover'); }
+            );
+	});
+	</script>
     </head>
     <body>
-        <div id="fb-root"></div>
-        <script>
-            window.fbAsyncInit = function() {
-                FB.init({
-                    appId      : '251920381531962',
-                    status     : true, 
-                    cookie     : true,
-                    xfbml      : true
-                });
-                
-                // If user is not logged in, redirect user to login page
-                FB.getLoginStatus(function(response) {
-                    if (response.status != "connected") {
-                        // logged in and connected user
-                        window.location = "http://192.168.11.28/login";
-                    } else {
-                        
-                    }
-                });
-                
-                $('div.logout').click(function () {
-                    //logout when div is clicked
-                    FB.logout(function(response) {
-                        // user is now logged out of service AND facebook
-                        // return to login page
-                        window.location = "http://192.168.11.28/login";
-                    });
-                });
-                
-            };
-            (function(d){
-                var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
-                js = d.createElement('script'); js.id = id; js.async = true;
-                js.src = "//connect.facebook.net/en_US/all.js";
-                d.getElementsByTagName('head')[0].appendChild(js);
-            }(document));
-            
-        </script>
-        <div id="container">
-            <div class="welcome" style="float:left;"><?php echo "Welcome " . $firstName . " " . $lastName . "!" ?></div>
-            <div class="logout" style="cursor:pointer; float:right;">Logout</div>
-            <br/>
-            <div class="fb-pic"><?php echo "<img src='https://graph.facebook.com/" . $fbid . "/picture'>"; ?> </div>
-            <br/>Your friends: <br/>
-            <div class="friends"><?php //$friend[0] = FBID, $friend[1] = fullname
-                                    foreach ($friends as $friend) 
-                                        {
-                                            echo "<img src='https://graph.facebook.com/" . $friend['fbid'] . "/picture'>";
-                                            echo $friend['firstName'] . " " . $friend['lastName'] . "<br>"; }
-                                 ?></div>
+        <div class="top-nav-bar">
+            <div class="search">
+                <form method="get" id="searchform" action="">
+                    <input type="text" class="box" />
+                    <button class="btn" title="Submit Search">Search</button>
+                </form>
+            </div>
+            <div class="ui-tabs ui-widget ui-widget-content ui-corner-all" id="tabs">
+                <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+                    <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tabs-1">Inbox</a></li>
+                    <li class="ui-state-default ui-corner-top"><a href="ajax/content2.html">Friend Activity</a></li>
+                    <li class="ui-state-default ui-corner-top"><a href="ajax/content3.html">Referral Tracking</a></li>
+                </ul>
+                <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="tabs-1"> <p> SPRINT TIME </p> </div>
+            </div>
         </div>
+        <div class="left-list-pane"></div>
+        <div class="logo"></div>
+        <div class="content"></div>
     </body>
 </html>

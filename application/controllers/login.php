@@ -1,11 +1,15 @@
 <?php
-/**
- * @mikegao
- * 
- * controller for all login / user creation
- * 
- * created: 11/29/11
- */
+/* 
+    Document   : login.php
+    Created on : Nov 30, 2011, 6:49:47 AM
+    Author     : gaobi
+    Description:
+        Login controller.
+*/
+
+/* 
+   TO-DOs:
+*/
 
 class Login extends CI_Controller {
 
