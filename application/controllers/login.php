@@ -1,4 +1,11 @@
 <?php
+/**
+ * @mikegao
+ * 
+ * controller for all login / user creation
+ * 
+ * created: 11/29/11
+ */
 
 class Login extends CI_Controller {
 
@@ -7,26 +14,28 @@ class Login extends CI_Controller {
         $this->load->view('login_view');
     }
     
-    public function checkIfUserExists()
+    public function check_if_user_exists()
     {
         $this->load->model('login_model');
         $this->login_model->check_if_user_exists();
     }
     
-    public function addUser() 
+    public function add_user() 
     {
-        echo 1;
-
         $this->load->model('login_model');
-        $this->login_model->add_new_user();
+        $this->login_model->add_user();
     }
     
-    public function searchForFriends()
+    public function search_for_friends()
     {
-        echo 2;
         
         $this->load->model('login_model');
         $this->login_model->search_for_friends();
+    }
+    
+    public function init_session()
+    {
+        
     }
 }
 

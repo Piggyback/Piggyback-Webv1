@@ -14,35 +14,13 @@
                     xfbml      : true
                 });
                 
-                
-//                FB.api('/me', function(response) {
-//                    // attempt to add user upon login -- duplicated will be ignored
-//                    $('div.welcome').html('Welcome ' + response.name + '! (' + response.id + ')');
-//                    
-//                    jQuery.post("http://192.168.11.28/home/getFriends", {
-//                            FBID: response.id
-//                    }, function (data) {
-////                        var friends = JSON.parse(data);
-////                        $('div.friends').html(friends[1]);
-////                        $html = "";
-////                        jQuery.each(friends, function(index, value) {
-////                            $html = $html + index + ': ' + value + '<br/';
-////                        });
-////                        $('div.friends').html($html);
-//                        $('div.friends').html(data);
-//                    });
-//                });
-
-                
-                // If user is already logged in, redirect to home page
+                // If user is not logged in, redirect user to login page
                 FB.getLoginStatus(function(response) {
                     if (response.status != "connected") {
                         // logged in and connected user
                         window.location = "http://192.168.11.28/login";
-//                        alert("pass");
                     } else {
-                        // no user session available -- continue with login
-//                        alert("fail");
+                        
                     }
                 });
                 
@@ -65,10 +43,17 @@
             
         </script>
         <div id="container">
-            <div class="welcome" style="float:left;"></div>
+            <div class="welcome" style="float:left;"><?php echo "Welcome " . $firstName . " " . $lastName . "!" ?></div>
             <div class="logout" style="cursor:pointer; float:right;">Logout</div>
-            <br/><br/>Your friends: <br/>
-            <div class="friends"></div>
+            <br/>
+            <div class="fb-pic"><?php echo "<img src='https://graph.facebook.com/" . $fbid . "/picture'>"; ?> </div>
+            <br/>Your friends: <br/>
+            <div class="friends"><?php //$friend[0] = FBID, $friend[1] = fullname
+                                    foreach ($friends as $friend) 
+                                        {
+                                            echo "<img src='https://graph.facebook.com/" . $friend['fbid'] . "/picture'>";
+                                            echo $friend['firstName'] . " " . $friend['lastName'] . "<br>"; }
+                                 ?></div>
         </div>
     </body>
 </html>

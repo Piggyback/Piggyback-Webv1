@@ -12,7 +12,7 @@
         </br>
         </br>
         
-        <form action="createList/addAction" method="post" id="listField">
+        <form action="createlist/add_action" method="post" id="listField">
 
             UID <input type="text" name=uid id="uid"></input>
             </br>

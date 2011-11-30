@@ -7,6 +7,8 @@ class test_model extends CI_Model {
         parent::__construct();
     }
     
+    
+    // cute.
     function testMethod()
     {
         $hello = "hahaha";

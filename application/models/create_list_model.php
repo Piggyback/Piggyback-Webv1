@@ -1,8 +1,10 @@
 <?php
 
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * @andyjiang
+ * 
+ * model to manage all list interaction with MySQL
+ * 
  */
 
 class Create_List_Model extends CI_Model {
@@ -14,13 +16,13 @@ class Create_List_Model extends CI_Model {
         $this->load->database();
     }
     
-    public function getAllVendors() {
-        $retrieveVendorList = "SELECT name, id FROM Vendor";
+    public function get_all_vendors() {
+        $retrieveVendorList = "SELECT name, id FROM Vendors";
         $vendorNames = $this->db->query($retrieveVendorList)->result();
         return $vendorNames;
     }
     
-    public function getListInfo($fieldData) {
+    public function get_list_info($fieldData) {
         $uid = $fieldData['uid'];          // user list
         $retrieveListInfo = "SELECT * FROM UserLists WHERE uid = $uid";
         $listInfo = $this->db->query($retrieveListInfo)->result();
@@ -28,7 +30,7 @@ class Create_List_Model extends CI_Model {
         return $listInfo;
     }
         
-    public function addList($fieldData) {        
+    public function add_list($fieldData) {        
         // grabs the data from create_list_view
         $uid = $fieldData['uid'];
         $listName = $fieldData['listName'];
@@ -49,19 +51,19 @@ class Create_List_Model extends CI_Model {
             $vid = $checkedItem;    // vid is now an string, varchar
             
             $comment = "test comment here";
-            $addListQuery = "INSERT INTO List(lid, vid, date, comment)
+            $addListQuery = "INSERT INTO Lists(lid, vid, date, comment)
                              VALUES ($lid, \"$vid\", $date, \"$comment\")";
             mysql_query($addListQuery) or die("My sql error: " . mysql_error());
         }
     }
     
-    public function getVendorList($listId)
+    public function get_vendor_list($listId)
     {
         // given list ID, return vendor names
         
         $this->db->select('*');
-        $this->db->from('Vendor');
-        $this->db->join('List', 'List.vid = Vendor.id', 'left');
+        $this->db->from('Vendors');
+        $this->db->join('Lists', 'Lists.vid = Vendors.id', 'left');
         $this->db->where('lid', intval($listId));
        
         $vendorNameList = $this->db->get()->result();
