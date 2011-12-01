@@ -45,9 +45,13 @@ class Manage_Referral_Model extends CI_Model {
         $date = time();
         
         // insert new row in Referrals table
-        $addReferralQuery = "INSERT INTO Referrals(uid1, uid2, date, lid)
-                             VALUES ($uid1, $uid2, $date, $lid)";
-        mysql_query($addReferralQuery) or die("My sql error: " . mysql_error());
+        $newReferral = array(
+            'uid1' => $uid1,
+            'uid2' => $uid2,
+            'date' => $date,
+            'lid' => $lid
+        );
+        $this->db->insert('Referrals', $newReferral);
         
         // get the uniquely auto-incremented RID from Referrals
         $rid = mysql_insert_id();
@@ -96,9 +100,13 @@ class Manage_Referral_Model extends CI_Model {
         $lidEnd = $data('lidEnd');
         
         // insert new row into ReferralDetails table
-        $addReferralDetailsQuery = "INSERT INTO ReferralDetails(rid, vid, status, lidEnd)
-                                    VALUES ($rid, \"$lid\", $status, $lidEnd)";
-        mysql_query($addReferralDetailsQuery) or die("My sql error: " . mysql_error());
+        $newReferralDetail = array(
+            'rid' => $rid,
+            'vid' => $vid,
+            'status' => $status,
+            'lidEnd' => $lidEnd
+        );
+        $this->db->insert('ReferralDetails', $newReferralDetail);
     }
 
     /*
@@ -109,17 +117,20 @@ class Manage_Referral_Model extends CI_Model {
      * return: result()
      * 
      */
-    public function get_inbox_items()
+    public function get_inbox_items($data)
     {
         // should get uidRecipient from session
-        $uidRecipient = 1;  // Seung Hyo
+        $uidRecipient = $data['uid'];
 
-        $this->db->select('*, UserLists.name AS UserListsName, Vendors.name AS VendorsName, UserLists.comment AS UserListsComment, Referrals.comment AS ReferralsComment');
+        $this->db->select('*, UserLists.name AS UserListsName, Vendors.name AS VendorsName,
+            UserLists.comment AS UserListsComment, Referrals.comment AS ReferralsComment');
         $this->db->from('Referrals');
         $this->db->join('Users', 'Users.uid = Referrals.uid1', 'left');
         $this->db->join('ReferralDetails', 'ReferralDetails.rid = Referrals.rid', 'left');
         $this->db->join('UserLists', 'UserLists.lid = Referrals.lid', 'left');
         $this->db->join('Vendors', 'Vendors.id = ReferralDetails.vid', 'left');
+        //$this->db->join('Likes', 'Likes.rid = Referrals.rid', 'left');
+        //$this->db->join('Comments', 'Comments.rid = Referrals.rid', 'left');
         //$this->db->join('Lists', 'Lists.lid = Referrals.lid', 'inner');
         
         $this->db->where('uid2', $uidRecipient);
@@ -128,6 +139,30 @@ class Manage_Referral_Model extends CI_Model {
 
         //var_dump($result);
 
+        // result needs to be formatted
+        foreach($result as $row)
+        {
+            $rid = $row->rid;
+            
+            // retrieve a 'Likes' array of uid's
+            $this->db->select('uid');
+            $this->db->from('Likes');
+            $this->db->where('rid', $rid);
+            $LikesList = $this->db->get()->result();
+          
+            $row->LikesList = array("LikesList" => $LikesList);
+            
+            // retrieve a 'Comments' with uid's
+            $this->db->select('*');
+            $this->db->from('Comments');
+            $this->db->where('rid', $rid);
+            $CommentsList = $this->db->get()->result();
+            
+            $row->CommentsList = array("CommentsList" => $CommentsList);
+        }
+        
+        //var_dump($result);
+        
         return $result;
     }
     
@@ -148,10 +183,14 @@ class Manage_Referral_Model extends CI_Model {
         $comment = $this->input->post('comment');
         
         // insert new row into Comments table
-        $addCommentQuery = "INSERT INTO Comments(rid, uid, comment)
-                                    VALUES ($rid, $uid, $comment)";
-        mysql_query($addCommentQuery) or die("My sql error: " . mysql_error());
+        $newComment = array(
+            'rid' => $rid,
+            'uid' => $uid,
+            'comment' => $comment
+        );
         
+        $this->db->insert('Comments', $newComment);
+
         echo "success";
     }
     

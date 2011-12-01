@@ -24,34 +24,41 @@
         
         // override click handler for p text
         // allows for Like and Comment button in the header
-        $("#accordion p a, #accordion table").click(function() {
-            event.stopPropagation();
+        $("#accordion p a, #accordion table").click(function(e) {
+            e.stopPropagation();
         });
         
-        $('div .comment_input').keyPressed(function(){
-            event.stopPropagation();
+        $('.comment_input').keydown(function(e){
+            if(e.which==32 || e.which==13){
+                e.stopPropagation();
+            }
         });
         
         // show comment div upon click
         $('div .click_to_comment').click(function(){
+            alert($(this).attr("id"));
             $('#comment_box_' + $(this).attr("id")).show();     
         });
         
         // perform like action upon click
         $('div .click_to_like').click(function(){
-            $('#like_success_' + $(this).attr("id")).show();
+            // show 'unlike' in place of like
+            //document.getElementById("#click_to_like_" + $(this).attr("id")).innerHTML = "Unlike"
+            alert($(this).attr("id"));
+            $($(this).attr("id")).update("Unlike")
+            //$('#like_success_' + $(this).attr("id")).show();
         });
         
+        // to submit a comment
         $('div .submit_comment').click(function(){
             var id = "#form_comment_" + ($(this).attr("id")).substring(14);
             var $inputs = $(id + ' :input');
-            
-            //alert($inputs[0].value);
-            
             jQuery.post("http://192.168.11.28/test/add_new_comment", {
                 comment: $inputs[0].value,
                 rid: $(this).attr("id").substring(14)                
             });
+            
+            // now do something to confirm the comment
         });
         
         
@@ -68,9 +75,20 @@
             <?php
                 foreach ($inboxItems as $row)
                 {
+                    
                     // determine if $row is a list or single vendor
                     if ( $row->lid == 0 )
                     {   
+                        // get some vital variables ready
+                        // the count of likes
+                        $tempArray = ($row->LikesList);
+                        $likesArray = $tempArray['LikesList'];
+                        $tempArray = $row->CommentsList;
+                        $commentsArray = $tempArray['CommentsList'];
+                        $likeButtonId = urlencode("#click_to_like_" . $row->rid);
+                        $commentButtonId = urlencode("#click_to_comment_" . $row->rid);
+
+                        //var_dump($likesArray);
                         
                         // single vendor
                         // vendor name here
@@ -78,9 +96,13 @@
                         <h3><a href=#> <?php echo $row->name; ?>
 <!--                        sub title here-->
                         <h5> <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"</h5>
-<!--                        like, comment button here-->
-                        <p><table><td><a href=# class="click_to_like" id=<?php echo $row->rid; ?>>Like</a></td>
-                        <td><a href=# class="click_to_comment" id=<?php echo $row->rid; ?>>Comment</a></td></table></p>
+<!--                        like button here -->
+                        <p><table><td><a href=# class="click_to_like" id=<?php echo $likeButtonId; ?>>Like</a></td>
+<!--                        comment button here -->
+                        <td><a href=# class="click_to_comment" id=<?php echo $commentButtonId; ?>>Comment</a></td>
+<!--                        '# of your friends have Liked this'  here -->
+                        <td><?php if (count($likesArray)>0) {echo count($likesArray) . " people like this.";} ?></td>
+                        </table></p>
                         
 <!--                        comment box div-->
                         

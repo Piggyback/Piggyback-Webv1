@@ -13,6 +13,9 @@
                                 var vendorID;
                                 var vendorName;
                                 
+                                // Accordion
+				$("#accordion").accordion({ header: "h3" });
+                                
 				// Dialog			
 				$('#dialog').dialog({
 					autoOpen: false,
@@ -155,7 +158,10 @@
 			.dialog_link span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
 		</style>	
 	</head>
-	<body>  
+	<body> 
+            
+        <div id="accordion">
+
         <?php
 
             
@@ -180,18 +186,6 @@
         $friendTags[strlen($friendTags)-1] = "]";
         $allFriendsArray = json_encode($friendArray);
         
-        // set up table to display search results
-        echo "<table id='searchResults' class='tablesorter'>";
-        echo "<thead>";
-        echo "<tr>";
-           echo "<th align='left'>Name</th>";
-           echo "<th align='left'>Rating</th>";
-           //echo "<th align='left'>Distance</th>";
-           echo "<th align='left'>Refer</th>";
-        echo "</tr>";
-        echo "</thead>";
-        echo "<tbody>";
-        
         // FOR TESTING PURPOSES USE DATA FROM THE TABLE
         $q = "select * from Vendors where addrCity = \"Torrance\"";
         $result = mysql_query($q);
@@ -210,19 +204,25 @@
             // save vendor id and name so we can pass it to javascript for the referral pop up
             $vendorData[] = array($id,$name);
  
-            echo "<tr>
-                      <td><B>$name</b><br>
-                      $addrNum $addrStreet<BR>
-                      $addrCity $addrState $addrZip<br>
-                      $phone
-                      <td>";
-                if ($rating == 0) {
-                    echo "N/A</td>";
-                } else {
-                    echo $rating."<BR></td>";
-                }
-                echo "<td><p><a href=\"#\" id=\"$id\"class=\"dialog_link ui-state-default ui-corner-all\"><span class=\"ui-icon ui-icon-plus\"></span>Refer to Friends</a></p></td>";
-                echo "</tr>"; 
+            // add row to accordion for each search result
+            echo "<div>
+                    <h3><a href=\"#\">$name</a></h3>
+                    <div>
+                        <table width=\"100%\">
+                            <td width=\"70%\">
+                              $addrNum $addrStreet<BR>
+                              $addrCity $addrState $addrZip<br>
+                              $phone
+                            </td>
+                            <td width=\"30%\" align=\"right\">          
+                              <p><a href=\"#\" id=\"$id\"class=\"dialog_link ui-state-default ui-corner-all\">
+                                  <span class=\"ui-icon ui-icon-plus\"></span>Refer to Friends
+                              </a></p>
+                            </td>
+                        </table>
+                    </div>
+            </div>";            
+            
         }   
         
         $vendorDataJson = json_encode($vendorData);
@@ -236,6 +236,7 @@
         </script>";
         ?>
             
+        </div>
          
         <!-- ui-dialog pop up-->
         <div id="dialog">
