@@ -11,13 +11,11 @@
    Syntax recommendation http://www.w3.org/TR/REC-CSS2/
 */
 
-root { 
-    display: block;
+body { 
+    font: 62.5% "Trebuchet MS", sans-serif; 
+    margin: 50px;
 }
 
-body{ 
-    font: 62.5% "Trebuchet MS", sans-serif; margin: 50px;
-}
 ul#icons {
     margin: 0; 
     padding: 0;
@@ -33,4 +31,101 @@ ul#icons li {
 ul#icons span.ui-icon {
     float: left; 
     margin: 0 4px;
+}
+
+/* CSS borrowed from Google reader */
+/* top bar */
+#top-bar {
+    border-bottom: 1px solid #E5E5E5;
+    height: 60px;
+    position: relative;
+}
+
+/*logo*/
+#logo-container {
+    clear: left;
+    padding: 0;
+}
+
+#left-list-pane, #logo-container, #left-list-pane-header {
+    width: 236px;
+}
+
+a, a:visited, .link {
+    color: #1155CC;
+}
+
+#logo {
+    background: url(../images/piggyback.png) no-repeat scroll 0 0 transparent;
+    cursor: pointer;
+    height: 27px;
+    margin: -10px 0 0;
+    position: absolute;
+    top: 50%;
+    width: 138px;
+}
+
+span.none {
+/*    display: none;*/
+}
+
+#logo {
+    margin-left: 16px;
+}
+#search {
+    display: block;
+    margin-left: 236px;
+    padding: 15px 0;
+    min-width: 600px;
+}
+
+#searchbox {
+    margin: 0;
+    width: 250px;
+    float: left;
+}
+
+/*main page below top bar*/
+#main {
+    overflow-x: auto;
+    position: relative;
+}
+
+/*left-list-pane*/
+#left-list-pane {
+    float: left;
+}
+
+#left-list-pane-header {
+    height: 43px;
+    border-bottom: 1px solid #EBEBEB;
+    position: relative;
+}
+
+#my-lists-heading {
+    margin-left: 16px;
+    display: block;
+    height: 27px;
+    margin-right: auto;
+    margin-top: -13px;
+    position: absolute;
+    top: 50%;
+    width: 80px;
+}
+
+#scrollable-sections-holder {
+    position: relative;
+}
+
+
+
+#content {
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+    width: 100%;
+}
+
+div, form {
+    margin: 0;
 }

@@ -13,9 +13,10 @@
 				// Dialog			
 				$('#dialog').dialog({
 					autoOpen: false,
-					width: 1000,
+					width: 750,
 					buttons: {
 						"Refer!": function() { 
+                                                        
 							$(this).dialog("close"); 
 						}
 					}
@@ -33,6 +34,7 @@
 					function() { $(this).removeClass('ui-state-hover'); }
 				);
 				
+                                // tell autocomplete what source to use
                                 $( "#tags" ).autocomplete({
                                         source: availableTags
                                 });
@@ -42,12 +44,32 @@
                                     return false; 
                                 });
                                 
+                                // add friend to recommendation list if they are not on list yet
                                 $('#addFriend').submit(function() {
-                                  friendList.push(document.forms["addFriend"]["friend"].value);
-                                  alert(friendList[0]);                                  
-                                  document.write("Hello World!");
+                                  var submittedFriend = document.forms["addFriend"]["friend"].value;
+                                  if (friendList.indexOf(submittedFriend) == -1){
+                                      friendList.push(submittedFriend);
+                                  }
+                                  displayAddedFriends();
                                   return false;
                                 });
+                                
+                                // update display of friends added to referral list
+                                function displayAddedFriends() {
+                                    var displayFriends = "<table>";
+                                    for (var i = 0; i < friendList.length; i++) {
+                                        displayFriends = displayFriends + "<tr><td>" + friendList[i] + "</td></tr>";
+                                    }
+                                    displayFriends = displayFriends + "</table>";
+                                    document.getElementById("addedFriends").innerHTML = displayFriends; 
+                                    alert(displayFriends);   
+                                }
+                                
+                                // remove table row when image is clicked
+                                $('table td img.delete').click(function(){
+                                    $(this).parent().parent().remove();
+                                });
+                                
 			});
                         
 		</script>
@@ -90,18 +112,37 @@
 		
 		<!-- ui-dialog pop up-->
 		<div id="dialog" title="Refer Friends to VendorName">
-                    <p>
-                        <div class="ui-widget">
-                            <form id="addFriend">
-                                <label for="tags"><B>Search for Friends</b><BR></label>
-                                <input type="text" name="friend" id="tags">
-                                <input type="submit" value="Add Friend to Referral List"/>
+                    
+                        <!-- lefthand side of referral pop up: used for searching friends -->
+                        <div class="ui-widget" style="width:300p; height:100px; float:left; margin-buttom:10px">
+                            <form id="addFriend" method="post">
+                                <label for="tags"><B>search for friends to refer</b><BR></label>
+                                <input type="search" size="35" name="friend" id="tags">
+                                <input type="submit" value="Add to List"/>
                             </form>
                         </div>
+                    
+                    <!-- righthand side of referral pop up -->
+                    <div id="rightCol" style="width:300px; height:100px; float:right; margin-bottom:10px;">
+                        
+                        <!-- display title for added friends -->
+                        <div style="width:300px; height:10px; margin-bottom:5px;">
+                            <b>list of friends to refer</b>
+                        </div>
+                        
+                        <!-- show list of friends that have been added to recommendation list-->
+                        <div id="addedFriends" style="width:300px; height:85px; clear:both; overflow:auto;">
+                        </div>
+                    </div>
+                    
+                    <!-- add a comment -->
+                    <div id="commentArea" style="width:720px; margin-top:10px; clear:both">
+                        <label for="explanation"><B>add a comment with your referral</B></label>
+                        <textarea name="comment" id="explanation" rows="4" cols="103"></textarea>
+                    </div>
                         <?php 
                         
                         ?>
-                    </p>
                 </div>
 	</body>
 </html>

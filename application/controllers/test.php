@@ -24,6 +24,13 @@ class test extends CI_Controller {
         $data['inboxItems'] = $this->manage_referral_model->get_inbox_items();      // eventually would either need to pass uid from session
         $this->load->view('inbox_view', $data);
     }
+    
+    /*
+     * test method to add a new comment
+     */
+    public function add_new_comment() {
+        
+    }
 }
 
 ?>

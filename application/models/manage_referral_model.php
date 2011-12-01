@@ -126,7 +126,7 @@ class Manage_Referral_Model extends CI_Model {
                 
         $result = $this->db->get()->result();
 
-        var_dump($result);
+        //var_dump($result);
 
         return $result;
     }

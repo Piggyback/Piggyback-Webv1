@@ -142,6 +142,16 @@ class Manage_List_Model extends CI_Model {
         return $vendorNameList;
     }
     
+    /*
+     * get_list_info
+     * 
+     * inputs: lid
+     * action: given lid, gets 
+     */
+    public function get_list_info($data)
+    {
+        
+    }
     
     
 }

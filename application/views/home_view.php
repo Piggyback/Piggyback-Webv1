@@ -7,7 +7,8 @@
 -->
 <!--
    TO-DOs:
-        TODO: Resize logo and link to 'home' url with anchor; is logo a sub-div of top-nav-bar or left-list-pane or none?
+        TODO: Resize logo and link to 'home' url with anchor; is logo a sub-div of top-bar or left-list-pane or none? Complete logo CSS
+        TODO: Set div alignments from Google Reader firebug analysis
 -->
 <html>
     <head>
@@ -36,24 +37,40 @@
 	</script>
     </head>
     <body>
-        <div class="top-nav-bar">
-            <div class="search">
+        <div id="top-bar">
+            <a id="logo-container" href="home">
+                <h1 id="logo">
+                    <span class="none">Piggyback</span>
+                </h1>
+            </a>
+            <div id="search">
                 <form method="get" id="searchform" action="">
-                    <input type="text" class="box" />
+                    <input type="text" class="box" id="searchbox"/>
                     <button class="btn" title="Submit Search">Search</button>
                 </form>
             </div>
-            <div class="ui-tabs ui-widget ui-widget-content ui-corner-all" id="tabs">
-                <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-                    <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tabs-1">Inbox</a></li>
-                    <li class="ui-state-default ui-corner-top"><a href="ajax/content2.html">Friend Activity</a></li>
-                    <li class="ui-state-default ui-corner-top"><a href="ajax/content3.html">Referral Tracking</a></li>
-                </ul>
-                <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="tabs-1"> <p> SPRINT TIME </p> </div>
-            </div>
         </div>
-        <div class="left-list-pane"></div>
-        <div class="logo"></div>
-        <div class="content"></div>
+        <div id="main">
+            <div id="left-list-pane">
+                <div id="left-list-pane-header">
+                    <h1 id="my-lists-heading">
+                        My lists
+                    </h1>
+                </div>
+                <div id="scrollable-sections-holder">
+                </div>
+            </div>
+<!--
+            <div id="content">
+                <div class="ui-tabs ui-widget ui-widget-content ui-corner-all" id="tabs">
+                    <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tabs-1">Inbox</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="ajax/content2.html">Friend Activity</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="ajax/content3.html">Referral Tracking</a></li>
+                    </ul>
+                    <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="tabs-1"> <p> SPRINT TIME </p> </div>
+                </div>
+            </div>-->
+        </div>
     </body>
 </html>
