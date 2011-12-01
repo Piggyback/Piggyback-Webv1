@@ -11,10 +11,25 @@
    Syntax recommendation http://www.w3.org/TR/REC-CSS2/
 */
 
-body { 
-    font: 62.5% "Trebuchet MS", sans-serif; 
-    margin: 50px;
+html, body, input {
+    font-family: arial,sans-serif;
 }
+html, body { 
+    font-size: 75%;
+    overflow: hidden;
+    border: 0 none;
+    margin: 0;
+    height:100%;
+}
+body {
+    background: none repeat scroll 0 0 #FFFFFF;
+    color: #000000;
+    padding-bottom: 0;
+}
+div, form {
+    margin: 0;
+}
+
 
 ul#icons {
     margin: 0; 
@@ -47,8 +62,8 @@ ul#icons span.ui-icon {
     padding: 0;
 }
 
-#left-list-pane, #logo-container, #left-list-pane-header {
-    width: 236px;
+#left-list-pane, #logo-container, #left-list-pane-header, #scrollable-sections-bottom {
+    width: 264px;
 }
 
 a, a:visited, .link {
@@ -70,11 +85,14 @@ span.none {
 }
 
 #logo {
-    margin-left: 16px;
+    margin-left: 44px;
+}
+
+#search {
+    margin-left: 264px;
 }
 #search {
     display: block;
-    margin-left: 236px;
     padding: 15px 0;
     min-width: 600px;
 }
@@ -83,6 +101,18 @@ span.none {
     margin: 0;
     width: 250px;
     float: left;
+}
+
+#searchbutton {
+    display: inline-block;
+    position: relative;
+    border-radius: 2px 2px 2px 2px;
+    cursor: default;
+    margin-right: 16px;
+    min-width: 54px;
+    outline: 0 none;
+    padding: 0 8px;
+    text-align: center;
 }
 
 /*main page below top bar*/
@@ -97,13 +127,16 @@ span.none {
 }
 
 #left-list-pane-header {
-    height: 43px;
+    height: 57px;
     border-bottom: 1px solid #EBEBEB;
     position: relative;
 }
 
 #my-lists-heading {
-    margin-left: 16px;
+    margin-left: 44px;
+}
+
+#my-lists-heading {
     display: block;
     height: 27px;
     margin-right: auto;
@@ -115,17 +148,58 @@ span.none {
 
 #scrollable-sections-holder {
     position: relative;
+/*    height: 100%;*/
 }
 
+#scrollable-sections {
+    overflow-y: auto;
+    position: relative;
+/*    bottom: 0;*/
+}
 
+#scrollable-sections-bottom {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+    bottom: 0;
+    opacity: 1;
+    height: 8px;
+    left: 0;
+    margin-right: 0;
+    position: absolute;
+}
 
-#content {
+/*content*/
+#content-frame {
+    margin-left: 264px;
+}
+
+#content-frame {
+    min-width: 700px;
+}
+
+#content-viewer-container {
     border-collapse: collapse;
     border-spacing: 0;
     table-layout: fixed;
     width: 100%;
 }
 
-div, form {
-    margin: 0;
+#content-viewer {
+    padding: 0;
+    vertical-align: top;
+}
+
+#viewer-container {
+    background: none repeat scroll 0 0 #FFFFFF;
+}
+
+#viewer-page-container {
+/*    background: none repeat scroll 0 0 #FFFFFF;*/
+/*    display: block;*/
+    overflow-x: visible;
+    overflow-y: auto;
+    position: relative;
+}
+
+#content {
+    padding: 0;
 }

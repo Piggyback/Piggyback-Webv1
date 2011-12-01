@@ -8,28 +8,49 @@
     <script src="../../assets/jquery-ui-1.8.16.custom/js/jquery-ui-1.8.16.custom.min.js" type="text/javascript"></script>
 
     <script>
+        // eventually move all javascript code into separate file and call it,
+        // want to expose as little as possible
+        // TODO: migrate js code into separate file @andyjiang #inboxview
+        // TODO: retrieve data such as count of Likes and array of comments per RID @andyjiang
     $(function() {
+                
         $( "#accordion" ).accordion({
             header: 'h3',    
             collapsible: true,
             autoHeight: true,
-            navigation: true
+            navigation: true,
+            active:false
         });
         
-        // override click handler for h6 text
+        // override click handler for p text
         // allows for Like and Comment button in the header
         $("#accordion p a").click(function() {
             window.location = $(this).attr('href');
             return false;
         });
+        
+        $(#accordion )
+        
+        $(document).ready(function(){
             
+            // show comment div upon click
+            $('div .click_to_comment').click(function(){
+                $('#comment_box_' + $(this).attr("id")).show();     
+            });
+            // perform like action upon click
+            $('div .click_to_like').click(function(){
+                $('#like_success_' + $(this).attr("id")).show();
+            });
+        });
+        
     });
     </script>
 
     
-    
+
     <div class="inbox">
 
+        
         <div id="accordion">
 
             <?php
@@ -44,7 +65,14 @@
                         // sub title here
                         echo "<h5>" . $row->firstName . " " . $row->lastName . " says " . "\"" . $row->ReferralsComment . "\"</h5>";
                         // like, comment button here
-                        echo "<p><a href=\"google.com\">Like</a><a href=\"google.com\">Comment</a></p>";
+                        echo "<p><a href=\"#\" class=\"click_to_like\" id=$row->rid>Like</a><a href=\"#\" class=\"click_to_comment\" id=$row->rid>Comment</a></p>";
+                        
+                        // comment box div
+                        $comment_box_id = urlencode("comment_box_" . $row->rid);
+                        echo "<p> <div id=$comment_box_id style=\"display: none\"> ";
+                        echo "<p> <input type=\"text\" /> <input type=\"submit\" /> </p>";
+                        echo "</div> </p>";
+                        
                         echo "</a></h3>";
                         // TODO: place like and comment buttons on the same line and remove trivial <a href> line @andyjiang
                         
@@ -55,7 +83,7 @@
                         echo $row->phone . "</br>";
                         echo $row->website;
                         echo "</h5></div>";
-                        // TODO: add buttons (like, comment), dragability, @andyjiang
+                        // TODO: dragability, @andyjiang
                     } else {
                         // list 
                         // TODO: make the List referrals into an accordion of vendor names @andyjiang

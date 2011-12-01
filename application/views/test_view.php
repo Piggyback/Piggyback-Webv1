@@ -4,10 +4,11 @@
         <link rel="stylesheet" media="screen" href="../../assets/jquery-ui-1.8.16.custom/css/custom-theme/jquery-ui-1.8.16.custom.css" type="text/css" />
         <script src="../../assets/jquery-ui-1.8.16.custom/js/jquery-1.6.2.min.js" type="text/javascript"></script>
         <script src="../../assets/jquery-ui-1.8.16.custom/js/jquery-ui-1.8.16.custom.min.js" type="text/javascript"></script>
+        <script src="../../assets/js/date.format.js" type="text/javascript"></script>
                 <script type="text/javascript">
 			$(function(){
                             
-                                // friend list array
+                                // array of friends that you have selected to refer a restaurant to
                                 var friendList = new Array();
                                 
 				// Dialog			
@@ -15,11 +16,51 @@
 					autoOpen: false,
 					width: 750,
 					buttons: {
-						"Refer!": function() { 
-                                                        
-							$(this).dialog("close"); 
-						}
-					}
+                                            "Refer!": function() { 
+                                                if (friendList.length < 1) {
+                                                    alert("You did not select any friends to refer. Please try again.");
+                                                }
+                                                else {
+                                                    // create ajax request
+                                                    var ajaxRequest;
+
+                                                    // code for IE7+, Firefox, Chrome, Opera, Safari
+                                                    if (window.XMLHttpRequest) {
+                                                          ajaxRequest = new XMLHttpRequest();
+                                                    }
+                                                    // code for IE6, IE5
+                                                    else {
+                                                          ajaxRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                                                    }
+
+                                                    // Create a function that will receive data sent from the server
+                                                    ajaxRequest.onreadystatechange=function() {
+                                                          if (ajaxRequest.readyState==4 && ajaxRequest.status==200) {
+                                                            document.getElementById('explanation').value = '';
+                                                            document.getElementById("addedFriends").innerHTML = '';
+                                                            friendList = [];
+                                                            $('#dialog').dialog("close"); 
+                                                          }
+                                                    } 
+
+                                                    // create query for inserting row
+                                                    var addReferralQuery = "INSERT INTO Referrals VALUES ";
+                                                    for (var i = 0; i < friendList.length; i++){
+                                                        var now = new Date();
+                                                        now = now.format("yyyy-mm-dd HH:MM:ss");
+                                                        var comment = document.getElementById('explanation').value;
+                                                        var friendUID = friendList[i][0];
+                                                        addReferralQuery = addReferralQuery + "(NULL," + myUID + "," + friendUID + ",\"" + now + "\",0,\"" + comment + "\"),";
+                                                    }
+
+                                                    addReferralQuery = addReferralQuery.slice(0,-1);
+
+                                                    var ajaxQueryString = "?q=" + addReferralQuery;
+                                                        ajaxRequest.open("GET", "test2" + ajaxQueryString, true);
+                                                        ajaxRequest.send(null); 
+                                                    }
+                                            }
+                                      }
 				});
 				
 				// Dialog Link
@@ -46,9 +87,27 @@
                                 
                                 // add friend to recommendation list if they are not on list yet
                                 $('#addFriend').submit(function() {
+                                    alert($(this).attr('id'));
                                   var submittedFriend = document.forms["addFriend"]["friend"].value;
-                                  if (friendList.indexOf(submittedFriend) == -1){
-                                      friendList.push(submittedFriend);
+                                  document.forms["addFriend"]["friend"].value = '';
+                                  var fullName = '';
+                                  var flag = 0;
+                                  for (var i = 0; i < allFriends.length; i++) {
+                                      fullName = allFriends[i][3] + " " + allFriends[i][4];
+                                      if (fullName == submittedFriend) {
+                                          flag = 1;
+                                          if (friendList.indexOf(allFriends[i]) == -1){
+                                            friendList.push(allFriends[i]);
+                                            alert(allFriends[i]);
+                                          }
+                                          else {
+                                              alert("You have already added " + submittedFriend);
+                                          }
+                                      }
+                                  }  
+                                  // flag was not set because friend was not found with matching name
+                                  if (!flag) {
+                                        alert("You are not friends with " + submittedFriend);
                                   }
                                   displayAddedFriends();
                                   return false;
@@ -58,11 +117,10 @@
                                 function displayAddedFriends() {
                                     var displayFriends = "<table>";
                                     for (var i = 0; i < friendList.length; i++) {
-                                        displayFriends = displayFriends + "<tr><td>" + friendList[i] + "</td></tr>";
+                                        displayFriends = displayFriends + "<tr><td>" + friendList[i][3] + " " + friendList[i][4] + "</td><td><img class=\"delete\" src=\"../../assets/jquery-ui-1.8.16.custom/css/custom-theme/images/del.png\" /></td></tr>";
                                     }
                                     displayFriends = displayFriends + "</table>";
                                     document.getElementById("addedFriends").innerHTML = displayFriends; 
-                                    alert(displayFriends);   
                                 }
                                 
                                 // remove table row when image is clicked
@@ -87,7 +145,7 @@
             // get friends of current user
             $currentUserData = $this->session->userdata('currentUserData');
             $currentUID = $currentUserData['uid'];
-            $friendQuery = "SELECT uid, fbid, firstName, lastName
+            $friendQuery = "SELECT uid, fbid, email, firstName, lastName
                             FROM Users
                             WHERE uid IN (SELECT uid2 FROM Friends WHERE uid1 = $currentUID
                                           UNION
@@ -97,13 +155,17 @@
             // create friend name list in a string that javascript will understand
             $friendTags = "[";
             while ($friend = mysql_fetch_row($friends)) {
-                $friendTags = $friendTags . "\"$friend[2] $friend[3]\",";
+                $friendTags = $friendTags . "\"$friend[3] $friend[4]\",";
+                $friendArray[] = $friend;
             }
             $friendTags[strlen($friendTags)-1] = "]";
+            $allFriendsArray = json_encode($friendArray);
             
             // set friend names for autocomplete
             echo "<script type=\"text/javascript\">
             var availableTags = $friendTags;
+            var myUID = $currentUID;
+            var allFriends = $allFriendsArray;
             </script>";
             ?>
             
@@ -136,9 +198,9 @@
                     </div>
                     
                     <!-- add a comment -->
-                    <div id="commentArea" style="width:720px; margin-top:10px; clear:both">
+                    <div id="commentArea" style="width:100%; margin-top:10px; clear:both">
                         <label for="explanation"><B>add a comment with your referral</B></label>
-                        <textarea name="comment" id="explanation" rows="4" cols="103"></textarea>
+                        <textarea name="comment" id="explanation" rows="4" cols="100%"></textarea>
                     </div>
                         <?php 
                         

@@ -131,6 +131,16 @@ class Manage_Referral_Model extends CI_Model {
         return $result;
     }
     
+    /*
+     * add_new_comment
+     * 
+     * 
+     */
+    public function add_new_comment()
+    {
+        
+    }
+    
 }
 
 ?>

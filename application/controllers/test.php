@@ -12,7 +12,7 @@ class test extends CI_Controller {
         $this->load->model('test_model');
         $data['blah'] = $this->test_model->testMethod();
         $this->load->view('test_view',$data);
-    }
+    }  
     
     /*
      * test method to call inboxview
@@ -29,7 +29,7 @@ class test extends CI_Controller {
      * test method to add a new comment
      */
     public function add_new_comment() {
-        
+        $this->load->model('manage_referral_model');
     }
 }
 
