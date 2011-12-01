@@ -19,29 +19,41 @@
             collapsible: true,
             autoHeight: true,
             navigation: true,
-            active:false
+            active: 'none'
         });
         
         // override click handler for p text
         // allows for Like and Comment button in the header
-        $("#accordion p a").click(function() {
-            window.location = $(this).attr('href');
-            return false;
+        $("#accordion p a, #accordion table").click(function() {
+            event.stopPropagation();
         });
         
-        $(#accordion )
+        $('div .comment_input').keyPressed(function(){
+            event.stopPropagation();
+        });
         
-        $(document).ready(function(){
+        // show comment div upon click
+        $('div .click_to_comment').click(function(){
+            $('#comment_box_' + $(this).attr("id")).show();     
+        });
+        
+        // perform like action upon click
+        $('div .click_to_like').click(function(){
+            $('#like_success_' + $(this).attr("id")).show();
+        });
+        
+        $('div .submit_comment').click(function(){
+            var id = "#form_comment_" + ($(this).attr("id")).substring(14);
+            var $inputs = $(id + ' :input');
             
-            // show comment div upon click
-            $('div .click_to_comment').click(function(){
-                $('#comment_box_' + $(this).attr("id")).show();     
-            });
-            // perform like action upon click
-            $('div .click_to_like').click(function(){
-                $('#like_success_' + $(this).attr("id")).show();
+            //alert($inputs[0].value);
+            
+            jQuery.post("http://192.168.11.28/test/add_new_comment", {
+                comment: $inputs[0].value,
+                rid: $(this).attr("id").substring(14)                
             });
         });
+        
         
     });
     </script>
@@ -59,30 +71,43 @@
                     // determine if $row is a list or single vendor
                     if ( $row->lid == 0 )
                     {   
+                        
                         // single vendor
                         // vendor name here
-                        echo "<h3><a href=\"#\">" . $row->name . " ";
-                        // sub title here
-                        echo "<h5>" . $row->firstName . " " . $row->lastName . " says " . "\"" . $row->ReferralsComment . "\"</h5>";
-                        // like, comment button here
-                        echo "<p><a href=\"#\" class=\"click_to_like\" id=$row->rid>Like</a><a href=\"#\" class=\"click_to_comment\" id=$row->rid>Comment</a></p>";
+                 ?>
+                        <h3><a href=#> <?php echo $row->name; ?>
+<!--                        sub title here-->
+                        <h5> <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"</h5>
+<!--                        like, comment button here-->
+                        <p><table><td><a href=# class="click_to_like" id=<?php echo $row->rid; ?>>Like</a></td>
+                        <td><a href=# class="click_to_comment" id=<?php echo $row->rid; ?>>Comment</a></td></table></p>
                         
-                        // comment box div
+<!--                        comment box div-->
+                        
+                        <?php
                         $comment_box_id = urlencode("comment_box_" . $row->rid);
-                        echo "<p> <div id=$comment_box_id style=\"display: none\"> ";
-                        echo "<p> <input type=\"text\" /> <input type=\"submit\" /> </p>";
-                        echo "</div> </p>";
+                        $form_comment_id = urlencode("form_comment_" . $row->rid);
+                        $submit_button_id = urlencode("submit_button_" . $row->rid);
+                        $input_id = urlencode("input_" . $row->rid);
+                        ?>
                         
-                        echo "</a></h3>";
-                        // TODO: place like and comment buttons on the same line and remove trivial <a href> line @andyjiang
+                        <p><div id=<?php echo $comment_box_id; ?> class = "comment_box" style="display: none">
+                        <form name="form_comment" id=<?php echo $form_comment_id; ?>>
+                            <table><td><input type="text" class="comment_input" id="<?php echo $input_id; ?>"/></td><td>
+                                    <a href="#" class="submit_comment" id=<?php echo $submit_button_id; ?>><p>Submit</p></a></form></td></table>
+                        </div> </p>
                         
+<!--                        end of the header of accordion section-->
+                        </a></h3>
                         
-                        // vendor details here
-                        echo "<div><h5>" . $row->addrNum . " " . $row->addrStreet . "</br>"; // add all list detail here
+<!--                        vendor details here (among anything else)-->
+                        <div><h5>
+                        <?php echo $row->addrNum . " " . $row->addrStreet . "</br>"; // add all list detail here
                         echo $row->addrCity . " " . $row->addrState . " " . $row->addrZip . "</br>";
                         echo $row->phone . "</br>";
                         echo $row->website;
                         echo "</h5></div>";
+                                
                         // TODO: dragability, @andyjiang
                     } else {
                         // list 

@@ -19,6 +19,13 @@ class searchvendors extends CI_Controller {
         $data = $this->search_vendors_model->search_vendors();
         $this->load->view('search_results_view',$data);
     }
+    
+    public function add_referral()
+    {
+        
+        $this->load->model('search_vendors_model');
+        $this->search_vendors_model->add_referral();
+    }
 }
 
 ?>

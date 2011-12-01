@@ -15,7 +15,7 @@ html, body, input {
     font-family: arial,sans-serif;
 }
 html, body { 
-    font-size: 75%;
+    font-size: 90%;
     overflow: hidden;
     border: 0 none;
     margin: 0;
@@ -88,13 +88,18 @@ span.none {
     margin-left: 44px;
 }
 
-#search {
+#top-nav-bar {
     margin-left: 264px;
 }
+
+#top-nav-bar {
+    min-width: 600px;
+}
+
 #search {
     display: block;
-    padding: 15px 0;
-    min-width: 600px;
+    width: 33%;
+    padding: 21px 0;
 }
 
 #searchbox {
@@ -113,6 +118,15 @@ span.none {
     outline: 0 none;
     padding: 0 8px;
     text-align: center;
+}
+
+/*logout*/
+#logout {
+    z-index: 10;
+    cursor: pointer;
+    position: absolute;
+    right: 5px;
+    top: 21px;
 }
 
 /*main page below top bar*/
@@ -143,7 +157,7 @@ span.none {
     margin-top: -13px;
     position: absolute;
     top: 50%;
-    width: 80px;
+    width: 220px;
 }
 
 #scrollable-sections-holder {
@@ -155,6 +169,34 @@ span.none {
     overflow-y: auto;
     position: relative;
 /*    bottom: 0;*/
+}
+
+#lists-container {
+    position: relative;
+    line-height: 21px;
+    font-size: 13px;
+}
+
+#lists {
+    margin: 0;
+    font-size: 13px;
+    line-height: 21px;
+    padding: 0;
+    position: relative;
+}
+
+#lists li {
+    background: none repeat scroll 0 0 #FFFFFF;
+    list-style-type: none;
+    margin: 2px 0;
+    position: relative;
+    font-size: 13px;
+    line-height: 21px;
+    margin-right: auto;
+}
+
+#lists li {
+    margin-left: 44px;
 }
 
 #scrollable-sections-bottom {
@@ -202,4 +244,17 @@ span.none {
 
 #content {
     padding: 0;
+}
+
+#footer {
+    clear: both;
+    position: relative;
+    height: 100%;
+}
+
+#tempfooter {
+    position: relative;
+    text-align: center;
+    opacity: 0.5;
+    padding: 1em 0;
 }

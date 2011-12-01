@@ -134,11 +134,25 @@ class Manage_Referral_Model extends CI_Model {
     /*
      * add_new_comment
      * 
+     * AJAX-exclusive
+     * 
+     * inputs: comment, uid, rid 
+     * action: insert new row in Comments table
+     * return: void
      * 
      */
-    public function add_new_comment()
+    public function add_new_comment($data)
     {
+        $uid = $data['uid'];        // only get user data from controller
+        $rid = $this->input->post('rid');
+        $comment = $this->input->post('comment');
         
+        // insert new row into Comments table
+        $addCommentQuery = "INSERT INTO Comments(rid, uid, comment)
+                                    VALUES ($rid, $uid, $comment)";
+        mysql_query($addCommentQuery) or die("My sql error: " . mysql_error());
+        
+        echo "success";
     }
     
 }

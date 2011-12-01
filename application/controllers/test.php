@@ -27,9 +27,13 @@ class test extends CI_Controller {
     
     /*
      * test method to add a new comment
+     * 
+     * @andyjiang
      */
     public function add_new_comment() {
+        $currentUserData = $this->session->userdata('currentUserData');
         $this->load->model('manage_referral_model');
+        $this->manage_referral_model->add_new_comment($currentUserData);
     }
 }
 
