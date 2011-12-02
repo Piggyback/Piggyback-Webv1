@@ -43,6 +43,23 @@
                 function() { $(this).addClass('ui-state-hover'); }, 
                 function() { $(this).removeClass('ui-state-hover'); }
             );
+                
+            // merge kim's search with home shell
+            $('#searchform').submit(function() {
+//                alert('handler called');
+//                alert(document.domain);
+                // jqueryUI tabs handling
+                jQuery.post(document.domain + '/searchvendors/perform_search', 
+                    function(data) {
+                        // data will be JSON-encoded
+                        alert(data);
+                    });
+                $('#search-content').removeClass("ui-tabs-hide");
+                $('#inbox-content, #ui-tabs-1, #ui-tabs-2').addClass("ui-tabs-hide")
+                $('#inbox-tab, #friend-activity-tab, #referral-tracking-tab').removeClass("ui-tabs-selected ui-state-active");
+                
+                return false;
+            });
 	});
 	</script>
     </head>
@@ -92,9 +109,12 @@
             </a>
             <div id="top-nav-bar">
                 <div id="search">
-                <form method="get" id="searchform" action="">
-                    <input type="text" class="box" id="searchbox"/>
-                    <button id="searchbutton" class="btn" title="Submit Search">Search</button>
+                <form id="searchform" action="#" method="post" target="searchResults">
+                    <label for="search-box" id="search-box-label">Search for: </label>
+                    <input type="text" name="searchText" size="50" class="box" id="search-box"/>
+                    <label for="search-location" id="search-location-label">Near: </label>
+                    <input type="text" name ="searchLocation" size="35" class="box" id="search-location"/>
+                    <button id="searchbutton" name="submitSearch" class="btn" title="Submit Search">Search for Businesses!</button>
                 </form>
                 </div>
                 <div id="logout">
@@ -136,11 +156,14 @@
                                     <div id="content">
                                         <div class="ui-tabs ui-widget ui-widget-content ui-corner-all" id="tabs">
                                             <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-                                                <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tabs-1">Inbox</a></li>
-                                                <li class="ui-state-default ui-corner-top"><a href="ajax/content2.html">Friend Activity</a></li>
-                                                <li class="ui-state-default ui-corner-top"><a href="ajax/content3.html">Referral Tracking</a></li>
+                                                <li id="inbox-tab" class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#inbox-content">Inbox</a></li>
+                                                <li id="friend-activity-tab" class="ui-state-default ui-corner-top"><a href="ajax/content2.html">Friend Activity</a></li>
+                                                <li id="referral-tracking-tab" class="ui-state-default ui-corner-top"><a href="ajax/content3.html">Referral Tracking</a></li>
+                                                <li id="search-tab" class="ui-state-default ui-corner-top"><a href="#search-content">test</a></li>
                                             </ul>
-                                            <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="tabs-1"> <p> SPRINT TIME </p> 
+                                            <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="inbox-content"> <p> SPRINT TIME </p> 
+                                            </div>
+                                            <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="search-content"> <p> search </p>
                                             </div>
                                         </div>
                                     </div>

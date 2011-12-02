@@ -134,7 +134,7 @@ class Manage_Referral_Model extends CI_Model {
         //$this->db->join('Lists', 'Lists.lid = Referrals.lid', 'inner');
         
         $this->db->where('uid2', $uidRecipient);
-                
+        
         $result = $this->db->get()->result();
 
         //var_dump($result);
@@ -159,6 +159,20 @@ class Manage_Referral_Model extends CI_Model {
             $CommentsList = $this->db->get()->result();
             
             $row->CommentsList = array("CommentsList" => $CommentsList);
+            
+            // add whether the user has Liked the status or not
+            $this->db->from('Likes');
+            $this->db->where('rid', $rid);
+            $this->db->where('uid', $uidRecipient);
+            
+            if ($this->db->count_all_results() == 0)
+            {
+                // user has not liked it yet
+                $row->alreadyLiked = "0";
+            } else {
+                // user has already liked it
+                $row->alreadyLiked = "1";
+            }
         }
         
         //var_dump($result);
@@ -192,6 +206,59 @@ class Manage_Referral_Model extends CI_Model {
         $this->db->insert('Comments', $newComment);
 
         echo "success";
+    }
+    
+    public function is_already_liked($data)
+    {
+        $uid = $data['uid'];
+        $rid = $this->input->post('rid');
+        
+        $this->db->from('Likes');
+        $this->db->where('rid', $rid);
+        $this->db->where('uid', $uid);
+        
+        // if numRows = 0,
+        //    then USER NOT YET LIKED
+        // else
+        //    USER ALREADY LIKED
+        return $this->db->count_all_results();
+    }
+    
+    public function add_new_like($data)
+    {
+        $uid = $data['uid'];
+        $rid = $this->input->post('rid');
+        
+        $newLike = array(
+            'rid' => $rid,
+            'uid' => $uid
+        );
+        
+        $this->db->insert('Likes', $newLike);
+        
+    }
+    
+    public function remove_like($data)
+    {
+        $uid = $data['uid'];
+        $rid = $this->input->post('rid');
+        
+        $this->db->where('rid', $rid);
+        $this->db->where('uid', $uid);
+        $this->db->delete('Likes');
+        
+    }
+    
+    public function get_like_count()
+    {
+        $rid = $this->input->post('rid');
+        
+        // ajax wants the count of the new likes
+        $this->db->from('Likes');
+        $this->db->where('rid', $rid);
+        
+        // return the count of the result
+        return $this->db->count_all_results();
     }
     
 }

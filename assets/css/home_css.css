@@ -97,15 +97,34 @@ span.none {
 }
 
 #search {
-    display: block;
-    width: 33%;
-    padding: 21px 0;
+    display: inline-block;
+    width: 75%;
+    padding: 20px 0;
 }
 
-#searchbox {
+#search-box-label {
     margin: 0;
-    width: 250px;
     float: left;
+    font-size: 15px;
+}
+
+#search-box {
+    margin: 0 5px;
+    width: 250px;
+    display: inline-block;
+    position: relative;
+}
+
+#search-location-label {
+    margin: 0;
+    font-size: 15px;
+}
+
+#search-location {
+    margin: 0 5px;
+    width: 200px;
+    display: inline-block;
+    position: relative;
 }
 
 #searchbutton {
@@ -118,6 +137,7 @@ span.none {
     outline: 0 none;
     padding: 0 8px;
     text-align: center;
+    
 }
 
 /*logout*/
@@ -245,6 +265,12 @@ span.none {
 #content {
     padding: 0;
 }
+
+#search-tab{
+    display: none;
+}
+
+/*footer*/
 
 #footer {
     clear: both;

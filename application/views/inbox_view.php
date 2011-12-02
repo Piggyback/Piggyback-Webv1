@@ -13,7 +13,7 @@
         // TODO: migrate js code into separate file @andyjiang #inboxview
         // TODO: retrieve data such as count of Likes and array of comments per RID @andyjiang
     $(function() {
-                
+        
         $( "#accordion" ).accordion({
             header: 'h3',    
             collapsible: true,
@@ -22,7 +22,7 @@
             active: 'none'
         });
         
-        // override click handler for p text
+        // override click handler for p text, tables
         // allows for Like and Comment button in the header
         $("#accordion p a, #accordion table").click(function(e) {
             e.stopPropagation();
@@ -34,28 +34,60 @@
             }
         });
         
+        // hide all comment boxes
+        $('.comment_box').hide();
+        
         // show comment div upon click
-        $('div .click_to_comment').click(function(){
-            alert($(this).attr("id"));
-            $('#comment_box_' + $(this).attr("id")).show();     
+        $('.click_to_comment').click(function(){
+            //alert("HI");
+            $(this).parents('.row').children('.comment_box').show();
+            
         });
         
         // perform like action upon click
-        $('div .click_to_like').click(function(){
-            // show 'unlike' in place of like
+        $('.click_to_like').click(function(){
+            var referId = $(this).parents('.row').data("rid");
+            var numberOfLikes;
+            //$(this).html("SUCCESS");
+            //alert($(this).parents('.row').children('.click_to_like').textContent());
+            
+            
+            // update the number_of_likes
+            $(this).closest('.number_of_likes').html("TEST");
+            
+            jQuery.post("http://192.168.11.28/test/perform_like_action", {
+                rid: referId
+            }, function(likeCount){
+                //alert("Now " + likeCount + " people like this.");
+                // update the likeCount text
+                // TODO: REPLACE NEW TEXT WITH NEW NUMBER OF LIKES
+                numberOfLikes = likeCount;
+            });
+            
+            // toggle Like and Unlike
+            if($(this).text()=="Like")
+            {
+                $(this).text("Unlike");
+            } else {
+                $(this).text("Like");
+            }
+            
+            
+            // update the text in the number_of_likes class div
+            
+            //  
             //document.getElementById("#click_to_like_" + $(this).attr("id")).innerHTML = "Unlike"
-            alert($(this).attr("id"));
-            $($(this).attr("id")).update("Unlike")
-            //$('#like_success_' + $(this).attr("id")).show();
+            //alert($(this).attr("id"));
+            //$($(this).attr("id")).update("Unlike")
         });
         
         // to submit a comment
-        $('div .submit_comment').click(function(){
-            var id = "#form_comment_" + ($(this).attr("id")).substring(14);
-            var $inputs = $(id + ' :input');
+        $('.submit_comment_button').click(function(){
+            var name = $(".comment_input").val();
+            var referId = $(this).parents('.row').data("rid");
             jQuery.post("http://192.168.11.28/test/add_new_comment", {
-                comment: $inputs[0].value,
-                rid: $(this).attr("id").substring(14)                
+                comment: name,
+                rid: referId             
             });
             
             // now do something to confirm the comment
@@ -69,7 +101,6 @@
 
     <div class="inbox">
 
-        
         <div id="accordion">
 
             <?php
@@ -85,51 +116,61 @@
                         $likesArray = $tempArray['LikesList'];
                         $tempArray = $row->CommentsList;
                         $commentsArray = $tempArray['CommentsList'];
-                        $likeButtonId = urlencode("#click_to_like_" . $row->rid);
-                        $commentButtonId = urlencode("#click_to_comment_" . $row->rid);
-
-                        //var_dump($likesArray);
                         
-                        // single vendor
-                        // vendor name here
+                        if (count($likesArray)>0) {
+                            $likeNumber = count($likesArray) . " people like this.";
+                        } else {
+                            $likeNumber = "";
+                        }
+                        
+                        // if uid does not exist in the Likes rid list
+                        if ($row->alreadyLiked == 1) {
+                            $likeStatus = "Unlike";
+                        } else {
+                            $likeStatus = "Like";
+                        }
+                        
+                        // HEADER of accordion BEGINS HERE
                  ?>
                         <h3><a href=#> <?php echo $row->name; ?>
 <!--                        sub title here-->
                         <h5> <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"</h5>
-<!--                        like button here -->
-                        <p><table><td><a href=# class="click_to_like" id=<?php echo $likeButtonId; ?>>Like</a></td>
+<!--                        new div for like/comment button, comment fields, etc like button here -->
+                        <div class="row" data-rid=<?php echo $row->rid; ?>>
+                        <p><table><td><div class="click_to_like"><?php echo $likeStatus; ?></div></td>
 <!--                        comment button here -->
-                        <td><a href=# class="click_to_comment" id=<?php echo $commentButtonId; ?>>Comment</a></td>
+                        <td><div class="click_to_comment">Comment</div></td>
 <!--                        '# of your friends have Liked this'  here -->
-                        <td><?php if (count($likesArray)>0) {echo count($likesArray) . " people like this.";} ?></td>
-                        </table></p>
+                        <td><div class="number_of_likes"><?php echo $likeNumber; ?></div></td>
+                        </table>
                         
 <!--                        comment box div-->
-                        
                         <?php
-                        $comment_box_id = urlencode("comment_box_" . $row->rid);
-                        $form_comment_id = urlencode("form_comment_" . $row->rid);
-                        $submit_button_id = urlencode("submit_button_" . $row->rid);
-                        $input_id = urlencode("input_" . $row->rid);
+                        echo $row->rid;
+
                         ?>
                         
-                        <p><div id=<?php echo $comment_box_id; ?> class = "comment_box" style="display: none">
-                        <form name="form_comment" id=<?php echo $form_comment_id; ?>>
-                            <table><td><input type="text" class="comment_input" id="<?php echo $input_id; ?>"/></td><td>
-                                    <a href="#" class="submit_comment" id=<?php echo $submit_button_id; ?>><p>Submit</p></a></form></td></table>
-                        </div> </p>
-                        
+                            <div class="comment_box">
+                            <form name="form_comment" method="post">
+                                <table>
+                                    <td><input type="text" class="comment_input"/></td>
+                                    <td><button type="submit" class="submit_comment_button">
+                                            <p>Submit</p></button></td>
+                                </table>
+                            </form>
+                            </div>
+                        </p></div>
 <!--                        end of the header of accordion section-->
                         </a></h3>
                         
 <!--                        vendor details here (among anything else)-->
-                        <div><h5>
+                        <div class="drop_down_details"><h5>
                         <?php echo $row->addrNum . " " . $row->addrStreet . "</br>"; // add all list detail here
                         echo $row->addrCity . " " . $row->addrState . " " . $row->addrZip . "</br>";
                         echo $row->phone . "</br>";
                         echo $row->website;
                         echo "</h5></div>";
-                                
+                        
                         // TODO: dragability, @andyjiang
                     } else {
                         // list 
@@ -142,32 +183,7 @@
                     }
                 }
             ?>
-<!--                <h3><a href="#">Section 1</a></h3>
-                <div>
-                        <p>
-                Vendor detail
-                </div>
-                <h3><a href="#">Section 2</a></h3>
-                <div>
-                        <p>
-                DATA HERE
-                </div>
-                <h3><a href="#">Section 3</a></h3>
-                <div>
-                        <p> data here
-                        <ul>
-                                <li>List item one</li>
-                                <li>List item two</li>
-                                <li>List item three</li>
-                        </ul>
-                </div>
-                <h3><a href="#">Section 4</a></h3>
-                <div>
-                        <p>Cras dictum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lacinia mauris vel est. </p><p>Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. </p>
-                </div>
-
-                ?>-->
-
+                                
         </div>
 
     </div>

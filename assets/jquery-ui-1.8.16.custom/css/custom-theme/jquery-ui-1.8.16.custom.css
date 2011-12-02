@@ -8,6 +8,13 @@
  * http://docs.jquery.com/UI/Theming/API
  */
 
+ 
+/* Added by Kim Hsiao*/
+.formattedTable {
+    font-size:10px;
+    font-family:helvetica;
+}
+
 /* Layout helpers
 ----------------------------------*/
 .ui-helper-hidden { display: none; }
