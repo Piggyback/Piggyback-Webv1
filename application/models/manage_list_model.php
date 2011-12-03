@@ -49,7 +49,6 @@ class Manage_List_Model extends CI_Model {
         $lid = mysql_insert_id();
         
         // create individual list that contains vendor information and comments
-        // TODO: manipulate box array of vid's without using checkboxes @andyjiang
         //       to put one vid in box if its just one vendor
         foreach($fieldData['box'] as $checkedItem)
         {
@@ -77,7 +76,6 @@ class Manage_List_Model extends CI_Model {
         $lid = $fieldData['lid'];
         $vid = $fieldData['vid'];
         
-        // TODO: implement comments into Lists rows @andyjiang
         $comment = "test comment here";
         
         // create new Lista row

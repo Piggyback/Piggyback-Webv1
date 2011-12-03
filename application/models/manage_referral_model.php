@@ -155,6 +155,7 @@ class Manage_Referral_Model extends CI_Model {
             // retrieve a 'Comments' with uid's
             $this->db->select('*');
             $this->db->from('Comments');
+            $this->db->join('Users', 'Users.uid = Comments.uid', 'left');
             $this->db->where('rid', $rid);
             $CommentsList = $this->db->get()->result();
             

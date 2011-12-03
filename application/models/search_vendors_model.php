@@ -25,7 +25,9 @@ class search_vendors_model extends CI_Model {
         // if no results for geocoding, return error message
         if ($geocodeArray->status != "OK"){
             $retArray['searchResults'] = array("error","locationError",$geocodeArray->status);
-            return $retArray;
+            echo json_encode($retArray);
+            return;
+//            return $retArray;
         }
         $lat = $geocodeArray->results[0]->geometry->location->lat;
         $long = $geocodeArray->results[0]->geometry->location->lng;
@@ -38,23 +40,33 @@ class search_vendors_model extends CI_Model {
         // return error string: ZERO_RESULTS, OVER_QUERY_LIMIT, REQUEST_DENIED, or INVALID_REQUEST
         if ($searchArray->status != 'OK') {
             $retArray['searchResults'] = array("error","searchError",$searchArray->status);
-            return $retArray;
+            echo json_encode($retArray);
+            return;
+//            return $retArray;
         }
         
         // if there are results, use reference ID to get details and store details in vendorArray
         else if ($searchArray->status == 'OK') {
             $searchResults = $searchArray->results;
-            foreach ($searchResults as $vendor) {
+//            foreach ($searchResults as $vendor) {
+            $vendor = $searchResults[0];    // TODO: REMOVE THIS -- only will return 1 result
                 $reference = $vendor->reference;
                 $vendorDetailRequest = file_get_contents(MAPS_HOST."/place/details/json?reference=".$reference."&sensor=false&key=".KEY);
                 $vendorArray[] = json_decode($vendorDetailRequest);
-            }
+                
+    $vendor = $searchResults[1];    // TODO: REMOVE THIS -- only will return 1 result
+                $reference = $vendor->reference;
+                $vendorDetailRequest = file_get_contents(MAPS_HOST."/place/details/json?reference=".$reference."&sensor=false&key=".KEY);
+                $vendorArray[] = json_decode($vendorDetailRequest);
+//            }
             
-            echo json_encode($vendorArray);
+//            echo json_encode($vendorArray);
             $retArray['srcLat'] = $lat;
             $retArray['srcLng'] = $long;
             $retArray['searchResults'] = $vendorArray;
-            return $retArray;
+            echo json_encode($retArray);
+            return;
+//            return $retArray;
         }
     }
     

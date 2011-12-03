@@ -35,6 +35,8 @@ class test extends CI_Controller {
         $currentUserData = $this->session->userdata('currentUserData');
         $this->load->model('manage_referral_model');
         $this->manage_referral_model->add_new_comment($currentUserData);
+        
+        echo "success";
     }
     
     /*
