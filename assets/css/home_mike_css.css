@@ -1,0 +1,350 @@
+/* 
+    Document   : home_css
+    Created on : Nov 30, 2011, 6:49:47 AM
+    Author     : gaobi
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+html, body, input {
+    font-family: arial,sans-serif;
+}
+html, body { 
+    font-size: 90%;
+    overflow: hidden;
+    border: 0 none;
+    margin: 0;
+    height:100%;
+}
+body {
+    background: none repeat scroll 0 0 #FFFFFF;
+    color: #000000;
+    padding-bottom: 0;
+}
+div, form {
+    margin: 0;
+}
+
+ul#icons {
+    margin: 0; 
+    padding: 0;
+}
+ul#icons li {
+    margin: 2px; 
+    position: relative; 
+    padding: 4px 0; 
+    cursor: pointer; 
+    float: left;  
+    list-style: none;
+}
+ul#icons span.ui-icon {
+    float: left; 
+    margin: 0 4px;
+}
+
+/* CSS borrowed from Google reader */
+/* top bar */
+#top-bar {
+    border-bottom: 1px solid #E5E5E5;
+    height: 60px;
+    position: relative;
+}
+
+/*logo*/
+#logo-container {
+    clear: left;
+    padding: 0;
+}
+
+#left-list-pane, #logo-container, #left-list-pane-header, #scrollable-sections-bottom {
+    width: 264px;
+}
+
+a, a:visited, .link {
+    color: #1155CC;
+}
+
+#logo {
+    background: url(../images/piggyback.png) no-repeat scroll 0 0 transparent;
+    cursor: pointer;
+    height: 27px;
+    margin: -10px 0 0;
+    position: absolute;
+    top: 50%;
+    width: 138px;
+}
+
+span.none {
+    display: none;
+}
+
+#logo {
+    margin-left: 44px;
+}
+
+#top-nav-bar {
+    margin-left: 264px;
+}
+
+#top-nav-bar {
+    min-width: 600px;
+}
+
+#search {
+    display: inline-block;
+    width: 76%;
+    padding: 20px 0;
+}
+
+#search-box-label {
+    margin: 0;
+    float: left;
+    font-size: 15px;
+}
+
+#search-box {
+    margin: 0 5px;
+    width: 250px;
+    display: inline-block;
+    position: relative;
+}
+
+#search-location-label {
+    margin: 0;
+    font-size: 15px;
+}
+
+#search-location {
+    margin: 0 5px;
+    width: 200px;
+    display: inline-block;
+    position: relative;
+}
+
+#searchbutton {
+    display: inline-block;
+    position: relative;
+    border-radius: 2px 2px 2px 2px;
+    cursor: default;
+    margin-right: 16px;
+    min-width: 54px;
+    outline: 0 none;
+    padding: 0 8px;
+    text-align: center;
+    
+}
+
+/*logout*/
+#logout {
+    z-index: 10;
+    cursor: pointer;
+    position: absolute;
+    right: 5px;
+    top: 21px;
+}
+
+/*main page below top bar*/
+#main {
+    overflow-x: auto;
+    position: relative;
+}
+
+/*left-list-pane*/
+#left-list-pane {
+    float: left;
+}
+
+#left-list-pane-header {
+    height: 57px;
+    border-bottom: 1px solid #EBEBEB;
+    position: relative;
+}
+
+#my-lists-heading {
+    margin-left: 44px;
+}
+
+#my-lists-heading {
+    display: block;
+    height: 27px;
+    margin-right: auto;
+    margin-top: -13px;
+    position: absolute;
+    top: 50%;
+    width: 220px;
+}
+
+#scrollable-sections-holder {
+    position: relative;
+/*    height: 100%;*/
+}
+
+#scrollable-sections {
+    overflow-y: auto;
+    position: relative;
+/*    bottom: 0;*/
+}
+
+#lists-container {
+    position: relative;
+    line-height: 21px;
+    font-size: 13px;
+}
+
+#lists {
+    margin: 0;
+    font-size: 13px;
+    line-height: 21px;
+    padding: 0;
+    position: relative;
+}
+
+#lists li {
+    background: none repeat scroll 0 0 #FFFFFF;
+    list-style-type: none;
+    margin: 2px 0;
+    position: relative;
+    font-size: 13px;
+    line-height: 21px;
+    margin-right: auto;
+}
+
+#lists li {
+    margin-left: 44px;
+}
+
+#scrollable-sections-bottom {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+    bottom: 0;
+    opacity: 1;
+    height: 8px;
+    left: 0;
+    margin-right: 0;
+    position: absolute;
+}
+
+/*content*/
+#content-frame {
+    margin-left: 264px;
+}
+
+#content-frame {
+    min-width: 700px;
+}
+
+#content-viewer-container {
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+    width: 100%;
+}
+
+#content-viewer {
+    padding: 0;
+    vertical-align: top;
+}
+
+#viewer-container {
+    background: none repeat scroll 0 0 #FFFFFF;
+}
+
+#viewer-page-container {
+/*    background: none repeat scroll 0 0 #FFFFFF;*/
+/*    display: block;*/
+    overflow-x: visible;
+    overflow-y: auto;
+    position: relative;
+}
+
+#content {
+    padding: 0;
+}
+
+#search-tab{
+    display: none;
+}
+
+/*search*/
+.formatted-table {
+    width: 100%;
+    font-size: 13px;
+    font-family: helvetica;
+}
+
+.formatted-table-info {
+    width: 50%;
+}
+
+.formatted-table-button {
+    width: 50%;
+    float: right;
+    font-size: 13px;
+    font-family: helvetica;
+}
+
+.dialog_link {
+    padding: .4em 1em .4em 20px;
+    text-decoration: none;
+    position: relative;
+}
+
+.dialog_link span.ui-icon {
+    margin: 0 5px 0 0;
+    position: absolute;
+    left: .2em;
+    top: 50%;
+    margin-top: -8px;
+}
+
+#right-col {
+    width:300px; 
+    height:100px; 
+    float:right; 
+    margin-bottom:10px;
+}
+
+#popup-widget {
+    width:300p; 
+    height:100px; 
+    float:left; 
+    margin-buttom:10px;
+}
+
+#comment-area {
+    width:100%; 
+    margin-top:10px; 
+    clear:both
+}
+
+#fuzz {
+    position:absolute; 
+    opacity:.7; 
+    top:0; 
+    left:0; 
+    width:100%; 
+    z-index:100; 
+    background-color:black; 
+    display:none; 
+    text-align:left;
+    height:100%;
+}
+
+/*footer*/
+
+#footer {
+    clear: both;
+    position: relative;
+    height: 100%;
+}
+
+#tempfooter {
+    position: relative;
+    text-align: center;
+    opacity: 0.5;
+    padding: 1em 0;
+}

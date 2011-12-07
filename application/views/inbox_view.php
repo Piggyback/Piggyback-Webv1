@@ -1,188 +1,282 @@
-<meta charset="utf-8">
+<!DOCTYPE html>
 
-<title>Your Piggyback Inbox</title> 
-    <link rel="stylesheet" media="screen" href="../../assets/jquery-ui-1.8.16.custom/css/custom-theme/jquery-ui-1.8.16.custom.css" type="text/css" />
-    <link rel="stylesheet" media="screen" href="../../assets/css/style2.css" type="text/css" />
-    <script src="../../assets/jquery-ui-1.8.16.custom/js/jquery-1.6.2.min.js" type="text/javascript"></script>
-    <script src="../../assets/jquery-ui-1.8.16.custom/js/jquery-ui-1.8.16.custom.min.js" type="text/javascript"></script>
-
-    <script>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>Piggyback</title>
+        <link rel="stylesheet" media="screen" href="../../assets/jquery-ui-1.8.16.custom/css/custom-theme/jquery-ui-1.8.16.custom.css" type="text/css" />
+        <link rel="stylesheet" type="text/css" href="../assets/css/home_mike_css.css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="../assets/css/home_andy_css.css" media="screen" />
+        <script type="text/javascript" src="../assets/js/jquery.min.js" ></script>
+        <script type="text/javascript" src="../assets/jquery-ui-1.8.16.custom/js/jquery-ui-1.8.16.custom.min.js"></script>
+        <script type="text/javascript" src="../assets/js/date.format.js"></script>
+        <script type="text/javascript" src="../assets/js/home_mike_js.js"></script>
+        <script type="text/javascript" src="../assets/js/home_andy_js.js"></script>
+        <script type="text/javascript" src="../assets/js/home_kim_js.js"></script>
+        
+        <script>
         // eventually move all javascript code into separate file and call it,
         // want to expose as little as possible
         // TODO: migrate js code into separate file @andyjiang #inboxview
-    $(function() {
-        
-        // initialize the accordion features
-        $( "#accordion" ).accordion({
-            header: 'h3',    
-            collapsible: true,
-            autoHeight: true,
-            navigation: true,
-            active: 'none'
-        });
-        
-        // override click handler for p text, tables
-        // allows for Like and Comment button in the header
-        $("#accordion p a, #accordion table").click(function(e) {
-            e.stopPropagation();
-        });
-        
-        // override the space and enter key from performing accordion action
-        $('.comment_input').keydown(function(e){
-            if(e.which==32 || e.which==13){
-                e.stopPropagation();
-            }
-        });
-        
-        // hide all comment boxes
-        $('.comment_box').hide();
-        
-        // show comment div upon click
-        $('.click_to_comment').click(function(){
-            //alert("HI");
-            $(this).parents('.row').children('.comment_box').show();
+        $(function() {
             
-        });
-        
-        // perform like action upon click
-        $('.click_to_like').click(function(){
-            var referId = $(this).closest('.row').data("rid");
-            var likes = $(this).closest('.row').find('.number_of_likes');
-            
-            jQuery.post("http://192.168.11.28/test/perform_like_action", {
-                rid: referId
-            }, function(likeCount){
-                if(likeCount>0)
-                    likes.text(likeCount + " people like this.");
-                else
-                    likes.text("");
-            });
-            
-            // toggle Like and Unlike
-            if($(this).text()=="Like")
-            {
-                $(this).text("Unlike");
-            } else {
-                $(this).text("Like");
+            // bind functions
+            function bindInboxItem() {
+                bindAccordionInbox();
+                overrideAccordionEvent();
+                initCommentInputDisplay();
+                initLike();
+                initComment();
             }
             
-        });
-        
-        // to submit a comment
-        $('.submit_comment_button').click(function(){
-            var name = $(this).closest('.row').find('.comment_input').val();
-            var referId = $(this).closest('.row').data("rid");
-            // if the comment is not empty, then proceed with ajax 
-            alert(name);
-            if( name == "") {
-                //alert("comment is empty");
-            } else {
-                jQuery.post("http://192.168.11.28/test/add_new_comment", {
-                    comment: name,
-                    rid: referId             
-                }, function(test){
-                    alert("test");
+            var loadStart=3;
+            // call more data from mysql ('load more' button action)
+            $('.load-more-button').click(function(){
+                alert('i made it');
+                // jquery post to retrieve more rows
+                jQuery.post("http://192.168.11.28/test/get_more_inbox", {
+                    rowStart: loadStart
+                }, function(data) {
+                    var parsedJSON = jQuery.parseJSON(data);
+                    displayMoreReferrals(parsedJSON);
+                    loadStart = loadStart+3;
                 });
-            }
-            //}
-            
-            // now do something to confirm the comment
-        });
-        
-        
-    });
-    </script>
+            });
 
-    
+            // display additional rows
+            function displayMoreReferrals(moreRows) {
+                // moreRows is a parsedJSON object
+                // create a string that captures all HTML required to write the next referral
+                var displayReferralsHTMLString = "";
+                var likeNumber = 0;
+                var likeStatus = "";
 
-    <div class="inbox">
-
-        <div id="accordion">
-
-            <?php
-                foreach ($inboxItems as $row)
-                {
+                for(var i=0; i<moreRows.length; i++) {
+                    likeNumber = moreRows[i].LikesList['LikesList'].length;
                     
-                    // determine if $row is a list or single vendor
-                    if ( $row->lid == 0 )
-                    {   
-                        // get some vital variables ready
-                        // the count of likes
-                        $tempArray = $row->LikesList;
-                        $likesArray = $tempArray['LikesList'];
-                        $tempArray = $row->CommentsList;
-                        $commentsArray = $tempArray['CommentsList'];
-                        
-                        if (count($likesArray)>0) {
-                            $likeNumber = count($likesArray) . " people like this.";
-                        } else {
-                            $likeNumber = "";
-                        }
-                        
-                        // if uid does not exist in the Likes rid list
-                        if ($row->alreadyLiked == 1) {
-                            $likeStatus = "Unlike";
-                        } else {
-                            $likeStatus = "Like";
-                        }
-                 ?>
-            
-<!--                        BEGINNING OF HEADER HERE of the ACCORDION    -->
-                        <h3><a> <?php echo $row->name; ?>
-<!--                        sub title here-->
-                        <h5> <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"</h5>
+                    //alert(likeNumber);
                     
-<!--                        new div for like/comment button, comment fields, etc like button here -->
-                        <div class="row" data-rid=<?php echo $row->rid; ?>>
-                        <p>
-                        <table>
-                        <td><div class="click_to_like" style="padding-right: 20px; padding-top: 5px; padding-bottom: 5px;" data-likeCounts=<?php echo $likeNumber; ?>><?php echo $likeStatus; ?></div></td>
-<!--                        comment button here -->
-                        <td><div class="click_to_comment" style="padding-right: 20px; padding-top: 5px; padding-bottom: 5px;">Comment</div></td>
-<!--                        '# of your friends have Liked this'  here -->
-                        <td><div class="number_of_likes" style="padding-top: 5px; padding-bottom: 5px;"><?php echo $likeNumber; ?></div></td>
-                        </table>
-<!--                        // create the divs to show other peoples comments-->
-                        <?php foreach($commentsArray as $line): ?>
-                            <div class="comments" style="padding-bottom: 2px;">
-                            <table><td><p style="margin-left: 0px; padding-bottom: 2px;"><?php echo $line->firstName . " " . $line->lastName . ": "; ?></p></td>
-                                   <td><p style="margin-left: 15px; padding-bottom: 2px;"><?php echo $line->comment; ?></p></td></table>
-                            </div>
-                        <?php endforeach; ?>
-
-                            <div class="comment_box">
-                            <form name="form_comment" method="post">
-                                <table>
-                                    <td><input type="text" class="comment_input"/></td>
-                                    <td><button type="submit" class="submit_comment_button">
-                                            <p>Submit</p></button></td>
-                                </table>
-                            </form>
-                            </div>
-                        </p></div>
-<!--                        END HEADER OF ACCORDION HERE ENDS HERE      -->
-                        </a></h3>
-                        
-<!--                        vendor details here (among anything else)-->
-                        <div class="drop_down_details"><h5>
-                        <?php echo $row->addrNum . " " . $row->addrStreet . "</br>"; // add all list detail here
-                        echo $row->addrCity . " " . $row->addrState . " " . $row->addrZip . "</br>";
-                        echo $row->phone . "</br>";
-                        echo $row->website;
-                        echo "</h5></div>";
-                        
-                        // TODO: dragability, @andyjiang
-                    } else {
-                        // list
-                        echo "<h3><a href=\"#\">" . $row->UserListsName . " list</br>";
-                        echo "<h5>" . $row->firstName . " " . $row->lastName . " says " . "\"" . $row->ReferralsComment . "\"";
-                        echo "</p></a></h5></h3>";
-                        echo "<div><p>" . $row->firstName . " " . $row->lastName; // add all list detail here
-                        echo "</div>";
+                    if(likeNumber>0) {
+                        if(likeNumber == 1) {
+                            likeNumber = likeNumber + " person likes this.";
+                        } else {
+                            likeNumber = likeNumber + " people like this.";
+                        }
                     }
-                }
-            ?>
-                                
-        </div>
+                    else {
+                        likeNumber = "";
+                    }
+                    
+                    if (moreRows[i].alreadyLiked) {
+                        likeStatus = "Unlike";
+                    } else {
+                        likeStatus = "Like";
+                    }
+                    
+                    displayReferralsHTMLString = displayReferralsHTMLString + 
+                    "<div class='inbox-single-wrapper'>" +
+                        "<div class='referral-date'>" +
+                            moreRows[i].refDate +
+                        "</div>" +
+                       "<a>" + moreRows[i].name +
+                            "<div class='friend-referral-comment'>" + 
+                                moreRows[i].firstName + " " + moreRows[i].lastName + " says " + moreRows[i].ReferralsComment + 
+                            "</div>" + 
+                                "<div class='row' data-rid=" + moreRows[i].rid +
+                                    "<div class='click-to-like no-accordion' data-likeCounts=" + likeNumber + ">" +
+                                        likeStatus + 
+                                    "</div>" +
+                                    "<div class='click-to-comment no-accordion'>" + 
+                                        "Comment" +
+                                    "</div>" +
+                                    "<div class='number-of-likes no-accordion'>" +
+                                        likeNumber +
+                                    "</div>" +
+                                    "<div class='comments'>" +
+                                        "<table class='comments-table'>";
 
-    </div>
+                   // comments here
+//                   for(var j=0; j<moreRows[i].CommentsList['CommentsList'].length; j++) {
+//                       displayReferralsHTMLString = displayReferralsHTMLString +
+//                           "<tr class='inbox-single-comment'>" +
+//                                "<td class='comments-name'>" +
+//                                    moreRows[i].CommentsList['CommentsList'].firstName + " " + moreRows[i].CommentsList['CommentsList'].lastName + ": " +
+//                                "</td>" +
+//                                "<td class='comments-content'>" +
+//                                    moreRows[i].CommentsList['CommentsList'].comment +
+//                                "</td>" +
+//                           "</tr>";
+//                   }
+                   
+                   displayReferralsHTMLString = displayReferralsHTMLString +
+                       "</table>" +
+                       "</div>" + 
+                       "<div class='comment-box no-accordion'>" +
+                            "<form name='form-comment' class='form-comment' method='post'>" +
+                                "<input type='text' class='comment-input'/>" +
+                                    "<button type='submit' class='submit-comment-button'>" +
+                                        "Submit" +
+                                    "</button>" +
+                                "</form>" +
+                           "</div>" +
+                       "</div>" +
+                   "</a>" +
+                   "</div>";
+               }
+               
+               // add the html at the last index-single-wrapper
+               $('#accordion-inbox').find('.inbox-wrapper').last().append(displayReferralsHTMLString);
+   
+            }
+
+
+            $('.delete-comment').click(function(){
+                alert('delete comment');
+                $(this).closest()
+                jQuery.post("http://192.168.11.28/test/remove_comment", {
+                    rowStart: loadStart
+                }, function(data) {
+                    var parsedJSON = jQuery.parseJSON(data);
+                    displayMoreReferrals(parsedJSON);
+                    loadStart = loadStart+3;
+                });
+            });
+
+
+        });
+    </script>
+        
+    </head>
+    <body>
+
+
+        <div id="inbox">
+            <div id="accordion-inbox">
+                <div class="inbox-wrapper">
+                <?php
+                    foreach ($inboxItems as $row)
+                    {
+
+                        // determine if $row is a list or single vendor
+                        if ( $row->lid == 0 )
+                        {   
+                            // get some vital variables ready
+                            // the count of likes
+                            $tempArray = $row->LikesList;
+                            $likesArray = $tempArray['LikesList'];
+                            $tempArray = $row->CommentsList;
+                            $commentsArray = $tempArray['CommentsList'];
+
+                            $likesArrayCount = count($likesArray);
+                            $likeNumber = "";
+                            if ($likesArrayCount>0) {
+                                $likeNumber = "$likesArrayCount";
+                                if ($likesArrayCount == 1) {
+                                    $likeNumber = $likeNumber . " person likes this.";
+                                } else {
+                                    $likeNumber = $likeNumber . " people like this.";
+                                }
+                            } 
+                            // if uid does not exist in the Likes rid list
+                            if ($row->alreadyLiked == 1) {
+                                $likeStatus = "Unlike";
+                            } else {
+                                $likeStatus = "Like";
+                            }
+                 ?>
+
+                    <!-- comments for andy
+                        -Add proper indenting to HTML
+                        -Like text has lots of whitespace; use jQuery.trim
+                        -Make comment font smaller
+                        -Clean up code
+                    -->
+
+                            <!-- BEGINNING OF HEADER HERE of the ACCORDION    -->
+                        <div class="inbox-single-wrapper">
+                            <!-- DATE -->
+                            <div class="referral-date">
+                                <?php echo $row->refDate; ?>
+                            </div>
+                            <a> <?php echo $row->name; ?>
+                                <!-- sub title here-->
+                                <div class="friend-referral-comment"> 
+                                    <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"
+                                </div>
+                                    <!-- new div for like/comment button, comment fields, etc like button here -->
+                                    <div class="row" data-rid=<?php echo $row->rid; ?>>
+                                        <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
+                                            <?php echo $likeStatus; ?>
+                                        </div>
+                <!--                                                                                     comment button here -->
+                                        <div class="click-to-comment no-accordion">
+                                            Comment
+                                        </div>
+                                        <div class="number-of-likes no-accordion">
+                                            <?php echo $likeNumber; ?>
+                                        </div>
+
+                                        <!-- create the divs to show other peoples comments-->
+                                        <div class="comments" >
+                                            <table class="comments-table"> 
+                                                <?php foreach($commentsArray as $line): ?>
+                                                    <tr class='inbox-single-comment' data-date=<?php echo $row->date;?> >
+                                                        <td class="comments-name">
+                                                            <?php echo $line->firstName . " " . $line->lastName . ": "; ?>
+                                                        </td>
+                                                        <td class="comments-content">
+                                                            <?php echo $line->comment; ?>
+                                                        </td>
+                                                        <td>
+                                                            <button class="delete-comment">x</button>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </table>
+                                        </div>
+
+                                        <div class="comment-box no-accordion">
+                                            <form name="form-comment" class="form-comment" method="post">
+                                                <input type="text" class="comment-input"/>
+                                                <button type="submit" class="submit-comment-button">
+                                                    Submit
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                            </a>
+                        </div>
+                        <!-- END HEADER OF ACCORDION HERE ENDS HERE -->
+                        <!-- vendor details here (among anything else)-->
+                        <div class="drop-down-details">
+                            <?php echo $row->addrNum . " " . $row->addrStreet . "<br>"; // add all list detail here
+                            echo $row->addrCity . " " . $row->addrState . " " . $row->addrZip . "<br>";
+                            echo $row->phone . "<br>";
+                            echo $row->website;
+                        echo "</div>";
+
+                        // TODO: dragability, @andyjiang
+                        } else {
+                            // list
+                            echo "<div class='inbox-list-wrapper'>";
+                                echo "<a href=\"#\">" . $row->UserListsName . " list<br>";
+                                    echo "<div class='friend-referral-comment'>" . $row->firstName . " " . $row->lastName . " says " . "\"" . $row->ReferralsComment . "\"";
+                                    echo "</div>";
+                                echo "</a>";
+                            echo "</div>";
+                            echo "<div class='list-row'>" . $row->firstName . " " . $row->lastName; // add all list detail here
+                            echo "</div>";
+                        }
+                    }
+                ?>
+
+                </div>
+                </div>
+            </div>
+            <!--                                a button you can press to load more rows-->
+ <div class="load-more-button">Load more..</div>    
+        </div>
+        
+        
+    </body>
+</html>

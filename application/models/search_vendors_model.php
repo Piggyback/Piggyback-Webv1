@@ -70,10 +70,58 @@ class search_vendors_model extends CI_Model {
         }
     }
     
+    // return a list of people who are friends with the current user
+    // the returned list is in json format so that javascript can read it as an array
+    function get_friends_list() {
+        $this->load->database();
+
+        // get friends of current user
+        $currentUserData = $this->session->userdata('currentUserData');
+        $currentUID = $currentUserData['uid'];
+        $friendQuery = "SELECT uid, fbid, email, firstName, lastName
+                        FROM Users
+                        WHERE uid IN (SELECT uid2 FROM Friends WHERE uid1 = $currentUID
+                                      UNION
+                                      SELECT uid1 FROM Friends WHERE uid2 = $currentUID)";
+        $friends = mysql_query($friendQuery);
+
+        // create friend name list in a string that javascript will understand
+        $friendTags = "[";
+        while ($friend = mysql_fetch_row($friends)) {
+            $friendTags = $friendTags . "\"$friend[3] $friend[4]\",";
+            $friendArray[] = $friend;
+        }
+        $friendTags[strlen($friendTags)-1] = "]";
+        
+        $retArray['friendTags'] = $friendTags;
+        $retArray['allFriendsArray'] = $friendArray;
+        $retArray['myUID'] = $currentUID;
+        echo json_encode($retArray);
+        return;
+    }
+   
+    // add a referral to the database when a user refers a vendor to another user
     function add_referral()
     {
-        $query = $_GET["q"];
-        $vid = $_GET["vid"];
+        // pull paremeters
+        $query = $_POST["q"];
+        $name = $_POST["name"];
+        $reference = $_POST["reference"];
+        $id = $_POST["id"];
+        $lat = $_POST["lat"];
+        $lng = $_POST["lng"];
+        $phone = $_POST["phone"];
+        $addr = $_POST["addr"];
+        $addrNum = $_POST["addrNum"];
+        $addrStreet = $_POST["addrStreet"];
+        $addrCity = $_POST["addrCity"];
+        $addrState = $_POST["addrState"];
+        $addrCountry = $_POST["addrCountry"];
+        $addrZip = $_POST["addrZip"];
+        $vicinity = $_POST["vicinity"];
+        $website = $_POST["website"];
+        $icon = $_POST["icon"];
+        $rating = $_POST["rating"];
         
         // add referrals to Referral table
         $this->load->database();
@@ -106,9 +154,22 @@ class search_vendors_model extends CI_Model {
             $rid = $resultRow[0];
             
             // add new row to ReferralDetails table using this rid and the vid
-            $addReferralDetailQuery = "INSERT INTO ReferralDetails VALUES ($rid,\"$vid\",0,0)";
+            $addReferralDetailQuery = "INSERT INTO ReferralDetails VALUES ($rid,\"$id\",0,0)";
             echo $addReferralDetailQuery;
             mysql_query($addReferralDetailQuery);
+        }
+        
+        // add vendor to vendor database if it does not exist yet
+        $existingVendorQuery = "SELECT id 
+            FROM Vendors 
+            WHERE id = \"$id\"";
+        $existingVendorResult = mysql_query($existingVendorQuery);
+        $count = mysql_num_rows($existingVendorResult);
+        if ($count == 0) {
+           $addVendorQuery = "INSERT INTO Vendors 
+                           VALUES (\"$name\",\"$reference\",\"$id\",$lat,$lng,\"$phone\",\"$addr\",\"$addrNum\",\"$addrStreet\",\"$addrCity\",\"$addrState\",\"$addrCountry\",\"$addrZip\",\"$vicinity\",\"$website\",\"$icon\",$rating)";
+            echo "\n\nquery: $addVendorQuery";
+            mysql_query($addVendorQuery);
         }
     }
 }

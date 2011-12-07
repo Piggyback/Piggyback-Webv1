@@ -163,14 +163,14 @@
                                 });
                                 
                                 // update display of friends added to referral list
-                                function displayAddedFriends() {
-                                    var displayFriends = "<table><th style=\"font-size:13px; font-family:helvetica; font-weight:bold;\">List of friends to refer</th>";
-                                    for (var i = 0; i < friendList.length; i++) {
-                                        displayFriends = displayFriends + "<tr><td style=\"font-size:12px; font-family:helvetica;\">" + friendList[i][3] + " " + friendList[i][4] + "</td><td><img class=\"delete\" src=\"../../assets/jquery-ui-1.8.16.custom/css/custom-theme/images/del.png\" style=\"z-index:2000;\"/></td></tr>";
-                                    }
-                                    displayFriends = displayFriends + "</table>";
-                                    document.getElementById("addedFriends").innerHTML = displayFriends; 
-                                }
+//                                function displayAddedFriends() {
+//                                    var displayFriends = "<table><th style=\"font-size:13px; font-family:helvetica; font-weight:bold;\">List of friends to refer</th>";
+//                                    for (var i = 0; i < friendList.length; i++) {
+//                                        displayFriends = displayFriends + "<tr><td style=\"font-size:12px; font-family:helvetica;\">" + friendList[i][3] + " " + friendList[i][4] + "</td><td><img class=\"delete\" src=\"../../assets/jquery-ui-1.8.16.custom/css/custom-theme/images/del.png\" style=\"z-index:2000;\"/></td></tr>";
+//                                    }
+//                                    displayFriends = displayFriends + "</table>";
+//                                    document.getElementById("addedFriends").innerHTML = displayFriends; 
+//                                }
                                 
 			});
                         

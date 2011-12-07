@@ -1,6 +1,9 @@
 // kimhsiao
 
 $(document).ready(function() {
+    var myUID;
+    var allFriends;
+    getFriends();
     bindHoverOver();
     bindFuzz();
 });
@@ -12,55 +15,262 @@ function bindHoverOver() {
     });
     
     $(document).on("mouseleave", ".dialog_link", function() {
-                $(this).removeClass('ui-state-hover');
+         $(this).removeClass('ui-state-hover');
     });
 }
 
 function bindFuzz() {
     $(document).on("click", "#fuzz", function(){
-                $('#dialog').dialog("close"); 
+         $('#dialog').dialog("close"); 
+    });
+}
+
+function bindDialog(friendList) {    
+    // Dialog			
+    $('#dialog').dialog({
+            autoOpen: false,
+            width: 750,
+            closeOnEscape: true,
+            show: 'drop',
+            hide: 'drop',
+            resizable: false,
+            beforeClose: function() {
+                // reset all values in pop up to blank
+                document.getElementById("explanation").value = '';
+                document.getElementById("addedFriends").innerHTML = '';
+                document.getElementById("tags").value = '';
+                friendList.length = 0;
+
+                // fade out dark background
+                $("#fuzz").fadeOut();  
+            }
+    });
+}
+
+function bindAddFriendSubmit(friendList) {
+    $(document).on("submit", "#addFriend", function(){
+          var submittedFriend = document.forms["addFriend"]["friend"].value
+          var submittedFriendFormatted = submittedFriend.toLowerCase();
+          document.forms["addFriend"]["friend"].value = '';
+          var fullName = "";
+          var isFriendFlag = 0;
+          var addedAlreadyFlag = 0;
+
+              // set autocomplete list
+              // TODO: autocomplete not working
+    //              $('#tags').autocomplete("option","source", friendTags);
+
+              // make sure added friend is actually a friend and has not been added yet
+              for (var i = 0; i < allFriends.length; i++) {
+                  fullName = allFriends[i]['firstName'] + " " + allFriends[i]['lastName'];
+
+                  if (fullName == submittedFriendFormatted) {
+                      isFriendFlag = 1;
+
+                      if (friendList.indexOf(allFriends[i]) != -1) {
+                          alert("You have already added " + submittedFriend);
+                      }
+                      else {
+                          friendList.push(allFriends[i]);
+                          displayAddedFriends(friendList);
+                      }
+                  }
+              }
+
+              // flag was not set because friend was not found with matching name
+              if (!isFriendFlag) {
+                    alert("You are not friends with " + submittedFriend);
+              }
+         return false;
+     });
+}
+
+function bindDialogLink(friendList, vendorData) {
+    // Dialog Link
+    $('.dialog_link').click(function(){
+        
+        // get id of the vendor, which is the id of the pop up button
+        var vendorID = $(this).attr('id');
+        var vendorName;
+
+        for(var i = 0; i < vendorData.length; i++) {
+            if (vendorData[i].id == vendorID) {
+                vendor = vendorData[i];
+            }
+        }
+
+        $("#fuzz").fadeIn();  
+        $('#dialog').dialog("option","title","Refer Friends to " + vendor.name);
+
+        $('#dialog').dialog("option","buttons", {
+            "Refer!": function() { 
+                if (friendList.length < 1) {
+                    alert("You did not select any friends to refer. Please try again.");
+                }
+                else {
+                    // create query for inserting row
+                    var addReferralQuery = "INSERT INTO Referrals VALUES ";
+                    for (var i = 0; i < friendList.length; i++){
+                        var now = new Date();
+                        now = now.format("yyyy-mm-dd HH:MM:ss");
+                        var comment = document.getElementById('explanation').value;
+                        var friendUID = friendList[i]['uid'];
+                        addReferralQuery = addReferralQuery + "(NULL," + myUID + "," + friendUID + ",\"" + now + "\",0,\"" + comment + "\"),";
+                        alert(addReferralQuery);
+                }
+                    addReferralQuery = addReferralQuery.slice(0,-1);
+
+                    // perform query to add referrals to database
+                    jQuery.post('searchvendors/add_referral',{
+                        q: addReferralQuery,
+                        name: vendor.name,
+                        reference: vendor.reference,
+                        id: vendor.id,
+                        lat: vendor.lat,
+                        lng: vendor.lng,
+                        phone: vendor.phone,
+                        addr: vendor.addr,
+                        addrNum: vendor.addrNum,
+                        addrStreet: vendor.addrStreet,
+                        addrCity: vendor.addrCity,
+                        addrState: vendor.addrState,
+                        addrCountry: vendor.addrCountry,
+                        addrZip: vendor.addrZip,
+                        website: vendor.website,
+                        icon: vendor.icon,
+                        rating: vendor.rating,
+                        vicinity: vendor.vicinity
+                    }, function() {
+                        $('#dialog').dialog("close");
+                    });
+                }
+            }
+        });
+
+        $('#dialog').dialog('open');
+        return false;
     });
 }
 
 /* helper functions */
+function getFriends() {
+    jQuery.post('searchvendors/get_friends', function(data) {
+          var parsedJSON = jQuery.parseJSON(data);
+          //var friendTags = parsedJSON.friendTags;
+          myUID = parsedJSON.myUID;
+          friends = parsedJSON.allFriendsArray;
+          
+          allFriends = new Array();
+          for (var i = 0; i < friends.length; i++) {
+              var oneFriend = new Array();
+              oneFriend['uid'] = friends[i][0];
+              oneFriend['fbid'] = friends[i][1];
+              oneFriend['email'] = friends[i][2];
+              oneFriend['firstName'] = friends[i][3].toLowerCase();
+              oneFriend['lastName'] = friends[i][4].toLowerCase();
+              allFriends.push(oneFriend);
+          }
+     });
+}
+
 function getVendorData(parsedJSON) {
-    //TODO: ERROR HANDLING
-    //TODO: MAKE CODE ROBUST -- if there is a missing element or if multiple cities (for example): check for type
-    var srcLat = parsedJSON.srcLat;
-    var srcLng = parsedJSON.srcLng;
 
     var results = parsedJSON.searchResults;
+    var srcLat = parsedJSON.srcLat;
+    var srcLng = parsedJSON.srcLng;
 
     var vendorData = new Array();
     for(var i=0; i<results.length; i++) {
         var singleVendor = new Array();
+        var addrComponents;
+   
+        // get values if they exist, otherwise set to default value
         singleVendor['name'] = results[i].result.name;
-        singleVendor['reference'] = results[i].result.reference;
-        singleVendor['id'] = results[i].result.id;
-        singleVendor['lat'] = results[i].result.geometry.location.lat;
-        singleVendor['lng'] = results[i].result.geometry.location.lng;
-        singleVendor['phone'] = results[i].result.formatted_phone_number;
-        singleVendor['addr'] = results[i].result.formatted_address;
-        singleVendor['addrNum'] = results[i].result.address_components[0].short_name;
-        singleVendor['addrStreet'] = results[i].result.address_components[1].short_name;
-        singleVendor['addrCity'] = results[i].result.address_components[2].short_name;
-        singleVendor['addrState'] = results[i].result.address_components[3].short_name;
-        singleVendor['addrCountry'] = results[i].result.address_components[4].short_name;
-        singleVendor['addrZip'] = results[i].result.address_components[5].short_name;
-        singleVendor['website'] = results[i].result.website;
-        singleVendor['icon'] = results[i].result.icon;
-        singleVendor['rating'] = results[i].result.rating;
-        var types = new Array();
-        // store types
-//                alert("name:" + name + "\nreference:" + reference + "\nid:" + id + "\nlat:" + lat + "\nlng:" + lng + "\nphone:" + phone + "\naddr:" + addr + "\naddrNum:" + addrNum +
-//                "\naddrStreet:" + addrStreet + "\naddrCity:" + addrCity + "\naddrState:" + addrState + "\naddrCountry:" + addrCountry + "\naddrZip:" + addrZip + "\nwebsite:" + website +
-//                "\nicon:" + icon + "\nrating:" + rating);
-        for(var j=0; j<results[i].result.types.length; j++) {
-            types[j] = results[i].result.types[j];
-//                    alert(types[j]);
+        if (singleVendor['name'] == undefined) {
+            singleVendor['name'] = "";
         }
-        singleVendor['types'] = types;
+        singleVendor['reference'] = results[i].result.reference;
+        if (singleVendor['reference'] == undefined) {
+            singleVendor['reference'] = "";
+        }
+        singleVendor['id'] = results[i].result.id;
+        if (singleVendor['id'] == undefined) {
+            singleVendor['id'] = "";
+        }
+        singleVendor['lat'] = results[i].result.geometry.location.lat;
+        if (singleVendor['lat'] == undefined) {
+            singleVendor['lat'] = 0;
+        }
+        singleVendor['lng'] = results[i].result.geometry.location.lng;
+        if (singleVendor['lng'] == undefined) {
+            singleVendor['lng'] = 0;
+        }
+        singleVendor['phone'] = results[i].result.formatted_phone_number;
+        if (singleVendor['phone'] == undefined) {
+            singleVendor['phone'] = "";
+        }
+        singleVendor['addr'] = results[i].result.formatted_address;
+        if (singleVendor['addr'] == undefined) {
+            singleVendor['addr'] = "";
+        }
+        
+        singleVendor['addrNum'] = "";
+        singleVendor['addrStreet'] = "";
+        singleVendor['addrCity'] = "";
+        singleVendor['addrState'] = "";
+        singleVendor['addrCountry'] = "";
+        singleVendor['addrZip'] = "";
+        addrComponents = results[i].result.address_components;
+        if (addrComponents != undefined) {
+            for (var j = 0; j < addrComponents.length; j++) {
+                switch (addrComponents[j].types[0]) {
+                    case "street_number":
+                        singleVendor['addrNum'] = addrComponents[j].short_name;
+                        break;
+                    case "route":
+                        singleVendor['addrStreet'] = addrComponents[j].short_name;
+                        break;
+                    case "locality":
+                        singleVendor['addrCity'] = addrComponents[j].short_name;
+                        break;
+                    case "administrative_area_level_1":
+                        singleVendor['addrState'] = addrComponents[j].short_name;
+                        break;
+                    case "country":
+                        singleVendor['addrCountry'] = addrComponents[j].short_name;
+                        break;
+                    case "postal_code":
+                        singleVendor['addrZip'] = addrComponents[j].short_name;
+                        break;
+                }
+            }
+        }
+        
+        singleVendor['website'] = results[i].result.website;
+        if (singleVendor['website'] == undefined) {
+            singleVendor['website'] = "";
+        }
+        singleVendor['icon'] = results[i].result.icon;
+        if (singleVendor['icon'] == undefined) {
+            singleVendor['icon'] = "";
+        }
+        singleVendor['rating'] = results[i].result.rating;
+        if (singleVendor['rating'] == undefined) {
+            singleVendor['rating'] = 0;
+        }
+        singleVendor['vicinity'] = results[i].result.vicinity;
+        if (singleVendor['vicinity'] == undefined) {
+            singleVendor['vicinity'] = "";
+        }
 
+        var types = new Array();
+        if (results[i].result.types != undefined) {
+            for(var j=0; j<results[i].result.types.length; j++) {
+                types[j] = results[i].result.types[j];
+            }
+            singleVendor['types'] = types;
+        }
+               
         // add singleVendor to vendorData array
         vendorData[i] = singleVendor;
     }
@@ -69,17 +279,20 @@ function getVendorData(parsedJSON) {
 
 function displaySearchResults(vendorData) {
     // add rows to accordion
-    var htmlString = "<div id='accordion'>";
+    var htmlString = "<div id='accordion-search'>";
 
     for (var i=0; i<vendorData.length; i++) {
+        var addr = vendorData[i].vicinity.split(",");
+
         htmlString = htmlString + 
             "<div>" + 
                 "<h3><a href='#'>" + vendorData[i].name + "</a></h3>" +
                 "<div> <table class='formatted-table'>" + 
                     "<td class='formatted-table-info'>" +
-                    vendorData[i].addrNum + " " + vendorData[i].addrStreet + "</br>" +
-                    vendorData[i].addrCity + " " + vendorData[i].addrState + " " + vendorData[i].addrZip + "</br>" +
-                    vendorData[i].phone + "</td>" +
+//                    vendorData[i].addrNum + " " + vendorData[i].addrStreet + "</br>" +
+//                    vendorData[i].addrCity + " " + vendorData[i].addrState + " " + vendorData[i].addrZip + "</br>" +
+//                    vendorData[i].phone + "</td>" +
+                    addr[0] + "<BR>" + addr[1] + ", " + vendorData[i].addrState + " " + vendorData[i].addrZip +
                     "<td class='formatted-table-button' align='right'>" +
                     "<p><a href='#' id=" + vendorData[i].id + " class='dialog_link ui-state-default ui-corner-all'>" +
                     "<span class='ui-icon ui-icon-plus'></span>Refer to Friends</a></p>" + 
@@ -116,86 +329,20 @@ function displaySearchResults(vendorData) {
 
     // TODO: OPTIMIZE BELOW JQUERY BINDING
     // Accordion
-    $("#accordion").accordion({ header: "h3" });
+    $("#accordion-search").accordion({ header: "h3" });
 
-    // Dialog			
-    $('#dialog').dialog({
-            autoOpen: false,
-            width: 750,
-            closeOnEscape: true,
-            show: 'drop',
-            hide: 'drop',
-            resizable: false,
-            beforeClose: function() {
-                // reset all values in pop up to blank
-                //document.getElementById("explanation").value = '';
-                //document.getElementById("addedFriends").innerHTML = '';
-                //document.getElementById("tags").value = '';
-                //friendList = [];
+    // initialize popup box for referring friends to a vendor
+    var friendList = [];
+    bindDialog(friendList);
+    bindAddFriendSubmit(friendList);
+    bindDialogLink(friendList, vendorData);
+}
 
-                // fade out dark background
-                $("#fuzz").fadeOut();  
-            },
-            buttons: {
-//                        "Refer!": function() { 
-//                            if (friendList.length < 1) {
-//                                alert("You did not select any friends to refer. Please try again.");
-//                            }
-//                            else {
-//                                // create ajax request
-//                                var ajaxRequest;
-//
-//                                // code for IE7+, Firefox, Chrome, Opera, Safari
-//                                if (window.XMLHttpRequest) {
-//                                      ajaxRequest = new XMLHttpRequest();
-//                                }
-//                                // code for IE6, IE5
-//                                else {
-//                                      ajaxRequest = new ActiveXObject("Microsoft.XMLHTTP");
-//                                }
-//
-//                                // Create a function that will receive data sent from the server
-//                                ajaxRequest.onreadystatechange=function() {
-//                                      if (ajaxRequest.readyState==4 && ajaxRequest.status==200) {
-//                                        $('#dialog').dialog("close"); 
-//                                      }
-//                                } 
-//
-//                                // create query for inserting row
-//                                var addReferralQuery = "INSERT INTO Referrals VALUES ";
-//                                for (var i = 0; i < friendList.length; i++){
-//                                    var now = new Date();
-//                                    now = now.format("yyyy-mm-dd HH:MM:ss");
-//                                    var comment = document.getElementById('explanation').value;
-//                                    var friendUID = friendList[i][0];
-//                                    addReferralQuery = addReferralQuery + "(NULL," + myUID + "," + friendUID + ",\"" + now + "\",0,\"" + comment + "\"),";
-//                                }
-//
-//                                addReferralQuery = addReferralQuery.slice(0,-1);
-//
-//                                var addReferralDetailQuery = "INSERT INTO ReferralDetails VALUES ";
-//                                var ajaxQueryString = "?q=" + addReferralQuery + "&vid=" + vendorID;
-//                                    ajaxRequest.open("GET", "http://192.168.11.28/searchvendors/add_referral" + ajaxQueryString, true);
-//                                    ajaxRequest.send(null); 
-//                                }
-//                        }
-          }
-    });
-
-    // Dialog Link
-    $('.dialog_link').click(function(){
-            // get id of the vendor, which is the id of the pop up button
-            vendorID = $(this).attr('id');
-//
-//                    for(var i = 0; i < vendorData.length; i++) {
-//                        if (vendorData[i][0] == vendorID) {
-//                            vendorName = vendorData[i][1];
-//                        }
-//                    }
-//
-//                    $('#dialog').dialog("option","title","Refer Friends to " + vendorName);
-            $("#fuzz").fadeIn();  
-            $('#dialog').dialog('open');
-            return false;
-    });
+function displayAddedFriends(friendList) {
+    var displayFriends = "<table><th style=\"font-size:13px; font-family:helvetica; font-weight:bold;\">List of friends to refer</th>";
+    for (var i = 0; i < friendList.length; i++) {
+        displayFriends = displayFriends + "<tr><td style=\"font-size:12px; font-family:helvetica;\">" + friendList[i]['firstName'] + " " + friendList[i]['lastName'] + "</td><td><img class=\"delete\" src=\"../../assets/jquery-ui-1.8.16.custom/css/custom-theme/images/del.png\" style=\"z-index:2000;\"/></td></tr>";
+    }
+    displayFriends = displayFriends + "</table>";
+    document.getElementById("addedFriends").innerHTML = displayFriends; 
 }

@@ -35,8 +35,6 @@ class test extends CI_Controller {
         $currentUserData = $this->session->userdata('currentUserData');
         $this->load->model('manage_referral_model');
         $this->manage_referral_model->add_new_comment($currentUserData);
-        
-        echo "success";
     }
     
     /*
@@ -47,13 +45,6 @@ class test extends CI_Controller {
     public function perform_like_action() {
         $currentUserData = $this->session->userdata('currentUserData');
         $this->load->model('manage_referral_model');
-        
-//        $alreadyLiked = $this->manage_referral_model->is_already_liked($currentUserData);
-//        
-//        if ($alreadyLiked)
-//            echo " user has liked it ";
-//        else
-//            echo " user has not liked it ";
         
         // first see if user has already liked it
         if ($this->manage_referral_model->is_already_liked($currentUserData) == 0){
@@ -72,6 +63,31 @@ class test extends CI_Controller {
         
     }
     
+    
+    /*
+     * test method to get 10 row items with ajax post
+     * 
+     * @andyjiang
+     */
+    public function get_more_inbox() {
+        $currentUserData = $this->session->userdata('currentUserData');
+        $this->load->model('manage_referral_model');
+        
+        echo json_encode($this->manage_referral_model->get_more_inbox($currentUserData));
+        //echo 1;
+    }
+    
+    /*
+     * test method to delete comment with ajax post
+     * 
+     * #andyjiang
+     */
+    public function remove_comment() {
+        $currentUserData = $this->session->userdata('currentUserData');
+        $this->load->model('manage_referral_model');
+        
+        $this->manage_referral_model->remove_comment($currentUserData);
+    }
 }
 
 ?>

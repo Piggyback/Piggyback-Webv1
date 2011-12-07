@@ -1,5 +1,5 @@
 /**
-    Document   : home_js.php
+    Document   : home_mike_js.php
     Created on : Dec 2, 2011, 6:43:47 PM
     Author     : gaobi
     Description:
@@ -59,12 +59,41 @@ function searchAJAX() {
             searchLocation: values['searchLocation'],
             searchText: values['searchText']
             }, function(data) {
-                // data will be JSON-encoded
-//                        alert(data);
                 var parsedJSON = jQuery.parseJSON(data);
-                var vendorData = getVendorData(parsedJSON);
-                displaySearchResults(vendorData);
-//                        alert(parsedJSON.searchResults[0].result.formatted_address);  // THIS FRACKIN' WORKS!
+                var results = parsedJSON.searchResults;
+                if (results[0] == "error") {
+                    var errorType;
+                    if (results[1] == "locationError") {
+                            errorType = "Error with Location";
+                    }
+
+                    // error with the search
+                    else if (results[1] == "searchError") {
+                        errorType = "Error with Search";
+                    }
+
+                    // print out error message
+                    switch (results[2]) {
+                        case "ZERO_RESULTS":
+                            alert(errorType + ": No results were found");
+                            break;
+                        case "OVER_QUERY_LIMIT":
+                            alert(errorType + ": You are over the API query limit");
+                            break;
+                        case "REQUEST_DENIED":
+                            alert(errorType + ": Your request was denied");
+                            break;
+                        case "INVALID_REQUEST":
+                            alert(errorType + ": Your request is invalid");
+                            break;
+                        default:
+                            alert(errorType); 
+                    }    
+                }
+                else {
+                    var vendorData = getVendorData(parsedJSON);
+                    displaySearchResults(vendorData);
+                }
             });
 
         $('#search-content').removeClass("ui-tabs-hide");
@@ -73,4 +102,41 @@ function searchAJAX() {
 
         return false;
     });
+}
+
+function fbAPI() {
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '251920381531962',
+            status     : true, 
+            cookie     : true,
+            xfbml      : true
+        });
+
+        // If user is not logged in, redirect user to login page
+        FB.getLoginStatus(function(response) {
+            if (response.status != "connected") {
+                // logged in and connected user
+                window.location = "http://192.168.11.28/login";
+            } else {
+                // do nothing
+            }
+        });
+
+        $('#logout').click(function () {
+            //logout when div is clicked
+            FB.logout(function(response) {
+                // user is now logged out of service AND facebook
+                // return to login page
+                window.location = "http://192.168.11.28/login";
+            });
+        });
+
+    };
+    (function(d){
+        var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
+        js = d.createElement('script'); js.id = id; js.async = true;
+        js.src = "//connect.facebook.net/en_US/all.js";
+        d.getElementsByTagName('head')[0].appendChild(js);
+    }(document));
 }
