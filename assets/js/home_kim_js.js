@@ -83,6 +83,20 @@ function bindAddFriendSubmit(friendList) {
               }
          return false;
      });
+     
+     $(document).on("click", "table tr img.delete", function() {
+         var friendNameToRemove = $(this).parent().prev().html(); 
+         alert(friendNameToRemove);
+         $(this).parent().parent().remove();
+         var indexOfRemovedFriend;
+         
+         for (var i = 0; i < friendList.length; i++) {
+             if (friendList[i]['name'] == friendNameToRemove) {
+                 indexOfRemovedFriend = i;
+             }
+         }
+         friendList.splice(indexOfRemovedFriend,1);         
+     });
 }
 
 function bindDialogLink(friendList, vendorData) {
@@ -152,6 +166,36 @@ function bindDialogLink(friendList, vendorData) {
     });
 }
 
+function bindAutoComplete() {
+
+    // create json object with friend data for auto complete
+    var autoCompleteSource = [];
+    var fullName;
+    for (var i = 0; i < allFriends.length; i++) {
+        fullName = allFriends[i]['firstName'] + " " + allFriends[i]['lastName'];
+        autoCompleteSource.push({value: allFriends[i]['uid'], label: fullName, email: allFriends[i]['email'], icon: '../../assets/images/mgao.jpg'});
+    }
+    
+    $("#tags").autocomplete({
+            minLength: 0,
+            source: autoCompleteSource,
+            focus: function( event, ui ) {
+                    $( "#tags" ).val(ui.item.label);
+                    return false;
+            },
+            select: function( event, ui ) {
+                    $( "#tags" ).val(ui.item.label);
+                    return false;
+            }
+    })
+    .data( "autocomplete" )._renderItem = function( ul, item ) {
+            return $( "<li></li>" )
+                    .data( "item.autocomplete", item )
+                    .append( "<a><div><img class='autoCompleteImg' style='width:15%; float:left;' src='" + item.icon + "'><div class='autoCompleteDiv' style='width:80%; float:right; font-size:12px;'><B>" + item.label + "</b><br>" + item.email + "</div></div></a>" )
+                    .appendTo( ul );
+    };
+}
+
 /* helper functions */
 function getFriends() {
     jQuery.post('searchvendors/get_friends', function(data) {
@@ -159,7 +203,6 @@ function getFriends() {
           //var friendTags = parsedJSON.friendTags;
           myUID = parsedJSON.myUID;
           friends = parsedJSON.allFriendsArray;
-          
           allFriends = new Array();
           for (var i = 0; i < friends.length; i++) {
               var oneFriend = new Array();
@@ -336,12 +379,16 @@ function displaySearchResults(vendorData) {
     bindDialog(friendList);
     bindAddFriendSubmit(friendList);
     bindDialogLink(friendList, vendorData);
+    bindAutoComplete();
 }
 
 function displayAddedFriends(friendList) {
-    var displayFriends = "<table><th style=\"font-size:13px; font-family:helvetica; font-weight:bold;\">List of friends to refer</th>";
+    var displayFriends = "<div id='referredFriendsHeader'>List of friends to refer<BR></div><table>";
     for (var i = 0; i < friendList.length; i++) {
-        displayFriends = displayFriends + "<tr><td style=\"font-size:12px; font-family:helvetica;\">" + friendList[i]['firstName'] + " " + friendList[i]['lastName'] + "</td><td><img class=\"delete\" src=\"../../assets/jquery-ui-1.8.16.custom/css/custom-theme/images/del.png\" style=\"z-index:2000;\"/></td></tr>";
+        displayFriends = displayFriends + "<tr><td><img src='../../assets/images/mgao.jpg'></td>" + 
+                "<td class='referredFriend'>" + friendList[i]['firstName'] + " " + friendList[i]['lastName'] + 
+                "</td><td><img class=\"delete\" src='../../assets/jquery-ui-1.8.16.custom/css/custom-theme/images/del.png'/></td>" + 
+                "</tr>";
     }
     displayFriends = displayFriends + "</table>";
     document.getElementById("addedFriends").innerHTML = displayFriends; 

@@ -32,9 +32,8 @@
             var loadStart=3;
             // call more data from mysql ('load more' button action)
             $('.load-more-button').click(function(){
-                alert('i made it');
                 // jquery post to retrieve more rows
-                jQuery.post("http://192.168.11.28/test/get_more_inbox", {
+                jQuery.post("http://192.168.11.28/referrals/get_more_inbox", {
                     rowStart: loadStart
                 }, function(data) {
                     var parsedJSON = jQuery.parseJSON(data);
@@ -51,11 +50,11 @@
                 var likeNumber = 0;
                 var likeStatus = "";
 
+                // destroy the accordion first
+                $('#accordion-inbox').accordion('destroy');
+
                 for(var i=0; i<moreRows.length; i++) {
                     likeNumber = moreRows[i].LikesList['LikesList'].length;
-                    
-                    //alert(likeNumber);
-                    
                     if(likeNumber>0) {
                         if(likeNumber == 1) {
                             likeNumber = likeNumber + " person likes this.";
@@ -67,20 +66,22 @@
                         likeNumber = "";
                     }
                     
-                    if (moreRows[i].alreadyLiked) {
+                    if (moreRows[i].alreadyLiked==1) {
                         likeStatus = "Unlike";
                     } else {
                         likeStatus = "Like";
                     }
                     
-                    displayReferralsHTMLString = displayReferralsHTMLString + 
+                    alert(likeNumber + " and you " + likeStatus);
+                    
+                    displayReferralsHTMLString = "" +
                     "<div class='inbox-single-wrapper'>" +
                         "<div class='referral-date'>" +
                             moreRows[i].refDate +
                         "</div>" +
-                       "<a>" + moreRows[i].name +
+                        "<a>" + moreRows[i].name +
                             "<div class='friend-referral-comment'>" + 
-                                moreRows[i].firstName + " " + moreRows[i].lastName + " says " + moreRows[i].ReferralsComment + 
+                                moreRows[i].firstName + " " + moreRows[i].lastName + " says \"" + moreRows[i].ReferralsComment + "\"" +
                             "</div>" + 
                                 "<div class='row' data-rid=" + moreRows[i].rid +
                                     "<div class='click-to-like no-accordion' data-likeCounts=" + likeNumber + ">" +
@@ -94,54 +95,60 @@
                                     "</div>" +
                                     "<div class='comments'>" +
                                         "<table class='comments-table'>";
-
-                   // comments here
-//                   for(var j=0; j<moreRows[i].CommentsList['CommentsList'].length; j++) {
-//                       displayReferralsHTMLString = displayReferralsHTMLString +
-//                           "<tr class='inbox-single-comment'>" +
-//                                "<td class='comments-name'>" +
-//                                    moreRows[i].CommentsList['CommentsList'].firstName + " " + moreRows[i].CommentsList['CommentsList'].lastName + ": " +
-//                                "</td>" +
-//                                "<td class='comments-content'>" +
-//                                    moreRows[i].CommentsList['CommentsList'].comment +
-//                                "</td>" +
-//                           "</tr>";
-//                   }
-                   
-                   displayReferralsHTMLString = displayReferralsHTMLString +
-                       "</table>" +
-                       "</div>" + 
-                       "<div class='comment-box no-accordion'>" +
-                            "<form name='form-comment' class='form-comment' method='post'>" +
-                                "<input type='text' class='comment-input'/>" +
-                                    "<button type='submit' class='submit-comment-button'>" +
-                                        "Submit" +
-                                    "</button>" +
-                                "</form>" +
-                           "</div>" +
+                                   // comments here
+                                   for(var j=0; j<moreRows[i].CommentsList['CommentsList'].length; j++) {
+                                       displayReferralsHTMLString = displayReferralsHTMLString +
+                                           "<tr class='inbox-single-comment'>" +
+                                                "<td class='comments-name'>" +
+                                                    moreRows[i].CommentsList['CommentsList'][j].firstName + " " + moreRows[i].CommentsList['CommentsList'][j].lastName + ": " +
+                                                "</td>" +
+                                                "<td class='comments-content'>" +
+                                                    moreRows[i].CommentsList['CommentsList'][j].comment +
+                                                "</td>" +
+                                           "</tr>";
+                                   }
+                                   displayReferralsHTMLString = displayReferralsHTMLString +
+                                       "</table>" +
+                                   "</div>" + 
+                                   "<div class='comment-box no-accordion'>" +
+                                        "<form name='form-comment' class='form-comment' method='post'>" +
+                                            "<input type='text' class='comment-input'/>" +
+                                            "<button type='submit' class='submit-comment-button'>" +
+                                                "Submit" +
+                                            "</button>" +
+                                        "</form>" +
+                                   "</div>" +
+                               "</div>" +
+                           "</a>" +
                        "</div>" +
-                   "</a>" +
-                   "</div>";
-               }
+                   
+               // details of the row
+                       "<div class='drop-down-details'>" +
+                           moreRows[i].addrNum + " " + moreRows[i].addrStreet + "<br>" +
+                           moreRows[i].addrCity + " " + moreRows[i].addrState + " " + moreRows[i].addrZip + "<br>" +
+                           moreRows[i].phone + "<br>" +
+                           moreRows[i].website +
+                       "</div>";
+                   
+                    $(displayReferralsHTMLString).appendTo('#inbox-wrapper');
+                    
+                    //overrideAccordionEvent();
+                    
+                    initCommentInputDisplay();
+                    initLike();
+                    initComment();
+                    initRemoveComment();
+                }
                
-               // add the html at the last index-single-wrapper
-               $('#accordion-inbox').find('.inbox-wrapper').last().append(displayReferralsHTMLString);
-   
+
+                bindAccordionInbox();
+//                overrideAccordionEvent();
+//                initCommentInputDisplay();
+//                initLike();
+//                initComment();
+//                initRemoveComment();
+  
             }
-
-
-            $('.delete-comment').click(function(){
-                alert('delete comment');
-                $(this).closest()
-                jQuery.post("http://192.168.11.28/test/remove_comment", {
-                    rowStart: loadStart
-                }, function(data) {
-                    var parsedJSON = jQuery.parseJSON(data);
-                    displayMoreReferrals(parsedJSON);
-                    loadStart = loadStart+3;
-                });
-            });
-
 
         });
     </script>
@@ -152,7 +159,7 @@
 
         <div id="inbox">
             <div id="accordion-inbox">
-                <div class="inbox-wrapper">
+                <div id="inbox-wrapper">
                 <?php
                     foreach ($inboxItems as $row)
                     {
@@ -220,7 +227,8 @@
                                         <div class="comments" >
                                             <table class="comments-table"> 
                                                 <?php foreach($commentsArray as $line): ?>
-                                                    <tr class='inbox-single-comment' data-date=<?php echo $row->date;?> >
+                                                    <tr class='inbox-single-comment'>
+                                                      <tbody>
                                                         <td class="comments-name">
                                                             <?php echo $line->firstName . " " . $line->lastName . ": "; ?>
                                                         </td>
@@ -228,8 +236,9 @@
                                                             <?php echo $line->comment; ?>
                                                         </td>
                                                         <td>
-                                                            <button class="delete-comment">x</button>
+                                                            <button class="delete-comment" data-cid=<?php echo $line->cid;?>>x</button>
                                                         </td>
+                                                      </tbody>
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </table>

@@ -15,17 +15,18 @@ $(document).ready(function() {
     initCommentInputDisplay();
     initLike();
     initComment();
+    initRemoveComment();
 });
 
 /* functions for $(document).ready */
 //initialize the accordion features for inbox
 function bindAccordionInbox() {
     $( "#accordion-inbox" ).accordion({
-                    header: 'div.inbox-single-wrapper',    
-                    collapsible: true,
-                    autoHeight: true,
-                    navigation: true,
-                    active: 'none'
+        header: 'div.inbox-single-wrapper',// div.inbox-list-wrapper',   
+        collapsible: true,
+        autoHeight: true,
+        navigation: true,
+        active: 'none'
     });
 }
 
@@ -63,7 +64,7 @@ function initLike() {
         var likes = $(this).closest('.row').find('.number-of-likes');
         var likeStatus = $(this);
 
-        jQuery.post("http://192.168.11.28/test/perform_like_action", {
+        jQuery.post("http://192.168.11.28/referrals/perform_like_action", {
             rid: referId
         }, function(likeCount){
             // toggle Like and Unlike
@@ -96,15 +97,18 @@ function initComment() {
         var lastRow = $(this).closest('.row').find('tbody');
         // if the comment is not empty, then proceed with ajax 
         if(name) {
-            jQuery.post("http://192.168.11.28/test/add_new_comment", {
+            jQuery.post("http://192.168.11.28/referrals/add_new_comment", {
                 comment: name,
                 rid: referId             
             }, function(data){
                 // add comment to table using javascript
-                if (data == "success") {
+                if (data) {
                     var currentUserName = jQuery.trim($("#currentUserName").text());
 //                    lastRow.after('<tr class="inbox-single-comment"><td class="comments-name">' + currentUserName + ': </td><td class="comments-content">' + name + '</td></tr>');
-                    lastRow.append('<tr class="inbox-single-comment"><td class="comments-name">' + currentUserName + ': </td><td class="comments-content">' + name + '</td></tr>');
+                    lastRow.append('<tr class="inbox-single-comment"><td class="comments-name">' + 
+                        currentUserName + ': </td><td class="comments-content">' + name + '</td>' +
+                        '<td><button class="delete-comment" data-cid=' + data + '>x</button></td></tr>');
+                    initRemoveComment();
                 }
             });
         }
@@ -114,4 +118,21 @@ function initComment() {
         
         return false;
     });
+}
+
+function initRemoveComment() {
+    $('.delete-comment').click(function(){
+        var cid = $(this).data('cid');
+        var singleComment = $(this).closest('.inbox-single-comment');
+        jQuery.post("http://192.168.11.28/referrals/remove_comment", {
+            cid: cid
+        }, function(data) {
+            // remove comment from table using javascript
+            if (data =="success") {
+                singleComment.html("");
+            }
+        });
+    });
+
+
 }

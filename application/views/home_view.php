@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 
+<!--
     Document   : home_view.php
     Created on : Nov 30, 2011, 6:49:47 AM
     Author     : gaobi
@@ -10,11 +10,6 @@
    TO-DOs:
         TODO: Resize logo and link to 'home' url with anchor; is logo a sub-div of top-bar or left-list-pane or none? Complete logo CSS
         TODO: What if list names are too long?
-
-        // merge with andy
-        TODO: Fix refresh/scroll to top issue after commenting
-        TODO: Limit the amount of queries loaded into inbox view. Add 'load more' button linked to AJAX
-        TODO: Delete data with rid=0;
 -->
 <html>
     <head>
@@ -74,7 +69,7 @@
                     <div id="scrollable-sections">
                         <div id="lists-container">
                             <ul id="lists">
-                                <?php 
+                                <?php
                                 // add each list as its own <li>
                                 foreach ($myLists as $list) {
                                     echo ("<li>" . $list->name . "</li>");
@@ -112,7 +107,7 @@
 
                                                             // determine if $row is a list or single vendor
                                                             if ( $row->lid == 0 )
-                                                            {   
+                                                            {
                                                                 // get some vital variables ready
                                                                 // the count of likes
                                                                 $tempArray = $row->LikesList;
@@ -129,7 +124,7 @@
                                                                     } else {
                                                                         $likeNumber = $likeNumber . " people like this.";
                                                                     }
-                                                                } 
+                                                                }
                                                                 // if uid does not exist in the Likes rid list
                                                                 if ($row->alreadyLiked == 1) {
                                                                     $likeStatus = "Unlike";
@@ -137,7 +132,7 @@
                                                                     $likeStatus = "Like";
                                                                 }
                                                      ?>
-                                                        
+
                                                         <!-- comments for andy
                                                             -Add proper indenting to HTML
                                                             -Like text has lots of whitespace; use jQuery.trim
@@ -147,9 +142,12 @@
 
                                                                 <!-- BEGINNING OF HEADER HERE of the ACCORDION    -->
                                                             <div class="inbox-single-wrapper">
+                                                                <div class="referral-date">
+                                                                    <?php echo $row->refDate; ?>
+                                                                </div>
                                                                 <a> <?php echo $row->name; ?>
                                                                     <!-- sub title here-->
-                                                                    <div class="friend-referral-comment"> 
+                                                                    <div class="friend-referral-comment">
                                                                         <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"
                                                                     </div>
 
@@ -168,7 +166,7 @@
 
                                                                             <!-- create the divs to show other peoples comments-->
                                                                             <div class="comments">
-                                                                                <table class="comments-table"> 
+                                                                                <table class="comments-table">
                                                                                     <tbody class="comments-table-tbody">
                                                                                         <?php foreach($commentsArray as $line): ?>
                                                                                             <tr class='inbox-single-comment'>
@@ -177,6 +175,9 @@
                                                                                                 </td>
                                                                                                 <td class="comments-content">
                                                                                                     <?php echo $line->comment; ?>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <button class="delete-comment" data-cid=<?php echo $line->cid;?>>x</button>
                                                                                                 </td>
                                                                                             </tr>
                                                                                         <?php endforeach; ?>

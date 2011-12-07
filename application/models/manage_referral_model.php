@@ -304,7 +304,11 @@ class Manage_Referral_Model extends CI_Model {
             );
         
             $this->db->insert('Comments', $newComment);
-            echo "success";
+            
+            // get the uniquely auto-incremented RID from Referrals
+            $cid = mysql_insert_id();
+            
+            echo $cid;
         }
     }
     
@@ -313,7 +317,7 @@ class Manage_Referral_Model extends CI_Model {
      * 
      * AJAX-exclusive
      * 
-     * inputs: uid, rid, comment, date
+     * inputs: cid
      * action: remove indicated row
      * return: void
      * 
@@ -321,18 +325,13 @@ class Manage_Referral_Model extends CI_Model {
     public function remove_comment($data)
     {
         $uid = $data['uid'];
-        $rid = $this->input->post('rid');
-        $comment = $this->input->post('comment');
-        $date = $this->input->post('date');
+        $cid = $this->input->post('cid');
         
         // error checking, make sure that the row exists
         
         
         // remove the comment
-        $this->db->where('rid', $rid);
-        $this->db->where('uid', $uid);
-        $this->db->where('comment', $comment);
-        $this->db->where('date', $date);
+        $this->db->where('cid', $cid);
         $this->db->delete('Comments');
         
         echo "success";

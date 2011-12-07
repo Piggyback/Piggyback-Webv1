@@ -15,3 +15,23 @@ root {
     display: block;
 }
 
+.autoCompleteImg {
+    width:10%;
+    float:left;
+}
+
+.autoCompleteDiv {
+    width:90%;
+    float: right;
+    vertical-align: top;
+}
+#referredFriendsHeader {
+    font-size:13px; 
+    font-family:helvetica; 
+    font-weight:bold;
+}
+
+.referredFriend {
+    font-size:12px; 
+    font-family:helvetica;
+}
