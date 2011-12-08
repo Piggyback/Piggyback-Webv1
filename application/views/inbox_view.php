@@ -72,18 +72,16 @@
                         likeStatus = "Like";
                     }
                     
-                    alert(likeNumber + " and you " + likeStatus);
-                    
                     displayReferralsHTMLString = "" +
                     "<div class='inbox-single-wrapper'>" +
                         "<div class='referral-date'>" +
                             moreRows[i].refDate +
                         "</div>" +
-                        "<a>" + moreRows[i].name +
+                            moreRows[i].name +
                             "<div class='friend-referral-comment'>" + 
                                 moreRows[i].firstName + " " + moreRows[i].lastName + " says \"" + moreRows[i].ReferralsComment + "\"" +
                             "</div>" + 
-                                "<div class='row' data-rid=" + moreRows[i].rid +
+                                "<div class='row' data-rid=" + moreRows[i].rid + ">" +
                                     "<div class='click-to-like no-accordion' data-likeCounts=" + likeNumber + ">" +
                                         likeStatus + 
                                     "</div>" +
@@ -93,21 +91,53 @@
                                     "<div class='number-of-likes no-accordion'>" +
                                         likeNumber +
                                     "</div>" +
+                                    
                                     "<div class='comments'>" +
-                                        "<table class='comments-table'>";
-                                   // comments here
-                                   for(var j=0; j<moreRows[i].CommentsList['CommentsList'].length; j++) {
-                                       displayReferralsHTMLString = displayReferralsHTMLString +
-                                           "<tr class='inbox-single-comment'>" +
-                                                "<td class='comments-name'>" +
-                                                    moreRows[i].CommentsList['CommentsList'][j].firstName + " " + moreRows[i].CommentsList['CommentsList'][j].lastName + ": " +
-                                                "</td>" +
-                                                "<td class='comments-content'>" +
-                                                    moreRows[i].CommentsList['CommentsList'][j].comment +
-                                                "</td>" +
-                                           "</tr>";
-                                   }
-                                   displayReferralsHTMLString = displayReferralsHTMLString +
+                                        "<table class='comments-table'>" +
+                                            "<tbody class='comments-table-tbody'>";
+                                        
+                                        // loop comments for the 'view all comments'
+                                        updateComments(moreRows[i].CommentsList['CommentsList']);
+                                        
+                                        var commentsCountdown = moreRows[i].CommentsList['CommentsList'].length;
+                                        var needShowAllButton = "hide-load-comments-button";
+                                        var showStatus = "show-comment";
+                                        for(var j=0; j<moreRows[i].CommentsList['CommentsList'].length; j++) {
+                                            if(commentsCountdown < 3) {
+                                                showStatus = "show-comment";
+                                            } else {
+                                                showStatus = "hide-comment";
+                                                needShowAllButton = "show-load-comments-button";
+                                            }
+                                            commentsCountdown--;
+                                            
+                                            if(commentsCountdown == moreRows[i].CommentsList['CommentsList'].length-1) {
+                                                displayReferralsHTMLString = displayReferralsHTMLString +
+                                                    "<tr>" +
+                                                        "<td class='show-all-comments-button no-accordion " + needShowAllButton + "'>" +
+                                                            "View all " + moreRows[i].CommentsList['CommentsList'].length + " comments." +
+                                                        "</td><td></td><td></td>" +
+                                                    "</tr>";
+                                            }
+                                            
+                                            // comments here
+                                            displayReferralsHTMLString = displayReferralsHTMLString +
+                                               "<tr class='inbox-single-comment " + showStatus + "'>" +
+                                                    "<td class='comments-name'>" +
+                                                        moreRows[i].CommentsList['CommentsList'][j].firstName + " " + moreRows[i].CommentsList['CommentsList'][j].lastName + ": " +
+                                                    "</td>" +
+                                                    "<td class='comments-content'>" +
+                                                        moreRows[i].CommentsList['CommentsList'][j].comment +
+                                                    "</td>" +
+                                                    "<td>" +
+                                                      "<button class='delete-comment' data-cid=" +
+                                                         moreRows[i].CommentsList['CommentsList'][j].cid +
+                                                           ">x</button>" + 
+                                                    "</td>" +
+                                               "</tr>";
+                                        }
+                                            displayReferralsHTMLString = displayReferralsHTMLString +
+                                            "</tbody>" +
                                        "</table>" +
                                    "</div>" + 
                                    "<div class='comment-box no-accordion'>" +
@@ -119,7 +149,6 @@
                                         "</form>" +
                                    "</div>" +
                                "</div>" +
-                           "</a>" +
                        "</div>" +
                    
                // details of the row
@@ -132,23 +161,23 @@
                    
                     $(displayReferralsHTMLString).appendTo('#inbox-wrapper');
                     
-                    //overrideAccordionEvent();
-                    
+                    $('.click-to-comment').unbind();
                     initCommentInputDisplay();
+                    $('.click-to-like').unbind();
                     initLike();
+                    $('.submit-comment-button').unbind();
                     initComment();
+                    $('.delete-comment').unbind();
                     initRemoveComment();
+                    
+                    $('.show-load-comments-button').unbind();
+                    initLoadMoreComments();
                 }
-               
-
                 bindAccordionInbox();
-//                overrideAccordionEvent();
-//                initCommentInputDisplay();
-//                initLike();
-//                initComment();
-//                initRemoveComment();
-  
+                overrideAccordionEvent();
             }
+
+
 
         });
     </script>
@@ -205,7 +234,7 @@
                             <div class="referral-date">
                                 <?php echo $row->refDate; ?>
                             </div>
-                            <a> <?php echo $row->name; ?>
+                             <?php echo $row->name; ?>
                                 <!-- sub title here-->
                                 <div class="friend-referral-comment"> 
                                     <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"
@@ -225,22 +254,47 @@
 
                                         <!-- create the divs to show other peoples comments-->
                                         <div class="comments" >
-                                            <table class="comments-table"> 
-                                                <?php foreach($commentsArray as $line): ?>
-                                                    <tr class='inbox-single-comment'>
-                                                      <tbody>
-                                                        <td class="comments-name">
-                                                            <?php echo $line->firstName . " " . $line->lastName . ": "; ?>
-                                                        </td>
-                                                        <td class="comments-content">
-                                                            <?php echo $line->comment; ?>
-                                                        </td>
-                                                        <td>
-                                                            <button class="delete-comment" data-cid=<?php echo $line->cid;?>>x</button>
-                                                        </td>
-                                                      </tbody>
-                                                    </tr>
-                                                <?php endforeach; ?>
+                                            <table class="comments-table">
+                                                <tbody class="comments-table-tbody">
+                                                      <?php $commentsCountdown = count($commentsArray);
+                                                      // default is that we do not need to show all (0)
+                                                      $needShowAllButton = "hide-load-comments-button";
+                                                      foreach($commentsArray as $line) :
+                                                          if($commentsCountdown < 3) {
+                                                            $showStatus = 'show-comment';
+                                                          } else {
+                                                            // more than two comments, will hide them
+                                                            // also turn on the showAllButton flag
+                                                            $showStatus = 'hide-comment';
+                                                            $needShowAllButton = "show-load-comments-button";
+                                                          } 
+                                                          $commentsCountdown--;
+                                                      ?>
+
+                                                        <?php if($commentsCountdown==count($commentsArray)-1): ?>
+                                                        <tr>
+                                                            <td class="show-all-comments-button no-accordion <?php echo $needShowAllButton; ?>">
+                                                                View all <?php echo count($commentsArray);?> comments.
+                                                            </td>
+                                                            <td></td>
+                                                            <td></td>
+                                                        </tr>
+                                                        <?php endif; ?>
+
+                                                        <tr class="inbox-single-comment <?php echo $showStatus;?>">
+                                                            <td class="comments-name">
+                                                                <?php echo $line->firstName . " " . $line->lastName . ": "; ?>
+                                                            </td>
+                                                            <td class="comments-content">
+                                                                <?php echo $line->comment; ?>
+                                                            </td>
+                                                            <td>
+                                                                <button class="delete-comment" data-cid=<?php echo $line->cid;?>>x</button>
+                                                            </td>
+                                                         </tr>
+                                                         
+                                                      <?php endforeach; ?>
+                                                 </tbody>
                                             </table>
                                         </div>
 
@@ -253,7 +307,6 @@
                                             </form>
                                         </div>
                                     </div>
-                            </a>
                         </div>
                         <!-- END HEADER OF ACCORDION HERE ENDS HERE -->
                         <!-- vendor details here (among anything else)-->
@@ -263,12 +316,10 @@
                             echo $row->phone . "<br>";
                             echo $row->website;
                         echo "</div>";
-
-                        // TODO: dragability, @andyjiang
                         } else {
                             // list
                             echo "<div class='inbox-list-wrapper'>";
-                                echo "<a href=\"#\">" . $row->UserListsName . " list<br>";
+                                echo "<a href='#'>" . $row->UserListsName . " list<br>";
                                     echo "<div class='friend-referral-comment'>" . $row->firstName . " " . $row->lastName . " says " . "\"" . $row->ReferralsComment . "\"";
                                     echo "</div>";
                                 echo "</a>";
@@ -281,11 +332,8 @@
 
                 </div>
                 </div>
-            </div>
             <!--                                a button you can press to load more rows-->
  <div class="load-more-button">Load more..</div>    
-        </div>
-        
-        
+            </div>
     </body>
 </html>

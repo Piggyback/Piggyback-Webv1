@@ -35,3 +35,99 @@ root {
     font-size:12px; 
     font-family:helvetica;
 }
+
+#friends-refer-upper {
+    width:618px;
+    height:242px;
+    /*total width with is 618*/
+}
+
+#friends-refer-comment {
+    width:608px;
+    height:75px;
+    clear:both;
+    background-color:gray;
+    overflow:auto;
+    border:2px solid white;
+    padding: 3px;
+    /*total width with borders is 618*/
+}
+
+#friends-refer-left {
+    height:240px;
+    width:450px;
+    float:left;
+    border-top:2px solid white;
+    border-left:2px solid white;
+    /*total width with borders is 452*/
+    /*total height is 236*/
+}
+
+#friends-refer-right {
+    height:234px;
+    width:156px;
+    float:right;
+    background-color:gray;
+    overflow:auto;
+    border-top:2px solid white;
+    border-right:2px solid white;
+    border-left:2px solid white;
+    padding: 3px;
+    /*total width with borders and margin is is 166*/
+
+}
+
+#friends-refer-search {
+    background-color:gray;
+    overflow:auto;
+    height: 55px;
+    padding: 3px;
+    /*total height 61*/
+}
+
+#friends-refer-display {
+    background-color:gray;
+    overflow:auto;
+    z-index:1000;
+    height:173px;
+    padding: 3px;
+    /*total height:175*/
+}
+
+#tags {
+    width:70%;
+}
+
+#searchFriendsButton {
+    visibility:hidden;
+}
+
+#comment-box {
+    width:99%;
+    height:50%;
+    min-height:40px;
+    resize:none;
+}
+
+#friends-refer-display-left {
+    width:50%;
+    float:left;
+}
+
+#friends-refer-display-right {
+    width:50%;
+    float:right;
+}
+    
+.friendTable tr:hover {
+    background-color:white;
+}
+
+.friendTable td.friendName {
+    width:150px;
+    padding-left:5px;
+}
+
+.friendTable td.friendPic {
+    valign:middle;
+}

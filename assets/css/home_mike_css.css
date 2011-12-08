@@ -1,4 +1,4 @@
-/* 
+/*
     Document   : home_css
     Created on : Nov 30, 2011, 6:49:47 AM
     Author     : gaobi
@@ -6,7 +6,7 @@
         Purpose of the stylesheet follows.
 */
 
-/* 
+/*
    TODO customize this sample style
    Syntax recommendation http://www.w3.org/TR/REC-CSS2/
 */
@@ -14,7 +14,7 @@
 html, body, input {
     font-family: arial,sans-serif;
 }
-html, body { 
+html, body {
     font-size: 90%;
     overflow: hidden;
     border: 0 none;
@@ -31,19 +31,19 @@ div, form {
 }
 
 ul#icons {
-    margin: 0; 
+    margin: 0;
     padding: 0;
 }
 ul#icons li {
-    margin: 2px; 
-    position: relative; 
-    padding: 4px 0; 
-    cursor: pointer; 
-    float: left;  
+    margin: 2px;
+    position: relative;
+    padding: 4px 0;
+    cursor: pointer;
+    float: left;
     list-style: none;
 }
 ul#icons span.ui-icon {
-    float: left; 
+    float: left;
     margin: 0 4px;
 }
 
@@ -136,7 +136,13 @@ span.none {
     outline: 0 none;
     padding: 0 8px;
     text-align: center;
-    
+
+}
+
+#current-pic {
+	position: absolute;
+	top: 5px;
+	right: 50px;
 }
 
 /*logout*/
@@ -302,34 +308,34 @@ span.none {
 }
 
 #right-col {
-    width:300px; 
-    height:100px; 
-    float:right; 
+    width:300px;
+    height:100px;
+    float:right;
     margin-bottom:10px;
 }
 
 #popup-widget {
-    width:300p; 
-    height:100px; 
-    float:left; 
+    width:300p;
+    height:100px;
+    float:left;
     margin-buttom:10px;
 }
 
 #comment-area {
-    width:100%; 
-    margin-top:10px; 
+    width:100%;
+    margin-top:10px;
     clear:both
 }
 
 #fuzz {
-    position:absolute; 
-    opacity:.7; 
-    top:0; 
-    left:0; 
-    width:100%; 
-    z-index:100; 
-    background-color:black; 
-    display:none; 
+    position:absolute;
+    opacity:.9;
+    top:0;
+    left:0;
+    width:100%;
+    z-index:100;
+    background-color:black;
+    display:none;
     text-align:left;
     height:100%;
 }

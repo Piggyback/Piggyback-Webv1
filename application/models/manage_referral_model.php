@@ -311,6 +311,7 @@ class Manage_Referral_Model extends CI_Model {
             echo $cid;
         }
     }
+
     
     /*
      * remove_comment
@@ -327,14 +328,29 @@ class Manage_Referral_Model extends CI_Model {
         $uid = $data['uid'];
         $cid = $this->input->post('cid');
         
+        // take cid and return new array of comments
+        $this->db->select('rid');
+        $this->db->from('Comments');
+        $this->db->where('cid', $cid);       
+        $rid = $this->db->get()->row();
+
         // error checking, make sure that the row exists
-        
         
         // remove the comment
         $this->db->where('cid', $cid);
         $this->db->delete('Comments');
         
-        echo "success";
+        // retrieve new comments with rid
+        $this->db->select('*');
+        $this->db->from('Comments');
+        $this->db->join('Users', 'Users.uid = Comments.uid', 'left');
+        $this->db->where('rid',$rid->rid);
+        $this->db->order_by('date', 'asc');
+
+        $newResult = $this->db->get()->result();
+
+        // return  new array
+        return $newResult;
     }
     
     public function is_already_liked($data)

@@ -1,4 +1,4 @@
-/* 
+/*
     Document   : home_andy_css
     Created on : Dec 5, 2011, 5:31:16 PM
     Author     : andyjiang
@@ -6,7 +6,7 @@
         CSS for andy's features in home_view'
 */
 
-/* 
+/*
    TODO customize this sample style
    Syntax recommendation http://www.w3.org/TR/REC-CSS2/
 */
@@ -18,21 +18,21 @@ div.click-to-like {
     padding-right: 20px;
     padding-top: 5px;
     padding-bottom: 5px;
-    
+
 }
 
 div.click-to-comment {
     position: relative;
     display: inline;
-    padding-right: 20px; 
-    padding-top: 5px; 
+    padding-right: 20px;
+    padding-top: 5px;
     padding-bottom: 5px;
 }
 
 div.number-of-likes {
     position: relative;
     display: inline;
-    padding-top: 5px; 
+    padding-top: 5px;
     padding-bottom: 5px;
 }
 
@@ -46,17 +46,27 @@ table.comments-table {
 }
 
 div table td.comments-name {
-    margin-left: 0px; 
+    margin-left: 0px;
     padding-bottom: 2px;
 }
 
 div table td.comments-content {
-    margin-left: 15px; 
+    margin-left: 15px;
     padding-bottom: 2px;
 }
 
-div.friend-referral-comment { 
+div.friend-referral-comment-wrapper {
     font-size: 15px;
     padding-top: 5px;
     padding-bottom: 5px;
+}
+
+div.inbox-friend-pic {
+	position: relative;
+	display: inline;
+}
+
+div.inbox-friend-referral {
+	position: relative;
+	display: inline
 }

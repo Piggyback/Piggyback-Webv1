@@ -16,13 +16,14 @@ $(document).ready(function() {
     initLike();
     initComment();
     initRemoveComment();
+    initLoadMoreComments();
 });
 
 /* functions for $(document).ready */
 //initialize the accordion features for inbox
 function bindAccordionInbox() {
     $( "#accordion-inbox" ).accordion({
-        header: 'div.inbox-single-wrapper',// div.inbox-list-wrapper',   
+        header: 'div.inbox-single-wrapper',// div.inbox-list-wrapper',
         collapsible: true,
         autoHeight: true,
         navigation: true,
@@ -92,22 +93,36 @@ function initComment() {
     $('.submit-comment-button').click(function(){
         var name = $(this).closest('.row').find('.comment-input').val();
         var referId = $(this).closest('.row').data("rid");
-        $(this).parents('.row').children('.comment-box').toggle();
-//        var lastRow = $(this).closest('.row').find('.inbox-single-comment').last();
-        var lastRow = $(this).closest('.row').find('tbody');
-        // if the comment is not empty, then proceed with ajax 
+        $(this).closest('.row').find('.comment-box').toggle();
+        var lastRow = $(this).closest('.row').find('.comments-table-tbody');
+
+        // if the comment is not empty, then proceed with ajax
         if(name) {
             jQuery.post("http://192.168.11.28/referrals/add_new_comment", {
                 comment: name,
-                rid: referId             
+                rid: referId
             }, function(data){
                 // add comment to table using javascript
                 if (data) {
                     var currentUserName = jQuery.trim($("#currentUserName").text());
+					var currentFBID = jQuery.trim($("#current-fbid").text());
 //                    lastRow.after('<tr class="inbox-single-comment"><td class="comments-name">' + currentUserName + ': </td><td class="comments-content">' + name + '</td></tr>');
-                    lastRow.append('<tr class="inbox-single-comment"><td class="comments-name">' + 
-                        currentUserName + ': </td><td class="comments-content">' + name + '</td>' +
-                        '<td><button class="delete-comment" data-cid=' + data + '>x</button></td></tr>');
+                    lastRow.append('<tr class="inbox-single-comment">' +
+						'<td class="commenter-pic">' +
+							'<img src="https://graph.facebook.com/' + currentFBID + '/picture">' +
+						'</td>' +
+						'<td class="comments-name">' +
+                        	currentUserName + ': ' +
+						'</td>' +
+						'<td class="comments-content">' +
+					   		name +
+						'</td>' +
+                        '<td>' +
+							'<button class="delete-comment" data-cid=' + data + '>' +
+								'x' +
+							'</button>' +
+						'</td>' +
+					'</tr>');
                     initRemoveComment();
                 }
             });
@@ -115,7 +130,7 @@ function initComment() {
         //}
 
         // now do something to confirm the comment
-        
+
         return false;
     });
 }
@@ -123,16 +138,123 @@ function initComment() {
 function initRemoveComment() {
     $('.delete-comment').click(function(){
         var cid = $(this).data('cid');
-        var singleComment = $(this).closest('.inbox-single-comment');
+        var commentsTable = $(this).closest('.comments-table-tbody');
         jQuery.post("http://192.168.11.28/referrals/remove_comment", {
             cid: cid
         }, function(data) {
-            // remove comment from table using javascript
-            if (data =="success") {
-                singleComment.html("");
-            }
+            var parsedJSON = jQuery.parseJSON(data);
+            updateComments(parsedJSON, commentsTable);
         });
     });
 
+}
 
+function updateComments(commentList, commentsTable, collapse) {
+    var commentsHTMLString = updateCommentsHTMLString(commentList, collapse);
+    
+//    // re-write all html for entire comments table
+//    var commentsCountdown = commentList.length;
+//    var needShowAllButton = "hide-load-comments-button";
+//    var showStatus = "show-comment";
+//    var displayReferralsHTMLString = "";
+//
+//    for(var j=0; j<commentList.length; j++) {
+//        if(commentsCountdown < 3) {
+//            showStatus = "show-comment";
+//        } else {
+//            showStatus = "hide-comment";
+//            needShowAllButton = "show-load-comments-button";
+//        }
+//        commentsCountdown--;
+//
+//        if(commentsCountdown == commentList.length-1) {
+//            displayReferralsHTMLString = displayReferralsHTMLString +
+//                "<tr>" +
+//                    "<td class='show-all-comments-button no-accordion " + needShowAllButton + "'>" +
+//                        "View all " + commentList.length + " comments." +
+//                    "</td>" +
+//                "</tr>";
+//        }
+//
+//        // comments here
+//        displayReferralsHTMLString = displayReferralsHTMLString +
+//           "<tr class='inbox-single-comment " + showStatus + "'>" +
+//                "<td class='comments-name'>" +
+//                    commentList[j].firstName + " " + commentList[j].lastName + ": " +
+//                "</td>" +
+//                "<td class='comments-content'>" +
+//                    commentList[j].comment +
+//                "</td>" +
+//                "<td>" +
+//                  "<button class='delete-comment' data-cid=" +
+//                     commentList[j].cid +
+//                       ">x</button>" + 
+//                "</td>" +
+//           "</tr>";
+//    }
+
+    // update comments table
+    commentsTable.html(commentsHTMLString);
+
+    // rebind comment table elements
+    $('.show-load-comments-button').unbind();
+    initLoadMoreComments();
+    $('.delete-comment').unbind();
+    initRemoveComment();
+}
+
+function updateCommentsHTMLString(commentList, collapse) {
+    // re-write all html for entire comments table
+    var commentsCountdown = commentList.length;
+    var needShowAllButton = "hide-load-comments-button";
+    var showStatus = "show-comment";
+    var commentsHTMLString = "";
+
+    for(var j=0; j<commentList.length; j++) {
+        if(commentsCountdown < 3) {
+            showStatus = "show-comment";
+        } else {
+            showStatus = "hide-comment";
+            needShowAllButton = "show-load-comments-button";
+        }
+        commentsCountdown--;
+
+        if(commentsCountdown == commentList.length-1) {
+            commentsHTMLString = commentsHTMLString +
+                "<tr>" +
+                    "<td class='show-all-comments-button no-accordion " + needShowAllButton + "'>" +
+                        "View all " + commentList.length + " comments." +
+                    "</td>" +
+                "</tr>";
+        }
+
+        // comments here
+        commentsHTMLString = commentsHTMLString +
+           "<tr class='inbox-single-comment " + showStatus + "'>" +
+                "<td class='comments-name'>" +
+                    commentList[j].firstName + " " + commentList[j].lastName + ": " +
+                "</td>" +
+                "<td class='comments-content'>" +
+                    commentList[j].comment +
+                "</td>" +
+                "<td>" +
+                  "<button class='delete-comment' data-cid=" +
+                     commentList[j].cid +
+                       ">x</button>" + 
+                "</td>" +
+           "</tr>";
+    }
+    return commentsHTMLString;
+}
+
+function initLoadMoreComments() {
+    $('.hide-load-comments-button').hide();
+    $('.show-load-comments-button').show();
+    $('.hide-comment').hide();
+    $('.show-comment').show();
+
+    $('.show-load-comments-button').click(function() {
+        $(this).closest('.comments-table').find('.hide-comment').show();
+        $(this).hide();
+    });
 }

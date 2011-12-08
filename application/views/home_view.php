@@ -18,6 +18,7 @@
         <link rel="stylesheet" media="screen" href="../../assets/jquery-ui-1.8.16.custom/css/custom-theme/jquery-ui-1.8.16.custom.css" type="text/css" />
         <link rel="stylesheet" type="text/css" href="../assets/css/home_mike_css.css" media="screen" />
         <link rel="stylesheet" type="text/css" href="../assets/css/home_andy_css.css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="../assets/css/home_kim_css.css" media="screen" />
         <script type="text/javascript" src="../assets/js/jquery.min.js" ></script>
         <script type="text/javascript" src="../assets/jquery-ui-1.8.16.custom/js/jquery-ui-1.8.16.custom.min.js"></script>
         <script type="text/javascript" src="../assets/js/date.format.js"></script>
@@ -29,6 +30,11 @@
         <div id='currentUserNameWrapper'>
             <span id="currentUserName" class="none">
                 <?php echo $currentFirstName . ' ' . $currentLastName; ?>
+            </span>
+        </div>
+        <div id='current-fbid-wrapper'>
+            <span id="current-fbid" class="none">
+                <?php echo $currentFBID; ?>
             </span>
         </div>
         <div id='fuzz'></div>
@@ -52,6 +58,9 @@
                     <input type="text" name ="searchLocation" size="35" class="box" id="search-location"/>
                     <button id="searchbutton" name="submitSearch" class="btn" title="Submit Search">Search for Businesses!</button>
                 </form>
+                </div>
+                <div id="current-pic">
+                    <?php echo '<img src="https://graph.facebook.com/' . $currentFBID . '/picture">' ?>
                 </div>
                 <div id="logout">
                     Logout
@@ -147,8 +156,13 @@
                                                                 </div>
                                                                 <a> <?php echo $row->name; ?>
                                                                     <!-- sub title here-->
-                                                                    <div class="friend-referral-comment">
-                                                                        <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"
+                                                                    <div class="friend-referral-comment-wrapper">
+                                                                        <div class="inbox-friend-pic">
+                                                                            <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
+                                                                        </div>
+                                                                        <div class="inbox-friend-referral">
+                                                                            <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"
+                                                                        </div>
                                                                     </div>
 
                                                                         <!-- new div for like/comment button, comment fields, etc like button here -->
@@ -170,6 +184,9 @@
                                                                                     <tbody class="comments-table-tbody">
                                                                                         <?php foreach($commentsArray as $line): ?>
                                                                                             <tr class='inbox-single-comment'>
+                                                                                                <td class="commenter-pic">
+                                                                                                    <?php echo '<img src="https://graph.facebook.com/' . $line->fbid . '/picture">' ?>
+                                                                                                </td>
                                                                                                 <td class="comments-name">
                                                                                                     <?php echo $line->firstName . " " . $line->lastName . ": "; ?>
                                                                                                 </td>

@@ -25,19 +25,23 @@ function bindFuzz() {
     });
 }
 
-function bindDialog(friendList) {    
+function bindDialog(friendList) {  
+    var windowHeight = window.innerHeight;
+    var windowWidth = window.innerWidth;
+
     // Dialog			
     $('#dialog').dialog({
             autoOpen: false,
-            width: 750,
+            width: 650,
+            height: 465,
             closeOnEscape: true,
             show: 'drop',
             hide: 'drop',
-            resizable: false,
+            resizable: true,
             beforeClose: function() {
                 // reset all values in pop up to blank
-                document.getElementById("explanation").value = '';
-                document.getElementById("addedFriends").innerHTML = '';
+                document.getElementById("comment-box").value = '';
+                document.getElementById("friends-refer-right").innerHTML = '';
                 document.getElementById("tags").value = '';
                 friendList.length = 0;
 
@@ -47,55 +51,69 @@ function bindDialog(friendList) {
     });
 }
 
-function bindAddFriendSubmit(friendList) {
-    $(document).on("submit", "#addFriend", function(){
-          var submittedFriend = document.forms["addFriend"]["friend"].value
-          var submittedFriendFormatted = submittedFriend.toLowerCase();
-          document.forms["addFriend"]["friend"].value = '';
-          var fullName = "";
-          var isFriendFlag = 0;
-          var addedAlreadyFlag = 0;
+//function bindAddFriendSubmit(friendList) {
+//     $('#addFriend').submit(function() {
+//         var submittedFriend = document.forms["addFriend"]["friend"].value
+//          var submittedFriendFormatted = submittedFriend.toLowerCase();
+//          document.forms["addFriend"]["friend"].value = '';
+//          var fullName = "";
+//          var isFriendFlag = 0;
+//          var addedAlreadyFlag = 0;
+//
+//
+//          // make sure added friend is actually a friend and has not been added yet
+//          for (var i = 0; i < allFriends.length; i++) {
+//              fullName = allFriends[i]['firstName'] + " " + allFriends[i]['lastName'];
+//
+//              if (fullName == submittedFriendFormatted) {
+//                  isFriendFlag = 1;
+//
+//                  if (friendList.indexOf(allFriends[i]) != -1) {
+//                      alert("You have already added " + submittedFriend);
+//                  }
+//                  else {
+//                      friendList.push(allFriends[i]);
+//                      displayAddedFriends(friendList);
+//                  }
+//              }
+//          }
+//
+//          // flag was not set because friend was not found with matching name
+//          if (!isFriendFlag) {
+//                alert("You are not friends with " + submittedFriend);
+//          }
+//         return false;
+//     });
+//}
 
-              // set autocomplete list
-              // TODO: autocomplete not working
-    //              $('#tags').autocomplete("option","source", friendTags);
+function bindAddFriend(friendList) {
+     $('.friendTable tr').click(function() {
+         var submittedFriend = $(this).html(); 
+         var fbid = submittedFriend.split("/")[3];
+         var name = submittedFriend.split(">")[4].split("<")[0];
+         var isFriendFlag = 0;
 
-              // make sure added friend is actually a friend and has not been added yet
-              for (var i = 0; i < allFriends.length; i++) {
-                  fullName = allFriends[i]['firstName'] + " " + allFriends[i]['lastName'];
-
-                  if (fullName == submittedFriendFormatted) {
-                      isFriendFlag = 1;
-
-                      if (friendList.indexOf(allFriends[i]) != -1) {
-                          alert("You have already added " + submittedFriend);
-                      }
-                      else {
-                          friendList.push(allFriends[i]);
-                          displayAddedFriends(friendList);
-                      }
+          // make sure added friend is actually a friend and has not been added yet
+          for (var i = 0; i < allFriends.length; i++) {
+              if (fbid == allFriends[i]['fbid']) {
+                  isFriendFlag = 1;
+                  
+                  if (friendList.indexOf(allFriends[i]) != -1) {
+                      alert("You have already added " + name);
                   }
+                  else {
+                      friendList.push(allFriends[i]);
+                      displayAddedFriends(friendList);
+                  }
+                  break;
               }
+          }
 
-              // flag was not set because friend was not found with matching name
-              if (!isFriendFlag) {
-                    alert("You are not friends with " + submittedFriend);
-              }
+          // flag was not set because friend was not found with matching name
+          if (!isFriendFlag) {
+                alert("You are not friends with " + submittedFriend);
+          }
          return false;
-     });
-     
-     $(document).on("click", "table tr img.delete", function() {
-         var friendNameToRemove = $(this).parent().prev().html(); 
-         alert(friendNameToRemove);
-         $(this).parent().parent().remove();
-         var indexOfRemovedFriend;
-         
-         for (var i = 0; i < friendList.length; i++) {
-             if (friendList[i]['name'] == friendNameToRemove) {
-                 indexOfRemovedFriend = i;
-             }
-         }
-         friendList.splice(indexOfRemovedFriend,1);         
      });
 }
 
@@ -127,7 +145,7 @@ function bindDialogLink(friendList, vendorData) {
                     for (var i = 0; i < friendList.length; i++){
                         var now = new Date();
                         now = now.format("yyyy-mm-dd HH:MM:ss");
-                        var comment = document.getElementById('explanation').value;
+                        var comment = document.getElementById('comment-box').value;
                         var friendUID = friendList[i]['uid'];
                         addReferralQuery = addReferralQuery + "(NULL," + myUID + "," + friendUID + ",\"" + now + "\",0,\"" + comment + "\"),";
                         alert(addReferralQuery);
@@ -172,8 +190,9 @@ function bindAutoComplete() {
     var autoCompleteSource = [];
     var fullName;
     for (var i = 0; i < allFriends.length; i++) {
+        picURL = "https://graph.facebook.com/" + allFriends[i]['fbid'] + "/picture";
         fullName = allFriends[i]['firstName'] + " " + allFriends[i]['lastName'];
-        autoCompleteSource.push({value: allFriends[i]['uid'], label: fullName, email: allFriends[i]['email'], icon: '../../assets/images/mgao.jpg'});
+        autoCompleteSource.push({value: allFriends[i]['uid'], label: fullName, email: allFriends[i]['email'], icon: picURL});
     }
     
     $("#tags").autocomplete({
@@ -194,6 +213,21 @@ function bindAutoComplete() {
                     .append( "<a><div><img class='autoCompleteImg' style='width:15%; float:left;' src='" + item.icon + "'><div class='autoCompleteDiv' style='width:80%; float:right; font-size:12px;'><B>" + item.label + "</b><br>" + item.email + "</div></div></a>" )
                     .appendTo( ul );
     };
+}
+
+function bindAccordion() {
+    $('#accordion-search').addClass("ui-accordion ui-widget ui-helper-reset")
+    .find("h3")
+            .addClass("ui-accordion-header ui-helper-reset ui-state-default ui-corner-top ui-corner-bottom")
+            .prepend('<span class="ui-icon ui-icon-triangle-1-e"/>')
+            .click(function() {
+                    $(this).toggleClass("ui-accordion-header-active").toggleClass("ui-state-active")
+                            .toggleClass("ui-state-default").toggleClass("ui-corner-bottom")
+                    .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e").toggleClass("ui-icon-triangle-1-s")
+                    .end().next().toggleClass("ui-accordion-content-active").toggle();
+                    return false;
+            })
+            .next().addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom").hide();
 }
 
 /* helper functions */
@@ -347,49 +381,90 @@ function displaySearchResults(vendorData) {
     // close accordion div
     htmlString = htmlString + "</div>";
 
-    // create pop up div
-    htmlString = htmlString + 
-        "<div id='dialog'>" +
-            "<div id='popup-widget' class='ui-widget'>" +
-                "<form id='addFriend' method='post'>" +
-                    "<label for='tags'><B>Search for friends to refer</b><BR></label>" +
-                    "<input type='search' size='35' name='friend' id='tags'>" +
-                    "<input type='submit' value='Add to List'/>" +
-                "</form>" +
-            "</div>" +
-            "<div id='right-col'>" +
-                "<div id='addedFriends' style='width:300px; height:100px; clear:both; overflow:auto;'>" +
+    var displayAllFriendsLeft = "<table class='friendTable'>";
+    var displayAllFriendsRight = "<table class='friendTable'>";
+    
+    for (var i = 0; i < allFriends.length; i++) {
+        var picURL = "<img src='https://graph.facebook.com/" + allFriends[i]['fbid'] + "/picture'\>";
+        var fullName = allFriends[i]['firstName'] + " " + allFriends[i]['lastName'];
+        
+        if (i%2 == 0) {
+            displayAllFriendsLeft = displayAllFriendsLeft + "<tr><td class='friendPic'>" + picURL + "</td>";
+            displayAllFriendsLeft = displayAllFriendsLeft + "<td class='friendName'>" + fullName + "</td></tr>";
+        }
+        
+        if (i%2 == 1) {
+            displayAllFriendsRight = displayAllFriendsRight + "<tr><td class='friendPic'>" + picURL + "</td>";
+            displayAllFriendsRight = displayAllFriendsRight + "<td class='friendName'>" + fullName + "</td></tr>";
+        }
+    }
+    displayAllFriendsLeft = displayAllFriendsLeft + "</table>";
+    displayAllFriendsRight = displayAllFriendsRight + "</table>";
+
+    htmlString = htmlString + "<div id='dialog'>" +
+        "<div id='friends-refer-upper'>" +
+            "<div id='friends-refer-left'>" +
+                "<div id='friends-refer-search'>" +
+                    "<form id='addFriend' method='post'>" +
+                        "<label for='tags'><B>Who do you want to refer to?</b><BR></label>" +
+                        "<input type='search' id='tags' name='friend'>" +
+                        "<input type='submit' id='searchFriendsButton' value='Add to List'/>" +
+                    "</form>" +
+                "</div>" +
+                "<div id='friends-refer-display'>" +
+                    "<div id='friends-refer-display-left'>" + 
+                        displayAllFriendsLeft + 
+                    "</div>" + 
+                    "<div id='friends-refer-display-right'>" + 
+                        displayAllFriendsRight +
+                    "</div>" + 
                 "</div>" +
             "</div>" +
-            "<div id='comment-area'>" +
-                "<label for='explanation'><B>Add a comment with your referral</B></label>" +
-                "<textarea name='comment' id='explanation' rows='4' cols='100%'></textarea>" +
+            "<div id='friends-refer-right'>" + 
             "</div>" +
-        "</div>";
+        "</div>" +
+        "<div id='friends-refer-comment'>" +
+            "<label for='comment-box'><B>Add a comment with your referral!</B></label>" +
+            "<textarea name='comment' id='comment-box'></textarea>" +
+        "</div>" +
+    "</div>";
 
     // fill in content div with search results
     $('#search-content').html(htmlString);
 
-    // TODO: OPTIMIZE BELOW JQUERY BINDING
-    // Accordion
-    $("#accordion-search").accordion({ header: "h3" });
-
     // initialize popup box for referring friends to a vendor
     var friendList = [];
     bindDialog(friendList);
-    bindAddFriendSubmit(friendList);
+    bindAddFriend(friendList);
+    //bindAddFriendSubmit(friendList);
     bindDialogLink(friendList, vendorData);
     bindAutoComplete();
+    bindAccordion();
 }
 
 function displayAddedFriends(friendList) {
-    var displayFriends = "<div id='referredFriendsHeader'>List of friends to refer<BR></div><table>";
+    var displayFriends = "<table>";
     for (var i = 0; i < friendList.length; i++) {
-        displayFriends = displayFriends + "<tr><td><img src='../../assets/images/mgao.jpg'></td>" + 
+        var picURL = "<img src='https://graph.facebook.com/" + friendList[i]['fbid'] + "/picture'\>";
+        displayFriends = displayFriends + "<tr><td>" + picURL + "</td>" + 
                 "<td class='referredFriend'>" + friendList[i]['firstName'] + " " + friendList[i]['lastName'] + 
                 "</td><td><img class=\"delete\" src='../../assets/jquery-ui-1.8.16.custom/css/custom-theme/images/del.png'/></td>" + 
                 "</tr>";
     }
     displayFriends = displayFriends + "</table>";
-    document.getElementById("addedFriends").innerHTML = displayFriends; 
+    document.getElementById("friends-refer-right").innerHTML = displayFriends; 
+    
+    // bind x on added friends to delete row
+    $('table tr img.delete').click(function() {
+         var friendNameToRemove = $(this).parent().prev().html(); 
+         $(this).parent().parent().remove();
+         var indexOfRemovedFriend;
+         
+         for (var i = 0; i < friendList.length; i++) {
+             if (friendList[i]['name'] == friendNameToRemove) {
+                 indexOfRemovedFriend = i;
+             }
+         }
+         friendList.splice(indexOfRemovedFriend,1); 
+     });
 }

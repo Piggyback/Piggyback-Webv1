@@ -80,7 +80,7 @@ class referrals extends CI_Controller {
         $currentUserData = $this->session->userdata('currentUserData');
         $this->load->model('manage_referral_model');
         
-        $this->manage_referral_model->remove_comment($currentUserData);
+        echo json_encode($this->manage_referral_model->remove_comment($currentUserData));
     }
 }
 
