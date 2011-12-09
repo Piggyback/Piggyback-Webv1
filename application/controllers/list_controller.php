@@ -17,6 +17,7 @@ class List_controller extends CI_Controller {
 
     public function index()
     {
+        // only used for ajax function calls
     }
 
     public function get_list_content()

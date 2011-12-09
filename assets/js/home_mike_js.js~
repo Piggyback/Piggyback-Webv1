@@ -53,87 +53,73 @@ function getListContent() {
 		// parse lid from id
 		var lid_string = $(this).attr('id');
 		var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
-		var htmlString;
 
 		// check if the specific list content div already exists
 		if ($('#list-content-lid--' + lid).length) {
 			// list content was already added to the html; display in div
 			htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
 			htmlString = addContentToAccordionTemplate(jQuery.parseJSON(htmlString));
-
-			if (htmlString.length == 0) {
-				htmlString = jQuery.trim($('#empty-list-content').html());
-			}
-			$('#list-content').html(htmlString);
-			// bind accordion to #list-content
-			bindAccordionList();
 		} else {
 			jQuery.post('list_controller/get_list_content', {
 				lid: lid
-			}, function(data) {
-				var parsedJSON = jQuery.parseJSON(data);
-				// div does not exist; must add contents to a div
-				htmlString = "<div id='list-content-lid--" + lid + "' class='none'>" + data + "</div>";
+				}, function(data) {
+					var parsedJSON = jQuery.parseJSON(data);
+					var htmlString;
+					// if list is empty
+					if (parsedJSON.length == 0) {
+						//alert('list is empty');
+						htmlString = jQuery.trim($('#empty-list-content').html());
+					} else {
+						// div does not exist; must add contents to a div
+						htmlString = "<div id='list-content-lid--" + lid + "' class='none'>" + data + "</div>";
 
-				// add div under empty-list-content
-				$('#empty-list-content').after(htmlString);
+						// add div under empty-list-content
+						$('#empty-list-content').after(htmlString);
 
-				// reset htmlString to html inside of div (does not include class .none)
-				htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
-				htmlString = addContentToAccordionTemplate(jQuery.parseJSON(htmlString));
-
-				if (htmlString.length == 0) {
-					htmlString = jQuery.trim($('#empty-list-content').html());
+						// reset htmlString to html inside of div (does not include class .none)
+						htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
+						htmlString = addContentToAccordionTemplate(jQuery.parseJSON(htmlString));
+					}
 				}
 				$('#list-content').html(htmlString);
 				// bind accordion to #list-content
 				bindAccordionList();
-				// from home_kim_js.js
-				var friendList = [];
-				bindReferDialog(friendList);
-			});
-		}
 
-		$('#list-content').removeClass("ui-tabs-hide");
-	    $('#inbox-content, #ui-tabs-1, #ui-tabs-2, #search-content').addClass("ui-tabs-hide")
-    	$('#inbox-tab, #friend-activity-tab, #referral-tracking-tab').removeClass("ui-tabs-selected ui-state-active");
+				$('#list-content').removeClass("ui-tabs-hide");
+			    $('#inbox-content, #ui-tabs-1, #ui-tabs-2, #search-content').addClass("ui-tabs-hide")
+       			$('#inbox-tab, #friend-activity-tab, #referral-tracking-tab').removeClass("ui-tabs-selected ui-state-active");
+			});
 
 		return false;
-	});
+		});
 }
 
 function addContentToAccordionTemplate(parsedJSON) {
-	if (parsedJSON.length == 0) {
-		return "";
-	} else {
-		htmlString = "<div id='accordion-list'>";
-		for (var i=0; i<parsedJSON.length; i++) {
-			htmlString = htmlString +
-			"<div>" +
-				"<h3><a href='#'>" + parsedJSON[i].name + "</a></h3>" +
-				"<div> <table class='formatted-table'>" +
-					"<tr>" +
-						"<td class='formatted-table-info'>" +
-							parsedJSON[i].addrNum + " " + parsedJSON[i].addrStreet + "<br>" +
-							parsedJSON[i].addrCity + " " + parsedJSON[i].addrState + " " + parsedJSON[i].addrZip + "<br>" +
-							parsedJSON[i].phone +
-						"</td>" +
-						"<td class='formatted-table-button' align='right'>" +
-							"<p><a href='#' id=" + parsedJSON[i].vid + " class='refer-popup-link dialog_link ui-state-default ui-corner-all'>" +
-							"<span class='ui-icon ui-icon-plus'></span>Refer to Friends</a></p>" +
-						"</td>" +
-					"</tr>" +
-				"</table></div>" +
-			"</div>";
-		}
-
-		// close accordion div
-		htmlString = htmlString + "</div>";
-
-		return htmlString;
+	htmlString = "<div id='accordion-list'>";
+	for (var i=0; i<parsedJSON.length; i++) {
+		htmlString = htmlString +
+		"<div>" +
+			"<h3><a href='#'>" + parsedJSON[i].name + "</a></h3>" +
+			"<div> <table class='formatted-table'>" +
+				"<tr>" +
+					"<td class='formatted-table-info'>" +
+						parsedJSON[i].addrNum + " " + parsedJSON[i].addrStreet + "<br>" +
+						parsedJSON[i].addrCity + " " + parsedJSON[i].addrState + " " + parsedJSON[i].addrZip + "<br>" +
+						parsedJSON[i].phone +
+					"</td>" +
+					"<td class='formatted-table-button' align='right'>" +
+						"<p><a href='#' id=" + parsedJSON[i].vid + " class='dialog_link ui-state-default ui-corner-all'>" +
+						"<span class='ui-icon ui-icon-plus'></span>Refer to Friends</a></p>" +
+					"</td>" +
+				"</tr>" +
+			"</table></div>" +
+		"</div>";
 	}
 
-	return;
+	// close accordion div
+	htmlString = htmlString + "</div>";
+
+	return htmlString;
 }
 
 function bindAccordionList() {

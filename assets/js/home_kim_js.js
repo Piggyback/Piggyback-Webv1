@@ -9,6 +9,8 @@ $(document).ready(function() {
 });
 
 /* functions for $(document).ready */
+
+// when you hover over a button, the text turns pink
 function bindHoverOver() {
     $(document).on("mouseenter", ".dialog_link", function() {
         $(this).addClass('ui-state-hover');
@@ -19,13 +21,16 @@ function bindHoverOver() {
     });
 }
 
+// when you click on the refer button, the background dims
 function bindFuzz() {
     $(document).on("click", "#fuzz", function(){
          $('#dialog').dialog("close"); 
+         $('#addToListDialog').dialog("close");
     });
 }
 
-function bindDialog(friendList) {  
+// create the refer friends popup box. when you close the box, all values reset to blank
+function bindReferDialog(friendList) {  
     var windowHeight = window.innerHeight;
     var windowWidth = window.innerWidth;
 
@@ -52,6 +57,31 @@ function bindDialog(friendList) {
     });
 }
 
+// create the add to list popup box
+function bindAddToListDialog() {  
+    var windowHeight = window.innerHeight;
+    var windowWidth = window.innerWidth;
+
+    // Dialog			
+    $('#addToListDialog').dialog({
+            autoOpen: false,
+            width: 300,
+            height: 400,
+            closeOnEscape: true,
+            show: 'drop',
+            hide: 'drop',
+            resizable: true,
+            beforeClose: function() {
+                // reset all values in pop up to blank
+                document.getElementById("selectList").value = 'none';
+                
+                // fade out dark background
+                $("#fuzz").fadeOut();  
+            }
+    });
+}
+
+// when you click on a friend in the friend search results, it adds them to the list of people to refer
 function bindAddFriend(friendList) {
     
     $(document).on('click', '.friendTable tr', function() { 
@@ -69,7 +99,8 @@ function bindAddFriend(friendList) {
                       alert("You have already added " + name);
                   }
                   else {
-                      friendList.push(allFriends[i]);
+                      friendList.splice(0,0,allFriends[i]);
+                      //friendList.push(allFriends[i]);
                       displayAddedFriends(friendList);
                   }
                   break;
@@ -87,9 +118,9 @@ function bindAddFriend(friendList) {
 
 // when you click on the refer button on search results, display pop up 
 // when you click on refer button in pop up, store referral and vendor information in the database
-function bindDialogLink(friendList, vendorData) {
+function bindReferDialogLink(friendList, vendorData) {
     // Dialog Link
-    $('.dialog_link').click(function(){
+    $('.refer-popup-link').click(function(){
         
         // get id of the vendor, which is the id of the pop up button
         var vendorID = $(this).attr('id');
@@ -154,16 +185,66 @@ function bindDialogLink(friendList, vendorData) {
     });
 }
 
+
+function bindAddToListDialogLink(vendorData) {
+    $('.add-to-list-popup-link').click(function(){
+        // get id of the vendor, which is the id of the pop up
+        var vendorID = $(this).attr('id');
+        var vendorName;
+
+        for(var i = 0; i < vendorData.length; i++) {
+            if (vendorData[i].id == vendorID) {
+                vendor = vendorData[i];
+            }
+        }
+
+        $("#fuzz").fadeIn();  
+        $('#addToListDialog').dialog("option","title","Add " + vendor.name + " to a List");
+
+        $('#addToListDialog').dialog("option","buttons", {
+            "Add!": function() {
+                // add vendor to list
+                // add vendor to vendor table
+
+//                jQuery.post('searchvendors/add_referral',{
+//                        q: addReferralQuery,
+//                        name: vendor.name,
+//                        reference: vendor.reference,
+//                        id: vendor.id,
+//                        lat: vendor.lat,
+//                        lng: vendor.lng,
+//                        phone: vendor.phone,
+//                        addr: vendor.addr,
+//                        addrNum: vendor.addrNum,
+//                        addrStreet: vendor.addrStreet,
+//                        addrCity: vendor.addrCity,
+//                        addrState: vendor.addrState,
+//                        addrCountry: vendor.addrCountry,
+//                        addrZip: vendor.addrZip,
+//                        website: vendor.website,
+//                        icon: vendor.icon,
+//                        rating: vendor.rating,
+//                        vicinity: vendor.vicinity
+//                    }, function() {
+//                        $('#dialog').dialog("close");
+//                    });
+                }
+            });
+
+        $('#addToListDialog').dialog('open');
+        return false;
+    });
+}
+
+
 // whenever a letter is typed, check which friends have that string included and add to the list of friends to display
 function bindAutoComplete() {
     $('#tags').keyup(function() {
         var typedString = document.forms["addFriend"]["friend"].value
-        var fullName;
         var matchingFriends = [];
         
         for (var i = 0; i < allFriends.length; i++) {
-            fullName = allFriends[i]['firstName'] + " " + allFriends[i]['lastName'];
-            if (fullName.indexOf(typedString) >= 0) {
+            if (allFriends[i]['firstName'].indexOf(typedString) == 0 || allFriends[i]['lastName'].indexOf(typedString) == 0) {
                 matchingFriends.push(allFriends[i]);
             }
         }
@@ -171,6 +252,7 @@ function bindAutoComplete() {
     });
 }
 
+// TODO: fix bug with initial accordion state
 // create accordion for search results -- can display many open rows at once
 function bindAccordion() {
     $('#accordion-search').addClass("ui-accordion ui-widget ui-helper-reset")
@@ -188,6 +270,8 @@ function bindAccordion() {
 }
 
 /* helper functions */
+
+// store all friends upon log on
 function getFriends() {
     jQuery.post('searchvendors/get_friends', function(data) {
           var parsedJSON = jQuery.parseJSON(data);
@@ -207,6 +291,7 @@ function getFriends() {
      });
 }
 
+// retrieve vendor data from google API request for specific search and store results
 function getVendorData(parsedJSON) {
 
     var results = parsedJSON.searchResults;
@@ -311,6 +396,7 @@ function getVendorData(parsedJSON) {
     return vendorData;
 }
 
+// dynamically update displayed list of friends from friend search
 function displayAutoCompleteResults(matchingFriends) {
     var displayAllFriendsLeft = "<table class='friendTable'>";
     var displayAllFriendsRight = "<table class='friendTable'>";
@@ -337,6 +423,33 @@ function displayAutoCompleteResults(matchingFriends) {
 
 }
 
+function displayListDropDown() {
+    var listDropDownHTML = "<b>Add to which list?</b><br>";
+    listDropDownHTML = listDropDownHTML + "<select id='selectList'>" + 
+            "<option value='none'></option>" + 
+            "<option value='addNew'>Add to new list</option>";
+
+    // pull list names from side panel
+    var myListsHTML = document.getElementById("lists").innerHTML;
+    var myLists = myListsHTML.split("</li>"); 
+    
+    var listName;
+    var lid;
+    var temp;
+    for (var i = 0; i < myLists.length - 1; i++) {
+        temp = cbSplit(myLists[i],"my\-list\-lid\-\-")[1].split("\">");
+        lid = temp[0];
+        listName = temp[1];
+        alert(lid); alert(listName);
+        listDropDownHTML = listDropDownHTML + "<option value='" + lid + "'>" + listName + "</option>";
+    }
+    
+    listDropDownHTML = listDropDownHTML + "</select>";
+    
+    document.getElementById("add-to-existing-list").innerHTML = listDropDownHTML;
+}
+
+// display vendor search results in accordion
 function displaySearchResults(vendorData) {
     // add rows to accordion
     var htmlString = "<div id='accordion-search'>";
@@ -354,8 +467,10 @@ function displaySearchResults(vendorData) {
 //                    vendorData[i].phone + "</td>" +
                     addr[0] + "<BR>" + addr[1] + ", " + vendorData[i].addrState + " " + vendorData[i].addrZip +
                     "<td class='formatted-table-button' align='right'>" +
-                    "<p><a href='#' id=" + vendorData[i].id + " class='dialog_link ui-state-default ui-corner-all'>" +
+                    "<p><a href='#' id=" + vendorData[i].id + " class='refer-popup-link dialog_link ui-state-default ui-corner-all'>" +
                     "<span class='ui-icon ui-icon-plus'></span>Refer to Friends</a></p>" + 
+                    "<p><a href='#' id=" + vendorData[i].id + " class='add-to-list-popup-link dialog_link ui-state-default ui-corner-all'>" +
+                    "<span class='ui-icon ui-icon-plus'></span>Add to List</a></p>" +
                     "</td>" + 
                 "</table></div>" + 
             "</div>";
@@ -364,43 +479,21 @@ function displaySearchResults(vendorData) {
     // close accordion div
     htmlString = htmlString + "</div>";
 
-//    var displayAllFriendsLeft = "<table class='friendTable'>";
-//    var displayAllFriendsRight = "<table class='friendTable'>";
-//    
-//    for (var i = 0; i < allFriends.length; i++) {
-//        var picURL = "<img src='https://graph.facebook.com/" + allFriends[i]['fbid'] + "/picture'\>";
-//        var fullName = allFriends[i]['firstName'] + " " + allFriends[i]['lastName'];
-//        
-//        if (i%2 == 0) {
-//            displayAllFriendsLeft = displayAllFriendsLeft + "<tr><td class='friendPic'>" + picURL + "</td>";
-//            displayAllFriendsLeft = displayAllFriendsLeft + "<td class='friendName'>" + fullName + "</td></tr>";
-//        }
-//        
-//        if (i%2 == 1) {
-//            displayAllFriendsRight = displayAllFriendsRight + "<tr><td class='friendPic'>" + picURL + "</td>";
-//            displayAllFriendsRight = displayAllFriendsRight + "<td class='friendName'>" + fullName + "</td></tr>";
-//        }
-//    }
-//    displayAllFriendsLeft = displayAllFriendsLeft + "</table>";
-//    displayAllFriendsRight = displayAllFriendsRight + "</table>";
-
-
+    // create popup for referring to friends
     htmlString = htmlString + "<div id='dialog'>" +
         "<div id='friends-refer-upper'>" +
             "<div id='friends-refer-left'>" +
                 "<div id='friends-refer-search'>" +
-                    "<form id='addFriend' method='post'>" +
+                    "<form id='addFriend' method='post' onsubmit='return false;'>" +
                         "<label for='tags'><B>Who do you want to refer to?</b><BR></label>" +
-                        "<input type='search' id='tags' name='friend'>" +
+                        "<input type='text' id='tags' autocomplete='off' name='friend'>" +
                         "<input type='submit' id='searchFriendsButton' value='Add to List'/>" +
                     "</form>" +
                 "</div>" +
                 "<div id='friends-refer-display'>" +
                     "<div id='friends-refer-display-left'>" + 
-//                        displayAllFriendsLeft + 
                     "</div>" + 
                     "<div id='friends-refer-display-right'>" + 
-//                        displayAllFriendsRight +
                     "</div>" + 
                 "</div>" +
             "</div>" +
@@ -413,6 +506,19 @@ function displaySearchResults(vendorData) {
         "</div>" +
     "</div>";
 
+    // create popup for adding vendor to list
+    htmlString = htmlString + 
+        "<div id='addToListDialog'>" + 
+            "<div id='add-to-existing-list'>" + 
+            "</div>" + 
+            "<div id='add-to-new-list'>" + 
+            "</div>" + 
+            "<div id='add-to-list-comment'>" +
+                "<label for='add-to-list-comment-box'><B>Add a comment!</B></label>" +
+                "<textarea name='addToListComment' id='add-to-list-comment-box'></textarea>" +
+            "</div>" +
+        "</div>";
+    
     // fill in content div with search results
     $('#search-content').html(htmlString);
 
@@ -420,14 +526,19 @@ function displaySearchResults(vendorData) {
     
     // initialize popup box for referring friends to a vendor
     var friendList = [];
-    bindDialog(friendList);
+    bindReferDialog(friendList);
     bindAddFriend(friendList);
-    //bindAddFriendSubmit(friendList);
-    bindDialogLink(friendList, vendorData);
+    bindReferDialogLink(friendList, vendorData);
     bindAutoComplete();
     bindAccordion();
+    
+    // initialize pop up box for adding vendor to list
+    bindAddToListDialog();
+    bindAddToListDialogLink(vendorData);
+    displayListDropDown();
 }
 
+// show friends you have added to refer on side panel of pop up 
 function displayAddedFriends(friendList) {
     var displayFriends = "<table>";
     for (var i = 0; i < friendList.length; i++) {

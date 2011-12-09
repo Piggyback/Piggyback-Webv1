@@ -79,7 +79,7 @@ a, a:visited, .link {
     width: 138px;
 }
 
-span.none {
+.none {
     display: none;
 }
 
@@ -272,10 +272,6 @@ span.none {
     padding: 0;
 }
 
-#search-tab{
-    display: none;
-}
-
 /*search*/
 .formatted-table {
     width: 100%;
@@ -330,7 +326,7 @@ span.none {
 
 #fuzz {
     position:absolute;
-    opacity:.9;
+    opacity:.77;
     top:0;
     left:0;
     width:100%;

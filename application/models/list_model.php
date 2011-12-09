@@ -23,7 +23,7 @@ class List_model extends CI_Model {
     public function get_list_content()
     {
         $lid = $this->input->post('lid');
-        $query = $this->db->query("SELECT *, Lists.date AS listsDate FROM Lists INNER JOIN Vendors ON Lists.vid = Vendors.id;");
+        $query = $this->db->query("SELECT *, Lists.date AS listsDate FROM Lists INNER JOIN Vendors ON Lists.vid = Vendors.id WHERE Lists.lid = " . $lid . ";");
 
         echo json_encode($query->result());
     }

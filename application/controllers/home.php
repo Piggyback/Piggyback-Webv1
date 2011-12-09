@@ -34,7 +34,7 @@ class Home extends CI_Controller {
         $data['currentFBID'] = $currentUserData['fbid'];
 
         // andy's merge
-        $data['inboxItems'] = $this->manage_referral_model->get_inbox_items($currentUserData);
+        $data['inboxItems'] = $this->manage_referral_model->load_inbox_items($currentUserData);
 
         $this->load->view('home_view', $data);
     }

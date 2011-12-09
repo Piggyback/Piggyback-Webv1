@@ -110,7 +110,7 @@ class Manage_Referral_Model extends CI_Model {
     }
 
     /*
-     * get_referral_details
+     * get_inbox_items
      * 
      * inputs: uid2 (receiving user)
      * action: retrieve recent 10 items related data to the referral (lid, comment, rid)
@@ -122,7 +122,8 @@ class Manage_Referral_Model extends CI_Model {
     {
         // should get uidRecipient from session
         $uidRecipient = $data['uid'];
-
+        $rowStart = $data['rowStart'];
+        
         $this->db->select('*, UserLists.name AS UserListsName, Vendors.name AS VendorsName,
             UserLists.comment AS UserListsComment, Referrals.comment AS ReferralsComment, Referrals.date AS refDate');
         $this->db->from('Referrals');
@@ -130,98 +131,11 @@ class Manage_Referral_Model extends CI_Model {
         $this->db->join('ReferralDetails', 'ReferralDetails.rid = Referrals.rid', 'left');
         $this->db->join('UserLists', 'UserLists.lid = Referrals.lid', 'left');
         $this->db->join('Vendors', 'Vendors.id = ReferralDetails.vid', 'left');
-        //$this->db->join('Likes', 'Likes.rid = Referrals.rid', 'left');
-        //$this->db->join('Comments', 'Comments.rid = Referrals.rid', 'left');
-        //$this->db->join('Lists', 'Lists.lid = Referrals.lid', 'inner');
         
         // the following code limits query result to only 10 rows
         $this->db->order_by('refDate', 'desc');
         
         // FOR NOW TESTING, only load THREE
-        $this->db->limit(3);
-        
-        $this->db->where('uid2', $uidRecipient);
-        
-        $result = $this->db->get()->result();
-
-        //var_dump($result);
-
-        // result needs to be formatted to include an array of likes and comments
-        foreach($result as $row)
-        {
-            $rid = $row->rid;
-            
-            // retrieve a 'Likes' array of uid's
-            $this->db->select('*');
-            $this->db->from('Likes');
-            $this->db->where('rid', $rid);
-            $LikesList = $this->db->get()->result();
-          
-            $row->LikesList = array("LikesList" => $LikesList);
-            
-            // retrieve a 'Comments' with uid's
-            $this->db->select('*');
-            $this->db->from('Comments');
-            $this->db->join('Users', 'Users.uid = Comments.uid', 'left');
-            $this->db->order_by('date', 'asc');
-            $this->db->where('rid', $rid);
-            $CommentsList = $this->db->get()->result();
-            
-            $row->CommentsList = array("CommentsList" => $CommentsList);
-            
-            // add whether the user has Liked the status or not
-            $this->db->from('Likes');
-            $this->db->where('rid', $rid);
-            $this->db->where('uid', $uidRecipient);
-            
-            if ($this->db->count_all_results() == 0)
-            {
-                // user has not liked it yet
-                $row->alreadyLiked = "0";
-            } else {
-                // user has already liked it
-                $row->alreadyLiked = "1";
-            }
-        }
-        
-        //var_dump($result);
-        
-        return $result;
-    }
-    
-    /*
-     * get_more_inbox
-     * 
-     * AJAX-exclusive
-     * 
-     * inputs: user, (ajax jquery post) start row point
-     * action: retrieves 10 rows after that point
-     * return json encoded php array
-     * 
-     * 
-     * TODO: work on overriding both methods @andyjiang
-     */
-    public function get_more_inbox($data)
-    {
-        // should get uidRecipient from session
-                
-        $uidRecipient = $data['uid'];
-        $rowStart = $this->input->post('rowStart');
-        
-        $this->db->select('*, UserLists.name AS UserListsName, Vendors.name AS VendorsName,
-            UserLists.comment AS UserListsComment, Referrals.comment AS ReferralsComment, Referrals.date AS refDate');
-        $this->db->from('Referrals');
-        $this->db->join('Users', 'Users.uid = Referrals.uid1', 'left');
-        $this->db->join('ReferralDetails', 'ReferralDetails.rid = Referrals.rid', 'left');
-        $this->db->join('UserLists', 'UserLists.lid = Referrals.lid', 'left');
-        $this->db->join('Vendors', 'Vendors.id = ReferralDetails.vid', 'left');
-        //$this->db->join('Likes', 'Likes.rid = Referrals.rid', 'left');
-        //$this->db->join('Comments', 'Comments.rid = Referrals.rid', 'left');
-        //$this->db->join('Lists', 'Lists.lid = Referrals.lid', 'inner');
-        
-        // the following code limits query result to only 10 rows
-        $this->db->order_by('refDate', 'desc');
-        // second argument is the offset amount
         $this->db->limit(3, $rowStart);
         
         $this->db->where('uid2', $uidRecipient);
@@ -246,7 +160,6 @@ class Manage_Referral_Model extends CI_Model {
             $this->db->from('Comments');
             $this->db->join('Users', 'Users.uid = Comments.uid', 'left');
             $this->db->order_by('date', 'asc');
-//            $this->db->limit(1);
             $this->db->where('rid', $rid);
             $CommentsList = $this->db->get()->result();
             
@@ -259,7 +172,6 @@ class Manage_Referral_Model extends CI_Model {
             
             if ($this->db->count_all_results() == 0)
             {
-                // user has not liked it yet
                 $row->alreadyLiked = "0";
             } else {
                 // user has already liked it
@@ -267,11 +179,34 @@ class Manage_Referral_Model extends CI_Model {
             }
         }
         
-        //var_dump($result);
-        
         return $result;
     }
     
+    /*
+     * get_more_inbox
+     * 
+     * AJAX-exclusive
+     * 
+     * inputs: user, (ajax jquery post) start row point
+     * action: retrieves 10 rows after that point
+     * return json encoded php array
+     */
+    public function get_more_inbox($data)
+    {
+        $data['rowStart'] = $this->input->post('rowStart');
+        return $this->get_inbox_items($data);
+        
+    }
+    
+    public function load_inbox_items($data)
+    {
+        $data['rowStart'] = 0;
+        return $this->get_inbox_items($data);
+    }
+
+
+
+
     /*
      * add_new_comment
      * 

@@ -25,6 +25,7 @@
         <script type="text/javascript" src="../assets/js/home_mike_js.js"></script>
         <script type="text/javascript" src="../assets/js/home_andy_js.js"></script>
         <script type="text/javascript" src="../assets/js/home_kim_js.js"></script>
+        <script type="text/javascript" src="../assets/js/fixedSplit.js"></script>
         <script type="text/javascript" src="../../assets/jquery-ui-1.8.16.custom/development-bundle/ui/jquery.ui.accordionCustom.js"></script>
     </head>
     <body>
@@ -106,7 +107,8 @@
                                                 <li id="inbox-tab" class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#inbox-content">Inbox</a></li>
                                                 <li id="friend-activity-tab" class="ui-state-default ui-corner-top"><a href="ajax/content2.html">Friend Activity</a></li>
                                                 <li id="referral-tracking-tab" class="ui-state-default ui-corner-top"><a href="ajax/content3.html">Referral Tracking</a></li>
-                                                <li id="search-tab" class="ui-state-default ui-corner-top"><a href="#search-content">test</a></li>
+                                                <li id="search-tab" class="ui-state-default ui-corner-top none"><a href="#search-content"></a></li>
+                                                <li id="list-tab" class="ui-state-default ui-corner-top none"><a href="#list-content"></a></li>
                                             </ul>
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="inbox-content">
                                                 <div id="inbox">
@@ -173,17 +175,17 @@
                                                                 echo $row->phone . "<br>";
                                                                 echo $row->website; ?>
                                                             </div>
-                                                            
+
                                                             <?php endif; ?>
-                                                            
+
                                                             <div class="accordion-footer">
-                                                                
+
                                                                 <!-- new div for like/comment button, comment fields, etc like button here -->
                                                                 <div class="row" data-rid=<?php echo $row->rid; ?>>
                                                                     <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
                                                                         <?php echo $likeStatus; ?>
                                                                     </div>
-                                                                    
+
                                                                     <!--comment button here -->
                                                                     <div class="click-to-comment no-accordion">
                                                                         Comment
@@ -232,7 +234,13 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="search-content"> <p> search </p>
+                                            <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="search-content">
+                                                <p> search </p>
+                                            </div>
+                                            <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="list-content">
+                                            </div>
+                                            <div class="hidden-list-content none" id="empty-list-content">
+                                                <p> List is empty! </p>
                                             </div>
                                         </div>
                                     </div>

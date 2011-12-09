@@ -64,6 +64,7 @@ function initCommentInputDisplay() {
 function initLike() {
     $('.click-to-like').click(function(){
         var referId = $(this).closest('.row').data("rid");
+        var rid = $(this).closest('row').attr();
         var likes = $(this).closest('.row').find('.number-of-likes');
         var likeStatus = $(this);
 

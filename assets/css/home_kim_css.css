@@ -131,3 +131,21 @@ root {
 .friendTable td.friendPic {
     valign:middle;
 }
+
+/* add to list dialog box */
+#add-to-existing-list {
+    
+}
+
+#add-to-new-list {
+    
+}
+
+#add-to-list-comment {
+    width:100%;
+}
+
+#add-to-list-comment-box {
+    width:100%;
+}
+

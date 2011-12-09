@@ -75,21 +75,11 @@ $.widget( "ui.accordionCustom", {
 				$( this ).removeClass( "ui-state-focus" );
 			});
 
-                self.element.find( options.content )
-                          .addClass( "ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom" );
- 		self.element.find( options.footer )
-                          .addClass( "ui-accordion-footer ui-helper-reset ui-widget-content");
-//		
-//		
-//		self.headers.next()
-//			.addClass( "ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom" );
-//
-//                // the comments list footer
-//                self.headers.next().next()
-//                        .addClass( "ui-accordion-footer ui-helper-reset" );
+                self.contents = self.element.find( options.content )
+                        .addClass( "ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom" );
+ 		self.footers = self.element.find( options.footer )
+                        .addClass( "ui-accordion-footer ui-helper-reset ui-widget-content");
 
-                // COMMENTS FOOTER
-                
 
 		if ( options.navigation ) {
 			var current = self.element.find( "a" ).filter( options.navigationFilter ).eq( 0 );
@@ -196,6 +186,7 @@ $.widget( "ui.accordionCustom", {
 			.removeAttr( "tabIndex" );
 
 		this.headers.find( "a" ).removeAttr( "tabIndex" );
+                
 		this._destroyIcons();
 		var contents = this.headers.next()
 			.css( "display", "" )
