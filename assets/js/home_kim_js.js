@@ -44,6 +44,7 @@ function bindDialog(friendList) {
                 document.getElementById("friends-refer-right").innerHTML = '';
                 document.getElementById("tags").value = '';
                 friendList.length = 0;
+                displayAutoCompleteResults(allFriends);
 
                 // fade out dark background
                 $("#fuzz").fadeOut();  
