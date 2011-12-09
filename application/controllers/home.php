@@ -20,13 +20,13 @@ class Home extends CI_Controller {
 
     public function index()
     {
-        $this->load->model('home_model');
+        $this->load->model('list_model');
         $this->load->model('manage_referral_model');
         // get current user data
         $currentUserData = $this->session->userdata('currentUserData');
 
         // get user's lists from db
-        $data['myLists'] = $this->home_model->load_my_lists($currentUserData['uid']);
+        $data['myLists'] = $this->list_model->get_my_lists($currentUserData['uid']);
 
         // pass user's name to view
         $data['currentFirstName'] = $currentUserData['firstName'];

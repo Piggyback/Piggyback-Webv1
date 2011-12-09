@@ -22,8 +22,10 @@ $(document).ready(function() {
 /* functions for $(document).ready */
 //initialize the accordion features for inbox
 function bindAccordionInbox() {
-    $( "#accordion-inbox" ).accordion({
+    $( "#accordion-inbox" ).accordionCustom({
         header: 'div.inbox-single-wrapper',// div.inbox-list-wrapper',
+        content: 'div.accordion-content',
+        footer: 'div.accordion-footer',
         collapsible: true,
         autoHeight: true,
         navigation: true,
@@ -149,49 +151,9 @@ function initRemoveComment() {
 
 }
 
+// these are private functions
 function updateComments(commentList, commentsTable, collapse) {
     var commentsHTMLString = updateCommentsHTMLString(commentList, collapse);
-    
-//    // re-write all html for entire comments table
-//    var commentsCountdown = commentList.length;
-//    var needShowAllButton = "hide-load-comments-button";
-//    var showStatus = "show-comment";
-//    var displayReferralsHTMLString = "";
-//
-//    for(var j=0; j<commentList.length; j++) {
-//        if(commentsCountdown < 3) {
-//            showStatus = "show-comment";
-//        } else {
-//            showStatus = "hide-comment";
-//            needShowAllButton = "show-load-comments-button";
-//        }
-//        commentsCountdown--;
-//
-//        if(commentsCountdown == commentList.length-1) {
-//            displayReferralsHTMLString = displayReferralsHTMLString +
-//                "<tr>" +
-//                    "<td class='show-all-comments-button no-accordion " + needShowAllButton + "'>" +
-//                        "View all " + commentList.length + " comments." +
-//                    "</td>" +
-//                "</tr>";
-//        }
-//
-//        // comments here
-//        displayReferralsHTMLString = displayReferralsHTMLString +
-//           "<tr class='inbox-single-comment " + showStatus + "'>" +
-//                "<td class='comments-name'>" +
-//                    commentList[j].firstName + " " + commentList[j].lastName + ": " +
-//                "</td>" +
-//                "<td class='comments-content'>" +
-//                    commentList[j].comment +
-//                "</td>" +
-//                "<td>" +
-//                  "<button class='delete-comment' data-cid=" +
-//                     commentList[j].cid +
-//                       ">x</button>" + 
-//                "</td>" +
-//           "</tr>";
-//    }
 
     // update comments table
     commentsTable.html(commentsHTMLString);
@@ -203,6 +165,7 @@ function updateComments(commentList, commentsTable, collapse) {
     initRemoveComment();
 }
 
+// private function
 function updateCommentsHTMLString(commentList, collapse) {
     // re-write all html for entire comments table
     var commentsCountdown = commentList.length;

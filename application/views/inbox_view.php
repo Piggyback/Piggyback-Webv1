@@ -13,6 +13,8 @@
         <script type="text/javascript" src="../assets/js/home_mike_js.js"></script>
         <script type="text/javascript" src="../assets/js/home_andy_js.js"></script>
         <script type="text/javascript" src="../assets/js/home_kim_js.js"></script>
+
+        <script type="text/javascript" src="../../assets/jquery-ui-1.8.16.custom/development-bundle/ui/jquery.ui.accordionCustom.js"></script>
         
         <script>
         // eventually move all javascript code into separate file and call it,
@@ -91,52 +93,11 @@
                                     "<div class='number-of-likes no-accordion'>" +
                                         likeNumber +
                                     "</div>" +
-                                    
                                     "<div class='comments'>" +
                                         "<table class='comments-table'>" +
-                                            "<tbody class='comments-table-tbody'>";
-                                        
-                                        // loop comments for the 'view all comments'
-                                        updateComments(moreRows[i].CommentsList['CommentsList']);
-                                        
-                                        var commentsCountdown = moreRows[i].CommentsList['CommentsList'].length;
-                                        var needShowAllButton = "hide-load-comments-button";
-                                        var showStatus = "show-comment";
-                                        for(var j=0; j<moreRows[i].CommentsList['CommentsList'].length; j++) {
-                                            if(commentsCountdown < 3) {
-                                                showStatus = "show-comment";
-                                            } else {
-                                                showStatus = "hide-comment";
-                                                needShowAllButton = "show-load-comments-button";
-                                            }
-                                            commentsCountdown--;
-                                            
-                                            if(commentsCountdown == moreRows[i].CommentsList['CommentsList'].length-1) {
-                                                displayReferralsHTMLString = displayReferralsHTMLString +
-                                                    "<tr>" +
-                                                        "<td class='show-all-comments-button no-accordion " + needShowAllButton + "'>" +
-                                                            "View all " + moreRows[i].CommentsList['CommentsList'].length + " comments." +
-                                                        "</td><td></td><td></td>" +
-                                                    "</tr>";
-                                            }
-                                            
-                                            // comments here
-                                            displayReferralsHTMLString = displayReferralsHTMLString +
-                                               "<tr class='inbox-single-comment " + showStatus + "'>" +
-                                                    "<td class='comments-name'>" +
-                                                        moreRows[i].CommentsList['CommentsList'][j].firstName + " " + moreRows[i].CommentsList['CommentsList'][j].lastName + ": " +
-                                                    "</td>" +
-                                                    "<td class='comments-content'>" +
-                                                        moreRows[i].CommentsList['CommentsList'][j].comment +
-                                                    "</td>" +
-                                                    "<td>" +
-                                                      "<button class='delete-comment' data-cid=" +
-                                                         moreRows[i].CommentsList['CommentsList'][j].cid +
-                                                           ">x</button>" + 
-                                                    "</td>" +
-                                               "</tr>";
-                                        }
-                                            displayReferralsHTMLString = displayReferralsHTMLString +
+                                            "<tbody class='comments-table-tbody'>" +
+                                                // loop comments for the 'view all comments'
+                                                updateCommentsHTMLString(moreRows[i].CommentsList['CommentsList']) +
                                             "</tbody>" +
                                        "</table>" +
                                    "</div>" + 
@@ -169,7 +130,6 @@
                     initComment();
                     $('.delete-comment').unbind();
                     initRemoveComment();
-                    
                     $('.show-load-comments-button').unbind();
                     initLoadMoreComments();
                 }
@@ -189,37 +149,37 @@
         <div id="inbox">
             <div id="accordion-inbox">
                 <div id="inbox-wrapper">
-                <?php
-                    foreach ($inboxItems as $row)
-                    {
+                <?php foreach ($inboxItems as $row): ?>
+                        
+<!--                        determine if $row is a list or single vendor-->
+                        
+                    <?php if ( $row->lid == 0 ): ?>
 
-                        // determine if $row is a list or single vendor
-                        if ( $row->lid == 0 )
-                        {   
-                            // get some vital variables ready
-                            // the count of likes
-                            $tempArray = $row->LikesList;
-                            $likesArray = $tempArray['LikesList'];
-                            $tempArray = $row->CommentsList;
-                            $commentsArray = $tempArray['CommentsList'];
+                        <?php
+                        // get some vital variables ready
+                        // the count of likes
+                        $tempArray = $row->LikesList;
+                        $likesArray = $tempArray['LikesList'];
+                        $tempArray = $row->CommentsList;
+                        $commentsArray = $tempArray['CommentsList'];
 
-                            $likesArrayCount = count($likesArray);
-                            $likeNumber = "";
-                            if ($likesArrayCount>0) {
-                                $likeNumber = "$likesArrayCount";
-                                if ($likesArrayCount == 1) {
-                                    $likeNumber = $likeNumber . " person likes this.";
-                                } else {
-                                    $likeNumber = $likeNumber . " people like this.";
-                                }
-                            } 
-                            // if uid does not exist in the Likes rid list
-                            if ($row->alreadyLiked == 1) {
-                                $likeStatus = "Unlike";
+                        $likesArrayCount = count($likesArray);
+                        $likeNumber = "";
+                        if ($likesArrayCount>0) {
+                            $likeNumber = "$likesArrayCount";
+                            if ($likesArrayCount == 1) {
+                                $likeNumber = $likeNumber . " person likes this.";
                             } else {
-                                $likeStatus = "Like";
+                                $likeNumber = $likeNumber . " people like this.";
                             }
-                 ?>
+                        } 
+                        // if uid does not exist in the Likes rid list
+                        if ($row->alreadyLiked == 1) {
+                            $likeStatus = "Unlike";
+                        } else {
+                            $likeStatus = "Like";
+                        }
+                        ?>
 
                     <!-- comments for andy
                         -Add proper indenting to HTML
@@ -229,7 +189,7 @@
                     -->
 
                             <!-- BEGINNING OF HEADER HERE of the ACCORDION    -->
-                        <div class="inbox-single-wrapper">
+                        <div class="inbox-single-wrapper accordion-header">
                             <!-- DATE -->
                             <div class="referral-date">
                                 <?php echo $row->refDate; ?>
@@ -239,101 +199,112 @@
                                 <div class="friend-referral-comment"> 
                                     <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"
                                 </div>
-                                    <!-- new div for like/comment button, comment fields, etc like button here -->
-                                    <div class="row" data-rid=<?php echo $row->rid; ?>>
-                                        <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
-                                            <?php echo $likeStatus; ?>
-                                        </div>
-                <!--                                                                                     comment button here -->
-                                        <div class="click-to-comment no-accordion">
-                                            Comment
-                                        </div>
-                                        <div class="number-of-likes no-accordion">
-                                            <?php echo $likeNumber; ?>
-                                        </div>
-
-                                        <!-- create the divs to show other peoples comments-->
-                                        <div class="comments" >
-                                            <table class="comments-table">
-                                                <tbody class="comments-table-tbody">
-                                                      <?php $commentsCountdown = count($commentsArray);
-                                                      // default is that we do not need to show all (0)
-                                                      $needShowAllButton = "hide-load-comments-button";
-                                                      foreach($commentsArray as $line) :
-                                                          if($commentsCountdown < 3) {
-                                                            $showStatus = 'show-comment';
-                                                          } else {
-                                                            // more than two comments, will hide them
-                                                            // also turn on the showAllButton flag
-                                                            $showStatus = 'hide-comment';
-                                                            $needShowAllButton = "show-load-comments-button";
-                                                          } 
-                                                          $commentsCountdown--;
-                                                      ?>
-
-                                                        <?php if($commentsCountdown==count($commentsArray)-1): ?>
-                                                        <tr>
-                                                            <td class="show-all-comments-button no-accordion <?php echo $needShowAllButton; ?>">
-                                                                View all <?php echo count($commentsArray);?> comments.
-                                                            </td>
-                                                            <td></td>
-                                                            <td></td>
-                                                        </tr>
-                                                        <?php endif; ?>
-
-                                                        <tr class="inbox-single-comment <?php echo $showStatus;?>">
-                                                            <td class="comments-name">
-                                                                <?php echo $line->firstName . " " . $line->lastName . ": "; ?>
-                                                            </td>
-                                                            <td class="comments-content">
-                                                                <?php echo $line->comment; ?>
-                                                            </td>
-                                                            <td>
-                                                                <button class="delete-comment" data-cid=<?php echo $line->cid;?>>x</button>
-                                                            </td>
-                                                         </tr>
-                                                         
-                                                      <?php endforeach; ?>
-                                                 </tbody>
-                                            </table>
-                                        </div>
-
-                                        <div class="comment-box no-accordion">
-                                            <form name="form-comment" class="form-comment" method="post">
-                                                <input type="text" class="comment-input"/>
-                                                <button type="submit" class="submit-comment-button">
-                                                    Submit
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
+                                <!-- new div for like/comment button, comment fields, etc like button here -->
+                                <div class="row" data-rid=<?php echo $row->rid; ?>>
+                            </div>
                         </div>
                         <!-- END HEADER OF ACCORDION HERE ENDS HERE -->
                         <!-- vendor details here (among anything else)-->
-                        <div class="drop-down-details">
-                            <?php echo $row->addrNum . " " . $row->addrStreet . "<br>"; // add all list detail here
+                        <div class="drop-down-details accordion-content">
+                            <?php
+                            echo $row->addrNum . " " . $row->addrStreet . "<br>"; // add all list detail here
                             echo $row->addrCity . " " . $row->addrState . " " . $row->addrZip . "<br>";
                             echo $row->phone . "<br>";
-                            echo $row->website;
-                        echo "</div>";
-                        } else {
-                            // list
-                            echo "<div class='inbox-list-wrapper'>";
-                                echo "<a href='#'>" . $row->UserListsName . " list<br>";
-                                    echo "<div class='friend-referral-comment'>" . $row->firstName . " " . $row->lastName . " says " . "\"" . $row->ReferralsComment . "\"";
-                                    echo "</div>";
-                                echo "</a>";
-                            echo "</div>";
-                            echo "<div class='list-row'>" . $row->firstName . " " . $row->lastName; // add all list detail here
-                            echo "</div>";
-                        }
-                    }
-                ?>
+                            echo $row->website; ?>
+                        </div>
+                        
+                        <?php
+//                        } else {
+//                            // list
+//                            echo "<div class='inbox-list-wrapper'>";
+//                                echo "<a href=\"#\">" . $row->UserListsName . " list<br>";
+//                                    echo "<div class='friend-referral-comment'>" . $row->firstName . " " . $row->lastName . " says " . "\"" . $row->ReferralsComment . "\"";
+//                                    echo "</div>";
+//                                echo "</a>";
+//                            echo "</div>";
+//                            echo "<div class='list-row'>" . $row->firstName . " " . $row->lastName; // add all list detail here
+//                            echo "</div>";
+//                        } 
+                        ?>
+                        
+                        <?php endif; ?>
+                        
+                        <div class='accordion-footer'>
+                                                            <!-- new div for like/comment button, comment fields, etc like button here -->
+                                <div class="row" data-rid=<?php echo $row->rid; ?>>
+                                    <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
+                                        <?php echo $likeStatus; ?>
+                                    </div>
+            <!--                                                                                     comment button here -->
+                                    <div class="click-to-comment no-accordion">
+                                        Comment
+                                    </div>
+                                    <div class="number-of-likes no-accordion">
+                                        <?php echo $likeNumber; ?>
+                                    </div>
 
-                </div>
+                                    <!-- create the divs to show other peoples comments-->
+                                    <div class="comments" >
+                                        <table class="comments-table">
+                                            <tbody class="comments-table-tbody">
+                                                  <?php $commentsCountdown = count($commentsArray);
+                                                  // default is that we do not need to show all (0)
+                                                  $needShowAllButton = "hide-load-comments-button";
+                                                  foreach($commentsArray as $line) :
+                                                      if($commentsCountdown < 3) {
+                                                        $showStatus = 'show-comment';
+                                                      } else {
+                                                        // more than two comments, will hide them
+                                                        // also turn on the showAllButton flag
+                                                        $showStatus = 'hide-comment';
+                                                        $needShowAllButton = "show-load-comments-button";
+                                                      } 
+                                                      $commentsCountdown--;
+                                                  ?>
+
+                                                    <?php if($commentsCountdown==count($commentsArray)-1): ?>
+                                                    <tr>
+                                                        <td class="show-all-comments-button no-accordion <?php echo $needShowAllButton; ?>">
+                                                            View all <?php echo count($commentsArray);?> comments.
+                                                        </td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <?php endif; ?>
+
+                                                    <tr class="inbox-single-comment <?php echo $showStatus;?>">
+                                                        <td class="comments-name">
+                                                            <?php echo $line->firstName . " " . $line->lastName . ": "; ?>
+                                                        </td>
+                                                        <td class="comments-content">
+                                                            <?php echo $line->comment; ?>
+                                                        </td>
+                                                        <td>
+                                                            <button class="delete-comment" data-cid=<?php echo $line->cid;?>>x</button>
+                                                        </td>
+                                                     </tr>
+                                                  <?php endforeach; ?>
+                                             </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="comment-box no-accordion">
+                                        <form name="form-comment" class="form-comment" method="post">
+                                            <input type="text" class="comment-input"/>
+                                            <button type="submit" class="submit-comment-button">
+                                                Submit
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                        </div>
+                        
+                        
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             <!--                                a button you can press to load more rows-->
- <div class="load-more-button">Load more..</div>    
+                <div class="load-more-button">Load more..</div>    
             </div>
     </body>
 </html>

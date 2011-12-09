@@ -25,6 +25,7 @@
         <script type="text/javascript" src="../assets/js/home_mike_js.js"></script>
         <script type="text/javascript" src="../assets/js/home_andy_js.js"></script>
         <script type="text/javascript" src="../assets/js/home_kim_js.js"></script>
+        <script type="text/javascript" src="../../assets/jquery-ui-1.8.16.custom/development-bundle/ui/jquery.ui.accordionCustom.js"></script>
     </head>
     <body>
         <div id='currentUserNameWrapper'>
@@ -81,7 +82,8 @@
                                 <?php
                                 // add each list as its own <li>
                                 foreach ($myLists as $list) {
-                                    echo ("<li>" . $list->name . "</li>");
+                                   // echo ("<li>" . $list->name . "</li>");
+                                    echo "<li id='my-list-lid--" . $list->lid . "'>" . $list->name . "</li>";
                                 }
                                 ?>
                             </ul>
@@ -110,13 +112,10 @@
                                                 <div id="inbox">
                                                     <div id="accordion-inbox">
 
-                                                    <?php
-                                                        foreach ($inboxItems as $row)
-                                                        {
-
-                                                            // determine if $row is a list or single vendor
-                                                            if ( $row->lid == 0 )
-                                                            {
+                                                    <?php foreach ($inboxItems as $row):?>
+<!--                                                    determine if $row is a list or single vendor-->
+                                                        <?php if ( $row->lid == 0 ):?>
+                                                            <?php
                                                                 // get some vital variables ready
                                                                 // the count of likes
                                                                 $tempArray = $row->LikesList;
@@ -140,7 +139,7 @@
                                                                 } else {
                                                                     $likeStatus = "Like";
                                                                 }
-                                                     ?>
+                                                            ?>
 
                                                         <!-- comments for andy
                                                             -Add proper indenting to HTML
@@ -150,7 +149,7 @@
                                                         -->
 
                                                                 <!-- BEGINNING OF HEADER HERE of the ACCORDION    -->
-                                                            <div class="inbox-single-wrapper">
+                                                            <div class="inbox-single-wrapper accordion-header">
                                                                 <div class="referral-date">
                                                                     <?php echo $row->refDate; ?>
                                                                 </div>
@@ -164,78 +163,71 @@
                                                                             <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"
                                                                         </div>
                                                                     </div>
-
-                                                                        <!-- new div for like/comment button, comment fields, etc like button here -->
-                                                                        <div class="row" data-rid=<?php echo $row->rid; ?>>
-                                                                            <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
-                                                                                <?php echo $likeStatus; ?>
-                                                                            </div>
-<!--                                                                                     comment button here -->
-                                                                            <div class="click-to-comment no-accordion">
-                                                                                Comment
-                                                                            </div>
-                                                                            <div class="number-of-likes no-accordion">
-                                                                                <?php echo $likeNumber; ?>
-                                                                            </div>
-
-                                                                            <!-- create the divs to show other peoples comments-->
-                                                                            <div class="comments">
-                                                                                <table class="comments-table">
-                                                                                    <tbody class="comments-table-tbody">
-                                                                                        <?php foreach($commentsArray as $line): ?>
-                                                                                            <tr class='inbox-single-comment'>
-                                                                                                <td class="commenter-pic">
-                                                                                                    <?php echo '<img src="https://graph.facebook.com/' . $line->fbid . '/picture">' ?>
-                                                                                                </td>
-                                                                                                <td class="comments-name">
-                                                                                                    <?php echo $line->firstName . " " . $line->lastName . ": "; ?>
-                                                                                                </td>
-                                                                                                <td class="comments-content">
-                                                                                                    <?php echo $line->comment; ?>
-                                                                                                </td>
-                                                                                                <td>
-                                                                                                    <button class="delete-comment" data-cid=<?php echo $line->cid;?>>x</button>
-                                                                                                </td>
-                                                                                            </tr>
-                                                                                        <?php endforeach; ?>
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </div>
-
-                                                                            <div class="comment-box no-accordion">
-                                                                                <form name="form-comment" class="form-comment" method="post">
-                                                                                    <input type="text" class="comment-input"/>
-                                                                                    <button type="submit" class="submit-comment-button">
-                                                                                        Submit
-                                                                                    </button>
-                                                                                </form>
-                                                                            </div>
-                                                                        </div>
                                                                 </a>
                                                             </div>
                                                             <!-- END HEADER OF ACCORDION HERE ENDS HERE -->
                                                             <!-- vendor details here (among anything else)-->
-                                                            <div class="drop-down-details">
+                                                            <div class="drop-down-details accordion-content">
                                                                 <?php echo $row->addrNum . " " . $row->addrStreet . "<br>"; // add all list detail here
                                                                 echo $row->addrCity . " " . $row->addrState . " " . $row->addrZip . "<br>";
                                                                 echo $row->phone . "<br>";
-                                                                echo $row->website;
-                                                            echo "</div>";
+                                                                echo $row->website; ?>
+                                                            </div>
+                                                            
+                                                            <?php endif; ?>
+                                                            
+                                                            <div class="accordion-footer">
+                                                                
+                                                                <!-- new div for like/comment button, comment fields, etc like button here -->
+                                                                <div class="row" data-rid=<?php echo $row->rid; ?>>
+                                                                    <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
+                                                                        <?php echo $likeStatus; ?>
+                                                                    </div>
+                                                                    
+                                                                    <!--comment button here -->
+                                                                    <div class="click-to-comment no-accordion">
+                                                                        Comment
+                                                                    </div>
+                                                                    <div class="number-of-likes no-accordion">
+                                                                        <?php echo $likeNumber; ?>
+                                                                    </div>
 
-                                                            // TODO: dragability, @andyjiang
-                                                            } else {
-                                                                // list
-                                                                echo "<div class='inbox-list-wrapper'>";
-                                                                    echo "<a href=\"#\">" . $row->UserListsName . " list<br>";
-                                                                        echo "<div class='friend-referral-comment'>" . $row->firstName . " " . $row->lastName . " says " . "\"" . $row->ReferralsComment . "\"";
-                                                                        echo "</div>";
-                                                                    echo "</a>";
-                                                                echo "</div>";
-                                                                echo "<div class='list-row'>" . $row->firstName . " " . $row->lastName; // add all list detail here
-                                                                echo "</div>";
-                                                            }
-                                                        }
-                                                    ?>
+                                                                    <!-- create the divs to show other peoples comments-->
+                                                                    <div class="comments">
+                                                                        <table class="comments-table">
+                                                                            <tbody class="comments-table-tbody">
+                                                                                <?php foreach($commentsArray as $line): ?>
+                                                                                    <tr class='inbox-single-comment'>
+                                                                                        <td class="commenter-pic">
+                                                                                            <?php echo '<img src="https://graph.facebook.com/' . $line->fbid . '/picture">' ?>
+                                                                                        </td>
+                                                                                        <td class="comments-name">
+                                                                                            <?php echo $line->firstName . " " . $line->lastName . ": "; ?>
+                                                                                        </td>
+                                                                                        <td class="comments-content">
+                                                                                            <?php echo $line->comment; ?>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <button class="delete-comment" data-cid=<?php echo $line->cid;?>>x</button>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                <?php endforeach; ?>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+
+                                                                    <div class="comment-box no-accordion">
+                                                                        <form name="form-comment" class="form-comment" method="post">
+                                                                            <input type="text" class="comment-input"/>
+                                                                            <button type="submit" class="submit-comment-button">
+                                                                                Submit
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        <?php endforeach; ?>
 
                                                     </div>
                                                 </div>

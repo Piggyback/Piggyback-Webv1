@@ -13,6 +13,7 @@ $(document).ready(function() {
     setScrollHeight();
     initTabs();
     initHoverTabs();
+	getListContent();
     searchAJAX();
 });
 
@@ -41,9 +42,27 @@ function initTabs() {
 
 function initHoverTabs() {
     $('ul#icons li').hover(
-        function() { $(this).addClass('ui-state-hover'); }, 
+        function() { $(this).addClass('ui-state-hover'); },
         function() { $(this).removeClass('ui-state-hover'); }
     );
+}
+
+function getListContent() {
+	//TODO: Continue here
+	$('#lists li').click(function () {
+ 		// load list content when clicked
+		alert ($(this).attr('id'));
+		// parse lid from id
+		var lid_string = $(this).attr('id');
+		var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
+		jQuery.post('list_controller/get_list_content', {
+			lid: lid
+		}, function(data) {
+//			alert(data);
+			var parsedJSON = jQuery.parseJSON(data);
+			alert(parsedJSON[0].listsDate);
+		});
+	});
 }
 
 function searchAJAX() {
@@ -87,8 +106,8 @@ function searchAJAX() {
                             alert(errorType + ": Your request is invalid");
                             break;
                         default:
-                            alert(errorType); 
-                    }    
+                            alert(errorType);
+                    }
                 }
                 else {
                     var vendorData = getVendorData(parsedJSON);
@@ -108,7 +127,7 @@ function fbAPI() {
     window.fbAsyncInit = function() {
         FB.init({
             appId      : '251920381531962',
-            status     : true, 
+            status     : true,
             cookie     : true,
             xfbml      : true
         });
