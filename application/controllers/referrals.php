@@ -25,6 +25,18 @@ class referrals extends CI_Controller {
     }
     
     /*
+     * see friends activity
+     *
+     */
+    public function friends_activity_view()
+    {
+        $currentUserData = $this->session->userdata('currentUserData');
+        $this->load->model('manage_referral_model');
+
+        $this->manage_referral_model->get_news_feed($currentUserData);
+    }
+
+    /*
      * add a new comment
      * 
      */

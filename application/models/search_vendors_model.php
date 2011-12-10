@@ -5,13 +5,11 @@ class search_vendors_model extends CI_Model {
     {
         // Call the Model consutrctor
         parent::__construct();
+        $this->load->database();
     }
     
     function search_vendors()
-    {
-        // load database
-        $this->load->database();
-        
+    {        
         // set up variables
         $searchLocation = urlencode($this->input->post('searchLocation'));
         $keyword = urlencode($this->input->post('searchText'));
@@ -73,8 +71,6 @@ class search_vendors_model extends CI_Model {
     // return a list of people who are friends with the current user
     // the returned list is in json format so that javascript can read it as an array
     function get_friends_list() {
-        $this->load->database();
-
         // get friends of current user
         $currentUserData = $this->session->userdata('currentUserData');
         $currentUID = $currentUserData['uid'];
@@ -105,26 +101,9 @@ class search_vendors_model extends CI_Model {
     {
         // pull paremeters
         $query = $_POST["q"];
-        $name = $_POST["name"];
-        $reference = $_POST["reference"];
         $id = $_POST["id"];
-        $lat = $_POST["lat"];
-        $lng = $_POST["lng"];
-        $phone = $_POST["phone"];
-        $addr = $_POST["addr"];
-        $addrNum = $_POST["addrNum"];
-        $addrStreet = $_POST["addrStreet"];
-        $addrCity = $_POST["addrCity"];
-        $addrState = $_POST["addrState"];
-        $addrCountry = $_POST["addrCountry"];
-        $addrZip = $_POST["addrZip"];
-        $vicinity = $_POST["vicinity"];
-        $website = $_POST["website"];
-        $icon = $_POST["icon"];
-        $rating = $_POST["rating"];
         
         // add referrals to Referral table
-        $this->load->database();
         $result = mysql_query($query);
 
         // parse string to get elements of query necessary to find rid
@@ -158,6 +137,27 @@ class search_vendors_model extends CI_Model {
             echo $addReferralDetailQuery;
             mysql_query($addReferralDetailQuery);
         }
+    }
+    
+    // add vendor to db: called when a vendor is added to a list or referred to a friend
+    function add_vendor() {        
+        $name = $_POST["name"];
+        $reference = $_POST["reference"];
+        $id = $_POST["id"];
+        $lat = $_POST["lat"];
+        $lng = $_POST["lng"];
+        $phone = $_POST["phone"];
+        $addr = $_POST["addr"];
+        $addrNum = $_POST["addrNum"];
+        $addrStreet = $_POST["addrStreet"];
+        $addrCity = $_POST["addrCity"];
+        $addrState = $_POST["addrState"];
+        $addrCountry = $_POST["addrCountry"];
+        $addrZip = $_POST["addrZip"];
+        $vicinity = $_POST["vicinity"];
+        $website = $_POST["website"];
+        $icon = $_POST["icon"];
+        $rating = $_POST["rating"];
         
         // add vendor to vendor database if it does not exist yet
         $existingVendorQuery = "SELECT id 
@@ -172,5 +172,6 @@ class search_vendors_model extends CI_Model {
             mysql_query($addVendorQuery);
         }
     }
+
 }
 ?>

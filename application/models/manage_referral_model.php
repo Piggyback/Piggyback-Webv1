@@ -124,8 +124,8 @@ class Manage_Referral_Model extends CI_Model {
         $uidRecipient = $data['uid'];
         $rowStart = $data['rowStart'];
         
-        $this->db->select('*, UserLists.name AS UserListsName, Vendors.name AS VendorsName,
-            UserLists.comment AS UserListsComment, Referrals.comment AS ReferralsComment, Referrals.date AS refDate');
+        $this->db->select('*, UserLists.name AS UserListsName, Vendors.name AS VendorsName, 
+            Referrals.comment AS ReferralsComment, Referrals.date AS refDate');
         $this->db->from('Referrals');
         $this->db->join('Users', 'Users.uid = Referrals.uid1', 'left');
         $this->db->join('ReferralDetails', 'ReferralDetails.rid = Referrals.rid', 'left');
@@ -343,6 +343,60 @@ class Manage_Referral_Model extends CI_Model {
         return $this->db->count_all_results();
     }
     
+    // 
+    // get news feed
+    //
+    // function will return news feed items
+    //
+    // get all friend uid's
+    // go through each uid and get inbox items
+    //
+    public function get_news_feed($data)
+    {
+      $uid = $data['uid'];
+
+      // get all friends uid's
+      $this->db->select('*');
+      $this->db->from('Friends');
+      $this->db->where('uid1', $uid);
+      $this->db->or_where('uid2', $uid); // depends on whether or not the Friends table's row is one way relationship
+      $uidFriends = $this->db->get()->result();
+
+      //var_dump($uidFriends);
+
+      // get inbox items for each friend uid
+      $friendsInbox = array();
+      foreach($uidFriends as $row)
+      {
+        $newData['uid'] = $row->uid2;
+        $newData['rowStart'] = 0;
+        //var_dump($this->get_inbox_items($newData));
+        $newArray = $this->get_inbox_items($newData);
+
+        // go through newArray and add sender details (as it was not appended in get_inbox_items)
+
+
+        array_push($friendsInbox, $newArray);
+        //echo $row->uid2 . "<br>";
+        // at this point, go through 
+      }
+      
+      var_dump($friendsInbox);
+    }
+
+    /*
+     * attach sender details
+     *
+     * this function will take the uid1 (sender uid1) and return all relevant information
+     * from table joins
+     *
+     */
+    public function attach_sender_details($data)
+    {
+      // look through all uid1's
+      // get all User information from User table
+      // store it into array
+    }
 }
 
 ?>

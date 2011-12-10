@@ -32,6 +32,7 @@ class Home extends CI_Controller {
         $data['currentFirstName'] = $currentUserData['firstName'];
         $data['currentLastName'] = $currentUserData['lastName'];
         $data['currentFBID'] = $currentUserData['fbid'];
+        $data['currentUID'] = $currentUserData['uid'];
 
         // andy's merge
         $data['inboxItems'] = $this->manage_referral_model->load_inbox_items($currentUserData);

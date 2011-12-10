@@ -17,6 +17,7 @@ $(document).ready(function() {
     initComment();
     initRemoveComment();
     initLoadMoreComments();
+    initLoadMoreButton();
 });
 
 /* functions for $(document).ready */
@@ -54,17 +55,21 @@ function initCommentInputDisplay() {
 
     // show comment div upon click
     $('.click-to-comment').click(function(){
-        $(this).parents('.row').children('.comment-box').toggle();
+        $(this).closest('.row').find('.comment-box').toggle();
         // clear input field
-        $(this).parents('.row').find('.comment-input').val('');
+        $(this).closest('.row').find('.comment-input').val('');
     });
 }
 
 // perform like action upon click
 function initLike() {
     $('.click-to-like').click(function(){
-        var referId = $(this).closest('.row').data("rid");
-        var rid = $(this).closest('row').attr();
+        //var referId = $(this).closest('.row').data("rid");
+        var ridString = $(this).closest('.row').attr("id");
+        var referId = ridString.substring(ridString.indexOf('rid-') + 'rid-'.length);
+        
+        //alert(referId);
+        
         var likes = $(this).closest('.row').find('.number-of-likes');
         var likeStatus = $(this);
 
@@ -95,7 +100,14 @@ function initLike() {
 function initComment() {
     $('.submit-comment-button').click(function(){
         var name = $(this).closest('.row').find('.comment-input').val();
-        var referId = $(this).closest('.row').data("rid");
+        //var referId = $(this).closest('.row').data("rid");
+        
+        var ridString = $(this).closest('.row').attr("id");
+        var referId = ridString.substring(ridString.indexOf('rid-') + 'rid-'.length);
+        
+        //alert(referId);
+        
+        // toggle comment box
         $(this).closest('.row').find('.comment-box').toggle();
         var lastRow = $(this).closest('.row').find('.comments-table-tbody');
 
@@ -121,7 +133,7 @@ function initComment() {
 					   		name +
 						'</td>' +
                         '<td>' +
-							'<button class="delete-comment" data-cid=' + data + '>' +
+							'<button id="delete-comment-button-cid-' + data + '" class="delete-comment" data-cid=' + data + '>' +
 								'x' +
 							'</button>' +
 						'</td>' +
@@ -140,7 +152,12 @@ function initComment() {
 
 function initRemoveComment() {
     $('.delete-comment').click(function(){
-        var cid = $(this).data('cid');
+//        var cid = $(this).data('cid');
+        var cidString = $(this).attr('id');
+        var cid = cidString.substring(cidString.indexOf('cid-') + 'cid-'.length);
+
+        //alert(cid);
+
         var commentsTable = $(this).closest('.comments-table-tbody');
         jQuery.post("http://192.168.11.28/referrals/remove_comment", {
             cid: cid
@@ -195,6 +212,9 @@ function updateCommentsHTMLString(commentList, collapse) {
         // comments here
         commentsHTMLString = commentsHTMLString +
            "<tr class='inbox-single-comment " + showStatus + "'>" +
+                "<td class='commenter-pic'>" +
+                    "<img src='https://graph.facebook.com/" + commentList[j].fbid + "/picture'>" +
+                "</td>" +
                 "<td class='comments-name'>" +
                     commentList[j].firstName + " " + commentList[j].lastName + ": " +
                 "</td>" +
@@ -202,7 +222,7 @@ function updateCommentsHTMLString(commentList, collapse) {
                     commentList[j].comment +
                 "</td>" +
                 "<td>" +
-                  "<button class='delete-comment' data-cid=" +
+                  "<button id='delete-comment-button-cid-" + commentList[j].cid + "' class='delete-comment' data-cid=" +
                      commentList[j].cid +
                        ">x</button>" + 
                 "</td>" +
@@ -221,4 +241,124 @@ function initLoadMoreComments() {
         $(this).closest('.comments-table').find('.hide-comment').show();
         $(this).hide();
     });
+}
+
+function initLoadMoreButton() {
+    var loadStart = 3;
+    // call more data from mysql ('load more' button action)
+    $('.load-more-button').click(function(){
+        // jquery post to retrieve more rows
+        jQuery.post("http://192.168.11.28/referrals/get_more_inbox", {
+            rowStart: loadStart
+        }, function(data) {
+            var parsedJSON = jQuery.parseJSON(data);
+            displayMoreReferrals(parsedJSON);
+            loadStart = loadStart+3;
+        });
+    });
+}
+
+// display additional rows
+function displayMoreReferrals(moreRows) {
+    // moreRows is a parsedJSON object
+    // create a string that captures all HTML required to write the next referral
+    var displayReferralsHTMLString = "";
+    var likeNumber = 0;
+    var likeStatus = "";
+
+    // destroy the accordion first
+    $('#accordion-inbox').accordionCustom('destroy');
+
+    for(var i=0; i<moreRows.length; i++) {
+        likeNumber = moreRows[i].LikesList['LikesList'].length;
+        if(likeNumber>0) {
+            if(likeNumber == 1) {
+                likeNumber = likeNumber + " person likes this.";
+            } else {
+                likeNumber = likeNumber + " people like this.";
+            }
+        }
+        else {
+            likeNumber = "";
+        }
+
+        if (moreRows[i].alreadyLiked==1) {
+            likeStatus = "Unlike";
+        } else {
+            likeStatus = "Like";
+        }
+
+        displayReferralsHTMLString = "" +
+        "<div class='inbox-single-wrapper accordion-header'>" +
+            "<div class='referral-date'>" +
+                moreRows[i].refDate +
+            "</div>" +
+            "<a>" +
+                moreRows[i].name +
+                "<div class='friend-referral-comment-wrapper'>" +
+                    "<div class='inbox-friend-pic'>" +
+                        "<img src='https://graph.facebook.com/" + moreRows[i].fbid + "/picture'>" +
+                    "</div>" +
+                    "<div class='inbox-friend-referral'>" +
+                        moreRows[i].firstName + " " + moreRows[i].lastName + " says \"" + moreRows[i].ReferralsComment + "\"" +
+                    "</div>" +    
+                "</div>" +
+            "</a>" +
+        "</div>" +
+
+   // details of the row
+       "<div class='drop-down-details accordion-content'>" +
+           moreRows[i].addrNum + " " + moreRows[i].addrStreet + "<br>" +
+           moreRows[i].addrCity + " " + moreRows[i].addrState + " " + moreRows[i].addrZip + "<br>" +
+           moreRows[i].phone + "<br>" +
+           moreRows[i].website +
+       "</div>" +
+
+   // footer comments     
+        "<div class='accordion-footer'>" +
+           "<div id='row-rid-" + moreRows[i].rid + "' class='row' data-rid=" + moreRows[i].rid + ">" +
+                "<div class='click-to-like no-accordion' data-likeCounts=" + likeNumber + ">" +
+                    likeStatus + 
+                "</div>" +
+                "<div class='click-to-comment no-accordion'>" + 
+                    "Comment" +
+                "</div>" +
+                "<div class='number-of-likes no-accordion'>" +
+                    likeNumber +
+                "</div>" +
+                "<div class='comments'>" +
+                    "<table class='comments-table'>" +
+                        "<tbody class='comments-table-tbody'>" +
+                            // loop comments for the 'view all comments'
+                            updateCommentsHTMLString(moreRows[i].CommentsList['CommentsList']) +
+                        "</tbody>" +
+                   "</table>" +
+               "</div>" + 
+               "<div class='comment-box no-accordion'>" +
+                    "<form name='form-comment' class='form-comment' method='post'>" +
+                        "<input type='text' class='comment-input'/>" +
+                        "<button type='submit' class='submit-comment-button'>" +
+                            "Submit" +
+                        "</button>" +
+                    "</form>" +
+               "</div>" +
+           "</div>" +
+        "</div>";
+
+        // append to inbox wrapper
+        $(displayReferralsHTMLString).appendTo('#inbox-wrapper');
+
+        $('.click-to-comment').unbind();
+        initCommentInputDisplay();
+        $('.click-to-like').unbind();
+        initLike();
+        $('.submit-comment-button').unbind();
+        initComment();
+        $('.delete-comment').unbind();
+        initRemoveComment();
+        $('.show-load-comments-button').unbind();
+        initLoadMoreComments();
+    }
+    bindAccordionInbox();
+    overrideAccordionEvent();
 }

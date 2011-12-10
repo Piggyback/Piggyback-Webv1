@@ -15,7 +15,7 @@ $(document).ready(function() {
     initHoverTabs();
 	getListContent();
 					bindReferDialog();
-//					bindAddFriend(friendList);
+					bindAddFriend(friendList);
 					bindAutoComplete();
 
 	bindAddListDialog();
@@ -55,7 +55,6 @@ function initHoverTabs() {
 }
 
 function getListContent() {
-//	$(document).on("click", ".my-list", function() {
 	$(document).on("click", "#lists li", function() {
  		// load list content when clicked
 		// parse lid from id
@@ -103,7 +102,7 @@ function getListContent() {
 					var friendList = [];
 					var vendorData = getVendorDataList(parsedJSON);
 //					bindReferDialog(friendList);
-					bindAddFriend(friendList);
+//					bindAddFriend(friendList);
 					bindReferDialogLink(friendList, vendorData);
 //					bindAutoComplete();
 					bindAccordionList();

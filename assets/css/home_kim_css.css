@@ -121,6 +121,7 @@ root {
     
 .friendTable tr:hover {
     background-color:white;
+    cursor:pointer;
 }
 
 .friendTable td.friendName {
@@ -132,20 +133,28 @@ root {
     valign:middle;
 }
 
+img.delete {
+    cursor:pointer;
+}
+
 /* add to list dialog box */
 #add-to-existing-list {
-    
+    height:60px;
 }
-
+/*
 #add-to-new-list {
-    
-}
+    height:75px;
+}*/
 
 #add-to-list-comment {
-    width:100%;
+    height:100px;
 }
 
 #add-to-list-comment-box {
     width:100%;
+    height:80px;;
 }
 
+#new-list-name {
+    width:100%;
+}

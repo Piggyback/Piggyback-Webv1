@@ -1,8 +1,11 @@
 <?php
 
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * @andyjiang
+ * 
+ * this controller manages all list related items
+ *  
+ * 
  */
 
 class CreateList extends CI_Controller {
@@ -11,37 +14,29 @@ class CreateList extends CI_Controller {
     {
         // creates view that allows user to build lists from table of vendors
         $this->load->model('create_list_model');
-        $data['vendorList'] = $this->create_list_model->getAllVendors();
+        $data['vendorList'] = $this->create_list_model->get_all_vendors();
+        
+        // view will now display a list of all vendors
         $this->load->view('create_list_view', $data);
     }
 
-    public function addAction()
+    public function add_action()
     {
         // using POST data, insert list items into UserLists and Lists
         $fieldData = $_POST;
         
         $this->load->model('create_list_model');
-        $this->create_list_model->addList($fieldData);
+        $this->create_list_model->add_list($fieldData);
                 
         // with the uid received, load get_list_view
-        $data['listInfo'] = $this->create_list_model->getListInfo($fieldData);
+        $data['listInfo'] = $this->create_list_model->get_list_info($fieldData);
         $data['uid'] = $fieldData['uid'];
         
         $this->load->view('get_list_view', $data);
         
     }    
-    
-//    public function getAction()
-//    {
-//        $listData = $_POST;
-//        $this->load->model('create_list_model');
-//        $data['listInfo'] = $this->create_list_model->getList($listData);
-//    
-//        // with listInfo, populate new view
-//        //$this->load->view('new_view_here', $data);
-//    }
-    
-    public function showUserList()
+        
+    public function show_user_list()
     {
         // get userName
         $data['userName'] = $_GET['userName'];
@@ -50,14 +45,14 @@ class CreateList extends CI_Controller {
         
         // retrieve lists that belong to that user
         $this->load->model('create_list_model');
-        $data['listInfo'] = $this->create_list_model->getListInfo($fieldData);
+        $data['listInfo'] = $this->create_list_model->get_list_info($fieldData);
         
         // create new view for it
         $this->load->view('get_list_view', $data);
         
     }
     
-    public function showList()
+    public function show_list()
     {
         // get the ID from any view that calls this function
         $listId = $_GET['listId'];      // lid
@@ -67,7 +62,7 @@ class CreateList extends CI_Controller {
         $this->load->model('create_list_model');
         
         // return vendorNames given LID (list unique id)
-        $data['vendorNames'] = $this->create_list_model->getVendorList($listId);        
+        $data['vendorNames'] = $this->create_list_model->get_vendor_list($listId);        
         $data['listName'] = $_GET['listName'];
         
         // create new view of just the vendors
@@ -75,7 +70,7 @@ class CreateList extends CI_Controller {
         $this->load->view('showList_view', $data);
     }
     
-    public function editList()
+    public function edit_list()
     {
         
     }

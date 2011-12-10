@@ -1,36 +1,33 @@
 <?php
 
 class searchvendors extends CI_Controller {
-
-    public function index()
-    {
-        $this->load->view('search_vendors_view');
+    function __construct() {
+        parent::__construct();
         $this->load->model('search_vendors_model');
     }
     
-    public function iframe()
-    {
+    public function index() {
+        $this->load->view('search_vendors_view');
+    }
+    
+    public function iframe() {
         $this->load->view('iframe_view');
     }   
     
-    public function perform_search() 
-    {
-        $this->load->model('search_vendors_model');
-//        $data = $this->search_vendors_model->search_vendors();
-//        $this->load->view('search_results_view',$data);       
+    public function perform_search() {      
         $this->search_vendors_model->search_vendors();
-
     }
     
     public function get_friends() {
-        $this->load->model('search_vendors_model');
         $this->search_vendors_model->get_friends_list();
     }
     
-    public function add_referral()
-    {
-        $this->load->model('search_vendors_model');
+    public function add_referral() {
         $this->search_vendors_model->add_referral();
+    }
+    
+    public function add_vendor() {
+        $this->search_vendors_model->add_vendor();
     }
 }
 

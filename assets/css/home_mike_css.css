@@ -175,12 +175,25 @@ a, a:visited, .link {
     margin-left: 44px;
 }
 
+#add-list-button {
+	display: inline;
+	position: absolute;
+	margin-top: 5px;
+	margin-left: 20px;
+}
+
 #my-lists-heading {
-    display: block;
+	font-size: 26px;
+	font-weight: bold;
     height: 27px;
-    margin-right: auto;
-    margin-top: -13px;
-    position: absolute;
+	margin-right: auto;
+	margin-top: -13px;
+/*    margin-right: auto; */
+/*    margin-top: -13px;*/
+/*    position: relative;*/
+
+	position: absolute;
+	display: inline;
     top: 50%;
     width: 220px;
 }

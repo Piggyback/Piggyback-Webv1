@@ -24,13 +24,17 @@ function bindHoverOver() {
 // when you click on the refer button, the background dims
 function bindFuzz() {
     $(document).on("click", "#fuzz", function(){
-         $('#dialog').dialog("close"); 
-         $('#addToListDialog').dialog("close");
+         if($('#dialog').dialog('isOpen')) {
+             $('#dialog').dialog("close"); 
+         }
+         if($('#addToListDialog').dialog('isOpen')) {
+             $('#addToListDialog').dialog("close"); 
+         }
     });
 }
 
 // create the refer friends popup box. when you close the box, all values reset to blank
-function bindReferDialog(friendList) {  
+function bindReferDialog() {  
     var windowHeight = window.innerHeight;
     var windowWidth = window.innerWidth;
 
@@ -42,18 +46,18 @@ function bindReferDialog(friendList) {
             closeOnEscape: true,
             show: 'drop',
             hide: 'drop',
-            resizable: true,
-            beforeClose: function() {
-                // reset all values in pop up to blank
-                document.getElementById("comment-box").value = '';
-                document.getElementById("friends-refer-right").innerHTML = '';
-                document.getElementById("tags").value = '';
-                friendList.length = 0;
-                displayAutoCompleteResults(allFriends);
-
-                // fade out dark background
-                $("#fuzz").fadeOut();  
-            }
+            resizable: true
+//            beforeClose: function() {
+//                // reset all values in pop up to blank
+//                $('#comment-box').val('');
+//                $('#friends-refer-right').html('');
+//                $('#tags').val('');
+////                friendList.length = 0;
+//                displayAutoCompleteResults(allFriends);
+//
+//                // fade out dark background
+//                $("#fuzz").fadeOut();  
+//            }
     });
 }
 
@@ -65,15 +69,18 @@ function bindAddToListDialog() {
     // Dialog			
     $('#addToListDialog').dialog({
             autoOpen: false,
-            width: 300,
-            height: 400,
+            width: 350,
+            height: 375,
             closeOnEscape: true,
             show: 'drop',
             hide: 'drop',
             resizable: true,
             beforeClose: function() {
                 // reset all values in pop up to blank
-                document.getElementById("selectList").value = 'none';
+                $('#selectList').val('none');
+                $('#add-to-new-list').html('');
+                $('#add-to-list-comment-box').val('');
+                $('#new-list-name').val('');
                 
                 // fade out dark background
                 $("#fuzz").fadeOut();  
@@ -125,7 +132,8 @@ function bindReferDialogLink(friendList, vendorData) {
         // get id of the vendor, which is the id of the pop up button
         var vendorID = $(this).attr('id');
         var vendorName;
-
+        var vendor;
+        
         for(var i = 0; i < vendorData.length; i++) {
             if (vendorData[i].id == vendorID) {
                 vendor = vendorData[i];
@@ -134,6 +142,19 @@ function bindReferDialogLink(friendList, vendorData) {
 
         $("#fuzz").fadeIn();  
         $('#dialog').dialog("option","title","Refer Friends to " + vendor.name);
+
+        // reset all values when dialog box closes
+        $( "#dialog" ).bind( "dialogbeforeclose", function(event, ui) {
+                $('#comment-box').val('');
+                $('#friends-refer-right').html('');
+                $('#tags').val('');
+                friendList.length = 0;
+                displayAutoCompleteResults(allFriends);
+
+                // fade out dark background
+                $("#fuzz").fadeOut(); 
+        });
+
 
         $('#dialog').dialog("option","buttons", {
             "Refer!": function() { 
@@ -146,7 +167,7 @@ function bindReferDialogLink(friendList, vendorData) {
                     for (var i = 0; i < friendList.length; i++){
                         var now = new Date();
                         now = now.format("yyyy-mm-dd HH:MM:ss");
-                        var comment = document.getElementById('comment-box').value;
+                        var comment = $('#comment-box').val();
                         var friendUID = friendList[i]['uid'];
                         addReferralQuery = addReferralQuery + "(NULL," + myUID + "," + friendUID + ",\"" + now + "\",0,\"" + comment + "\"),";
                         alert(addReferralQuery);
@@ -156,24 +177,9 @@ function bindReferDialogLink(friendList, vendorData) {
                     // perform query to add referrals to database
                     jQuery.post('searchvendors/add_referral',{
                         q: addReferralQuery,
-                        name: vendor.name,
-                        reference: vendor.reference,
-                        id: vendor.id,
-                        lat: vendor.lat,
-                        lng: vendor.lng,
-                        phone: vendor.phone,
-                        addr: vendor.addr,
-                        addrNum: vendor.addrNum,
-                        addrStreet: vendor.addrStreet,
-                        addrCity: vendor.addrCity,
-                        addrState: vendor.addrState,
-                        addrCountry: vendor.addrCountry,
-                        addrZip: vendor.addrZip,
-                        website: vendor.website,
-                        icon: vendor.icon,
-                        rating: vendor.rating,
-                        vicinity: vendor.vicinity
+                        id: vendor.id
                     }, function() {
+                        addVendorToDB(vendor);
                         $('#dialog').dialog("close");
                     });
                 }
@@ -185,12 +191,12 @@ function bindReferDialogLink(friendList, vendorData) {
     });
 }
 
-
 function bindAddToListDialogLink(vendorData) {
     $('.add-to-list-popup-link').click(function(){
         // get id of the vendor, which is the id of the pop up
         var vendorID = $(this).attr('id');
         var vendorName;
+        var vendor;
 
         for(var i = 0; i < vendorData.length; i++) {
             if (vendorData[i].id == vendorID) {
@@ -203,39 +209,51 @@ function bindAddToListDialogLink(vendorData) {
 
         $('#addToListDialog').dialog("option","buttons", {
             "Add!": function() {
-                // add vendor to list
-                // add vendor to vendor table
-
-//                jQuery.post('searchvendors/add_referral',{
-//                        q: addReferralQuery,
-//                        name: vendor.name,
-//                        reference: vendor.reference,
-//                        id: vendor.id,
-//                        lat: vendor.lat,
-//                        lng: vendor.lng,
-//                        phone: vendor.phone,
-//                        addr: vendor.addr,
-//                        addrNum: vendor.addrNum,
-//                        addrStreet: vendor.addrStreet,
-//                        addrCity: vendor.addrCity,
-//                        addrState: vendor.addrState,
-//                        addrCountry: vendor.addrCountry,
-//                        addrZip: vendor.addrZip,
-//                        website: vendor.website,
-//                        icon: vendor.icon,
-//                        rating: vendor.rating,
-//                        vicinity: vendor.vicinity
-//                    }, function() {
-//                        $('#dialog').dialog("close");
-//                    });
+                
+                // get value selected in dropdown and comment
+                var selectedList = $('#selectList').val();
+                
+                // create new list if specified, and add vendor to that new list
+                if (selectedList == 'addNew') {
+                    var newListName = $('#new-list-name').val();
+                    jQuery.post('list_controller/add_list', {
+                        newListName: newListName,
+                        uid: myUID
+                    }, function(data) {
+                        var newListData = jQuery.parseJSON(data);
+                            if (newListData.length == 0) {
+                                alert("List was not added successfully");
+                            } else if (newListData.length > 1) {
+                                alert("Multiple lists were returned");
+                            } else {
+                                // set selectedList to the lid that was just created
+                                addVendorToList(newListData[0].lid, vendor.id);
+                                
+                                // add vendor to vendor table
+                                addVendorToDB(vendor);
+                            }
+                    });
                 }
-            });
+                
+                // add vendor to existing list
+                else if (selectedList != 'none') {
+                    addVendorToList(selectedList, vendor.id);
+                    
+                    // add vendor to vendor table
+                    addVendorToDB(vendor);
+                } 
+                
+                // no list was selected from dropdown
+                else {
+                    alert("Please select a list");
+                }                               
+            }
+        });
 
         $('#addToListDialog').dialog('open');
         return false;
     });
 }
-
 
 // whenever a letter is typed, check which friends have that string included and add to the list of friends to display
 function bindAutoComplete() {
@@ -418,9 +436,8 @@ function displayAutoCompleteResults(matchingFriends) {
     displayAllFriendsLeft = displayAllFriendsLeft + "</table>";
     displayAllFriendsRight = displayAllFriendsRight + "</table>";
     
-    document.getElementById("friends-refer-display-left").innerHTML = displayAllFriendsLeft; 
-    document.getElementById("friends-refer-display-right").innerHTML = displayAllFriendsRight; 
-
+    $('#friends-refer-display-left').html(displayAllFriendsLeft);
+    $('#friends-refer-display-right').html(displayAllFriendsRight);
 }
 
 function displayListDropDown() {
@@ -430,7 +447,7 @@ function displayListDropDown() {
             "<option value='addNew'>Add to new list</option>";
 
     // pull list names from side panel
-    var myListsHTML = document.getElementById("lists").innerHTML;
+    var myListsHTML = $('#lists').html();
     var myLists = myListsHTML.split("</li>"); 
     
     var listName;
@@ -440,13 +457,27 @@ function displayListDropDown() {
         temp = cbSplit(myLists[i],"my\-list\-lid\-\-")[1].split("\">");
         lid = temp[0];
         listName = temp[1];
-        alert(lid); alert(listName);
         listDropDownHTML = listDropDownHTML + "<option value='" + lid + "'>" + listName + "</option>";
     }
     
     listDropDownHTML = listDropDownHTML + "</select>";
     
-    document.getElementById("add-to-existing-list").innerHTML = listDropDownHTML;
+    $('#add-to-existing-list').html(listDropDownHTML);
+    bindDropDownChange();
+}
+
+// display div for adding new list if you select to add vendor to a new list
+function bindDropDownChange() {
+    $('#selectList').change(function() {
+          if($('#selectList').val() == 'addNew') {
+              var addNewHTML = "<b>What would you like to name your new list?</b><BR>" + 
+                               "<input type='text' name='newListName' class='box' id='new-list-name'/><BR><BR>";
+              $('#add-to-new-list').html(addNewHTML);
+          }
+          else {
+              $('#add-to-new-list').html('');
+          }
+    });
 }
 
 // display vendor search results in accordion
@@ -461,63 +492,23 @@ function displaySearchResults(vendorData) {
             "<div>" + 
                 "<h3><a href='#'>" + vendorData[i].name + "</a></h3>" +
                 "<div> <table class='formatted-table'>" + 
-                    "<td class='formatted-table-info'>" +
-//                    vendorData[i].addrNum + " " + vendorData[i].addrStreet + "</br>" +
-//                    vendorData[i].addrCity + " " + vendorData[i].addrState + " " + vendorData[i].addrZip + "</br>" +
-//                    vendorData[i].phone + "</td>" +
-                    addr[0] + "<BR>" + addr[1] + ", " + vendorData[i].addrState + " " + vendorData[i].addrZip +
-                    "<td class='formatted-table-button' align='right'>" +
-                    "<p><a href='#' id=" + vendorData[i].id + " class='refer-popup-link dialog_link ui-state-default ui-corner-all'>" +
-                    "<span class='ui-icon ui-icon-plus'></span>Refer to Friends</a></p>" + 
-                    "<p><a href='#' id=" + vendorData[i].id + " class='add-to-list-popup-link dialog_link ui-state-default ui-corner-all'>" +
-                    "<span class='ui-icon ui-icon-plus'></span>Add to List</a></p>" +
-                    "</td>" + 
+                    "<tr>" + 
+                        "<td class='formatted-table-info'>" +
+                            addr[0] + "<BR>" + addr[1] + ", " + vendorData[i].addrState + " " + vendorData[i].addrZip + 
+                        "</td>" + 
+                        "<td class='formatted-table-button' align='right'>" +
+                            "<p><a href='#' id=" + vendorData[i].id + " class='refer-popup-link dialog_link ui-state-default ui-corner-all'>" +
+                            "<span class='ui-icon ui-icon-plus'></span>Refer to Friends</a></p>" + 
+                            "<p><a href='#' id=" + vendorData[i].id + " class='add-to-list-popup-link dialog_link ui-state-default ui-corner-all'>" +
+                            "<span class='ui-icon ui-icon-plus'></span>Add to List</a></p>" +
+                        "</td>" + 
+                    "</tr>" + 
                 "</table></div>" + 
             "</div>";
     }
 
     // close accordion div
     htmlString = htmlString + "</div>";
-
-    // create popup for referring to friends
-    htmlString = htmlString + "<div id='dialog'>" +
-        "<div id='friends-refer-upper'>" +
-            "<div id='friends-refer-left'>" +
-                "<div id='friends-refer-search'>" +
-                    "<form id='addFriend' method='post' onsubmit='return false;'>" +
-                        "<label for='tags'><B>Who do you want to refer to?</b><BR></label>" +
-                        "<input type='text' id='tags' autocomplete='off' name='friend'>" +
-                        "<input type='submit' id='searchFriendsButton' value='Add to List'/>" +
-                    "</form>" +
-                "</div>" +
-                "<div id='friends-refer-display'>" +
-                    "<div id='friends-refer-display-left'>" + 
-                    "</div>" + 
-                    "<div id='friends-refer-display-right'>" + 
-                    "</div>" + 
-                "</div>" +
-            "</div>" +
-            "<div id='friends-refer-right'>" + 
-            "</div>" +
-        "</div>" +
-        "<div id='friends-refer-comment'>" +
-            "<label for='comment-box'><B>Add a comment with your referral!</B></label>" +
-            "<textarea name='comment' id='comment-box'></textarea>" +
-        "</div>" +
-    "</div>";
-
-    // create popup for adding vendor to list
-    htmlString = htmlString + 
-        "<div id='addToListDialog'>" + 
-            "<div id='add-to-existing-list'>" + 
-            "</div>" + 
-            "<div id='add-to-new-list'>" + 
-            "</div>" + 
-            "<div id='add-to-list-comment'>" +
-                "<label for='add-to-list-comment-box'><B>Add a comment!</B></label>" +
-                "<textarea name='addToListComment' id='add-to-list-comment-box'></textarea>" +
-            "</div>" +
-        "</div>";
     
     // fill in content div with search results
     $('#search-content').html(htmlString);
@@ -526,10 +517,8 @@ function displaySearchResults(vendorData) {
     
     // initialize popup box for referring friends to a vendor
     var friendList = [];
-    bindReferDialog(friendList);
     bindAddFriend(friendList);
     bindReferDialogLink(friendList, vendorData);
-    bindAutoComplete();
     bindAccordion();
     
     // initialize pop up box for adding vendor to list
@@ -549,7 +538,7 @@ function displayAddedFriends(friendList) {
                 "</tr>";
     }
     displayFriends = displayFriends + "</table>";
-    document.getElementById("friends-refer-right").innerHTML = displayFriends; 
+    $('#friends-refer-right').html(displayFriends);
     
     // bind x on added friends to delete row
     $('table tr img.delete').click(function() {
@@ -566,4 +555,54 @@ function displayAddedFriends(friendList) {
          }
          friendList.splice(indexOfRemovedFriend,1);     
      });
+}
+
+function addVendorToDB(vendor) {
+    jQuery.post('searchvendors/add_vendor', {
+        name: vendor.name,
+        reference: vendor.reference,
+        id: vendor.id,
+        lat: vendor.lat,
+        lng: vendor.lng,
+        phone: vendor.phone,
+        addr: vendor.addr,
+        addrNum: vendor.addrNum,
+        addrStreet: vendor.addrStreet,
+        addrCity: vendor.addrCity,
+        addrState: vendor.addrState,
+        addrCountry: vendor.addrCountry,
+        addrZip: vendor.addrZip,
+        website: vendor.website,
+        icon: vendor.icon,
+        rating: vendor.rating,
+        vicinity: vendor.vicinity
+    }, function() {
+        
+    });
+}
+
+function addVendorToList(lid, vid) {
+    //get date
+    var now = new Date();       
+    now = now.format("yyyy-mm-dd HH:MM:ss");
+    
+    // get comment
+    var comment = $('#add-to-list-comment-box').val();
+    
+    // add vendor to list (new or old)
+    jQuery.post('list_controller/add_vendor_to_list', {
+        lid: lid,
+        vid: vid,
+        date: now,
+        comment: comment
+    }, function(data) {
+        // if there was an error, print out the error
+        if (data) {
+            alert(data);
+        }
+        // if there was no error, then vendor was added to list. close the dialog
+        else {
+            $('#addToListDialog').dialog("close");
+        }
+    });
 }
