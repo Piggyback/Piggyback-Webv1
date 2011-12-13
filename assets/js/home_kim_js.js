@@ -89,8 +89,7 @@ function bindAddToListDialog() {
 }
 
 // when you click on a friend in the friend search results, it adds them to the list of people to refer
-function bindAddFriend(friendList) {
-    
+function bindAddFriend() {    
     $(document).on('click', '.friendTable tr', function() { 
          var submittedFriend = $(this).html(); 
          var fbid = submittedFriend.split("/")[3];
@@ -120,7 +119,6 @@ function bindAddFriend(friendList) {
           }
          return false;
     });  
-
 }
 
 // when you click on the refer button on search results, display pop up 
@@ -226,8 +224,12 @@ function bindAddToListDialogLink(vendorData) {
                             } else if (newListData.length > 1) {
                                 alert("Multiple lists were returned");
                             } else {
+                                // refresh sidebar that displays your lists
+                                var htmlString = "<li class='my-list-wrapper'><span id='delete-my-list-lid--" + newListData[0].lid + "' class='delete-my-list'>x</span>";
+                                htmlString = htmlString + "<span id='my-list-lid--" + newListData[0].lid + "' class='my-list'>" + newListData[0].name + "</span></li>";                                $('#lists').append(htmlString);
+                                        
                                 // set selectedList to the lid that was just created
-                                addVendorToList(newListData[0].lid, vendor.id);
+                                addVendorToList(newListData[0].lid, vendor);
                                 
                                 // add vendor to vendor table
                                 addVendorToDB(vendor);
@@ -237,7 +239,7 @@ function bindAddToListDialogLink(vendorData) {
                 
                 // add vendor to existing list
                 else if (selectedList != 'none') {
-                    addVendorToList(selectedList, vendor.id);
+                    addVendorToList(selectedList, vendor);
                     
                     // add vendor to vendor table
                     addVendorToDB(vendor);
@@ -260,9 +262,11 @@ function bindAutoComplete() {
     $('#tags').keyup(function() {
         var typedString = document.forms["addFriend"]["friend"].value
         var matchingFriends = [];
+        var fullName;
         
         for (var i = 0; i < allFriends.length; i++) {
-            if (allFriends[i]['firstName'].indexOf(typedString) == 0 || allFriends[i]['lastName'].indexOf(typedString) == 0) {
+            fullName = allFriends[i]['firstName'] + " " + allFriends[i]['lastName'];
+            if (fullName.indexOf(typedString) == 0 || allFriends[i]['lastName'].indexOf(typedString) == 0) {
                 matchingFriends.push(allFriends[i]);
             }
         }
@@ -316,6 +320,7 @@ function getVendorData(parsedJSON) {
     var srcLat = parsedJSON.srcLat;
     var srcLng = parsedJSON.srcLng;
 
+// TODO: consider changing array to json object {} - reference bookmarked stackoverflow
     var vendorData = new Array();
     for(var i=0; i<results.length; i++) {
         var singleVendor = new Array();
@@ -448,15 +453,15 @@ function displayListDropDown() {
 
     // pull list names from side panel
     var myListsHTML = $('#lists').html();
-    var myLists = myListsHTML.split("</li>"); 
+    // TODO: change display of existing lists depending on format of HTML on sidebar display of lists
+    var myLists = myListsHTML.split("id=\"my-list-lid--"); 
     
     var listName;
     var lid;
     var temp;
-    for (var i = 0; i < myLists.length - 1; i++) {
-        temp = cbSplit(myLists[i],"my\-list\-lid\-\-")[1].split("\">");
-        lid = temp[0];
-        listName = temp[1];
+    for (var i = 1; i < myLists.length; i++) {
+        lid = myLists[i].split("\"")[0];
+        listName = myLists[i].split(">")[1].split("<")[0];
         listDropDownHTML = listDropDownHTML + "<option value='" + lid + "'>" + listName + "</option>";
     }
     
@@ -516,8 +521,7 @@ function displaySearchResults(vendorData) {
     displayAutoCompleteResults(allFriends);
     
     // initialize popup box for referring friends to a vendor
-    var friendList = [];
-    bindAddFriend(friendList);
+//    bindAddFriend();
     bindReferDialogLink(friendList, vendorData);
     bindAccordion();
     
@@ -581,18 +585,19 @@ function addVendorToDB(vendor) {
     });
 }
 
-function addVendorToList(lid, vid) {
+function addVendorToList(lid, vendor) {
+
     //get date
     var now = new Date();       
     now = now.format("yyyy-mm-dd HH:MM:ss");
     
     // get comment
     var comment = $('#add-to-list-comment-box').val();
-    
-    // add vendor to list (new or old)
+
+    // add vendor to list (new or old) and make it so that list div is updated to show new vendor
     jQuery.post('list_controller/add_vendor_to_list', {
         lid: lid,
-        vid: vid,
+        vid: vendor.id,
         date: now,
         comment: comment
     }, function(data) {
@@ -602,7 +607,48 @@ function addVendorToList(lid, vid) {
         }
         // if there was no error, then vendor was added to list. close the dialog
         else {
+            // if the div exists, then add on to the stored data
+            if ($('#list-content-lid--' + lid).length) {
+                // get html 
+                var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
+                
+                // convert vendor array to vendor json object so that it can be stringified (change into json string)
+                var vendorObj = {};
+                vendorObj.lid = lid;
+                vendorObj.vid = vendor.id;
+                vendorObj.date = now;
+                vendorObj.comment = comment;
+                vendorObj.name = vendor.name;
+                vendorObj.reference = vendor.reference;
+                vendorObj.id = vendor.id;
+                vendorObj.lat = vendor.lat.toString();
+                vendorObj.lng = vendor.lng.toString();
+                vendorObj.phone = vendor.phone;
+                vendorObj.addr = vendor.addr;
+                vendorObj.addrNum = vendor.addrNum;
+                vendorObj.addrStreet = vendor.addrStreet;
+                vendorObj.addrCity = vendor.addrCity;
+                vendorObj.addrCountry = vendor.addrCountry;
+                vendorObj.addrZip = vendor.addrZip;
+                vendorObj.vicinity = vendor.vicinity;
+                vendorObj.website = vendor.website;
+                vendorObj.icon = vendor.icon;
+                vendorObj.rating = vendor.rating.toString();
+                vendorObj.listsDate = now;
+                var newHtmlString = JSON.stringify(vendorObj);
+                
+                // add a comma if there is now more than one object
+                htmlString = htmlString.slice(0,-1);
+                if (htmlString != "[") {
+                    htmlString = htmlString + ",";
+                }
+                htmlString = htmlString + newHtmlString + "]";
+
+                // save new json string to the appropriate list div
+                $('#list-content-lid--' + lid).html(htmlString);
+
+            }
             $('#addToListDialog').dialog("close");
         }
     });
-}
+} 

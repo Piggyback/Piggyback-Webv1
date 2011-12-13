@@ -9,15 +9,17 @@
    TO-DOs:
 */
 
+
 $(document).ready(function() {
     setScrollHeight();
     initTabs();
     initHoverTabs();
 	getListContent();
-					bindReferDialog();
-//					bindAddFriend(friendList);
-					bindAutoComplete();
-
+	initDeleteList();
+    friendList = [];
+    bindAddFriend();
+    bindReferDialog();
+	bindAutoComplete();
 	bindAddListDialog();
 	bindFuzzMike();
 	initAddList();
@@ -55,8 +57,8 @@ function initHoverTabs() {
 }
 
 function getListContent() {
-//	$(document).on("click", ".my-list", function() {
-	$(document).on("click", "#lists li", function() {
+	$(document).on("click", ".my-list", function() {
+//	$(document).on("click", "#lists li", function() {
  		// load list content when clicked
 		// parse lid from id
 		var lid_string = $(this).attr('id');
@@ -67,7 +69,7 @@ function getListContent() {
 		if ($('#list-content-lid--' + lid).length) {
 			// list content was already added to the html; display in div
 			htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
-			htmlString = addContentToAccordionTemplate(jQuery.parseJSON(htmlString));
+			htmlString = addContentToAccordionTemplate(lid, jQuery.parseJSON(htmlString));
 
 			if (htmlString.length == 0) {
 				htmlString = jQuery.trim($('#empty-list-content').html());
@@ -75,6 +77,8 @@ function getListContent() {
 			$('#list-content').html(htmlString);
 			// bind accordion to #list-content
 			bindAccordionList();
+            overrideListAccordionEvent();
+initDeleteVendorFromList();
 		} else {
 			jQuery.post('list_controller/get_list_content', {
 				lid: lid
@@ -88,7 +92,7 @@ function getListContent() {
 
 				// reset htmlString to html inside of div (does not include class .none)
 				htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
-				htmlString = addContentToAccordionTemplate(jQuery.parseJSON(htmlString));
+				htmlString = addContentToAccordionTemplate(lid, jQuery.parseJSON(htmlString));
 
 				if (htmlString.length == 0) {
 					htmlString = jQuery.trim($('#empty-list-content').html());
@@ -100,13 +104,15 @@ function getListContent() {
 					// from home_kim_js.js
 					displayAutoCompleteResults(allFriends);
 					// initialize popup box for referring friends to a vendor
-					var friendList = [];
+//					var friendList = [];
 					var vendorData = getVendorDataList(parsedJSON);
 //					bindReferDialog(friendList);
-					bindAddFriend(friendList);
+//					bindAddFriend();
 					bindReferDialogLink(friendList, vendorData);
 //					bindAutoComplete();
 					bindAccordionList();
+                    overrideListAccordionEvent();
+initDeleteVendorFromList();
 				}
 			});
 		}
@@ -119,15 +125,87 @@ function getListContent() {
 	});
 }
 
-function addContentToAccordionTemplate(parsedJSON) {
+function initDeleteList() {
+	$(document).on("click", ".delete-my-list", function() {
+		var lid_string = $(this).attr('id');
+		var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
+
+		//alert("delete " + lid);
+		// delete list from database
+		jQuery.post('list_controller/delete_list', {
+			lid: lid
+		});
+
+		// delete list from HTML
+		$(this).parent().remove();
+
+		// if current content is specified list content, then replace with inbox content (for now)
+		$('#inbox-content').removeClass("ui-tabs-hide");
+	    $('#list-content, #ui-tabs-1, #ui-tabs-2, #search-content').addClass("ui-tabs-hide")
+		$("#inbox-tab").addClass("ui-tabs-selected ui-state-active");
+    //	$('#inbox-tab, #friend-activity-tab, #referral-tracking-tab').removeClass("ui-tabs-selected ui-state-active");
+
+
+		return false;
+	});
+}
+
+function initDeleteVendorFromList() {
+    $('.accordion-remove').click(function() {
+        var vid_string = $(this).attr('id');
+        var vid = vid_string.substring(vid_string.indexOf('vid--') + 'vid--'.length);
+        var lid_string = $(this).closest(".accordion-list").attr("id");
+        var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
+        var row_string = $(this).closest(".accordion-list-header").attr("id");
+        var row = row_string.substring(row_string.indexOf('row--') + 'row--'.length);
+
+        // delete vendor from database
+        jQuery.post('list_controller/delete_vendor_from_list', {
+            lid: lid,
+            vid: vid
+        });
+
+        // delete vendor from HTML
+          $(this).closest(".accordion-list-header").parent().remove();
+
+        // delete vendor from div
+        if ($('#list-content-lid--' + lid).length) {
+            // TODO: possible to have { and } inside content of list?
+ //           var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
+   //         var openBrace = htmlString.lastIndexOf('{', htmlString.indexOf(vid));
+     //       var closedBrace = htmlString.indexOf('}', htmlString.indexOf(vid));
+            var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
+            var parsedJSON = jQuery.parseJSON(htmlString);
+            parsedJSON.splice(row,1);
+            var json_text = JSON.stringify(parsedJSON, null, 2);
+            //alert(json_text);
+            $('#list-content-lid--' + lid).html(json_text);
+        }
+
+        // what if list is empty? redirect to list is empty text
+
+        return false;
+    });
+}
+
+function addContentToAccordionTemplate(lid, parsedJSON) {
+//    alert(parsedJSON.length);
+//    alert(parsedJSON[parsedJSON.length-1].name);
 	if (parsedJSON.length == 0) {
 		return "";
 	} else {
-		htmlString = "<div id='accordion-list'>";
+		var htmlString = "<div id='accordion-list-lid--" + lid + "' class='accordion-list'>";
 		for (var i=0; i<parsedJSON.length; i++) {
 			htmlString = htmlString +
 			"<div>" +
-				"<h3><a href='#'>" + parsedJSON[i].name + "</a></h3>" +
+				"<div id='accordion-list-header-row--" + i + "' class='accordion-list-header'>" +
+                    "<a href='#' class='accordion-list-anchor'>" +
+                    parsedJSON[i].name +
+                        "<div id='accordion-remove-vid--" + parsedJSON[i].vid + "' class='accordion-remove no-accordion'>" +
+                        "remove" +
+                        "</div>" +
+                    "</a>" +
+                "</div>" +
 				"<div> <table class='formatted-table'>" +
 					"<tr>" +
 						"<td class='formatted-table-info'>" +
@@ -182,9 +260,15 @@ function getVendorDataList(parsedJSON) {
 	return vendorData;
 }
 
+function overrideListAccordionEvent() {
+    $(".no-accordion").click(function(e) {
+        e.stopPropagation();
+    });
+}
+
 function bindAccordionList() {
-	$('#accordion-list').addClass("ui-accordion ui-widget ui-helper-reset")
-		.find("h3")
+	$('.accordion-list').addClass("ui-accordion ui-widget ui-helper-reset")
+		.find(".accordion-list-header")
 	    .addClass("ui-accordion-header ui-helper-reset ui-state-default ui-corner-top ui-corner-bottom")
 	    .prepend('<span class="ui-icon ui-icon-triangle-1-e"/>')
 	    .click(function() {
@@ -238,7 +322,6 @@ function bindFuzzMike() {
 	});
 }
 
-
 function initAddList() {
 	$('#add-list-submit').click(function() {
 		var newListName = jQuery.trim($('#add-list-name').val());
@@ -248,6 +331,7 @@ function initAddList() {
 			// retrieve current uid
 			var uid = jQuery.trim($('#current-uid').html());
 			// add list to DB
+                        $('#add-list-dialog').dialog("close");
 			jQuery.post("list_controller/add_list", {
 				newListName: newListName,
 				uid: uid
@@ -261,7 +345,9 @@ function initAddList() {
 					alert("Multiple lists were returned");
 				} else {
 //					alert("lid: " + newListData[0].lid + "and name: " + newListData[0].name);
-					var htmlString = "<li id='my-list-lid--" + newListData[0].lid + "'>" + newListData[0].name + "</li>";
+                    var htmlString = "<li class='my-list-wrapper'><span id='delete-my-list-lid--" + newListData[0].lid + "' class='delete-my-list'>x</span>";
+                    htmlString = htmlString + "<span id='my-list-lid--" + newListData[0].lid + "' class='my-list'>" + newListData[0].name + "</span></li>";
+		//			var htmlString = "<li id='my-list-lid--" + newListData[0].lid + "'>" + newListData[0].name + "</li>";
 					$('#lists').append(htmlString);
 					$('#add-list-dialog').dialog("close");
 				}
@@ -271,6 +357,7 @@ function initAddList() {
 		return false;
 	});
 }
+
 
 function searchAJAX() {
     // merge kim's search with home shell

@@ -67,9 +67,9 @@ function initLike() {
         //var referId = $(this).closest('.row').data("rid");
         var ridString = $(this).closest('.row').attr("id");
         var referId = ridString.substring(ridString.indexOf('rid-') + 'rid-'.length);
-        
+
         //alert(referId);
-        
+
         var likes = $(this).closest('.row').find('.number-of-likes');
         var likeStatus = $(this);
 
@@ -101,12 +101,12 @@ function initComment() {
     $('.submit-comment-button').click(function(){
         var name = $(this).closest('.row').find('.comment-input').val();
         //var referId = $(this).closest('.row').data("rid");
-        
+
         var ridString = $(this).closest('.row').attr("id");
         var referId = ridString.substring(ridString.indexOf('rid-') + 'rid-'.length);
-        
+
         //alert(referId);
-        
+
         // toggle comment box
         $(this).closest('.row').find('.comment-box').toggle();
         var lastRow = $(this).closest('.row').find('.comments-table-tbody');
@@ -224,7 +224,7 @@ function updateCommentsHTMLString(commentList, collapse) {
                 "<td>" +
                   "<button id='delete-comment-button-cid-" + commentList[j].cid + "' class='delete-comment' data-cid=" +
                      commentList[j].cid +
-                       ">x</button>" + 
+                       ">x</button>" +
                 "</td>" +
            "</tr>";
     }
@@ -301,7 +301,7 @@ function displayMoreReferrals(moreRows) {
                     "</div>" +
                     "<div class='inbox-friend-referral'>" +
                         moreRows[i].firstName + " " + moreRows[i].lastName + " says \"" + moreRows[i].ReferralsComment + "\"" +
-                    "</div>" +    
+                    "</div>" +
                 "</div>" +
             "</a>" +
         "</div>" +
@@ -314,13 +314,13 @@ function displayMoreReferrals(moreRows) {
            moreRows[i].website +
        "</div>" +
 
-   // footer comments     
+   // footer comments
         "<div class='accordion-footer'>" +
            "<div id='row-rid-" + moreRows[i].rid + "' class='row' data-rid=" + moreRows[i].rid + ">" +
                 "<div class='click-to-like no-accordion' data-likeCounts=" + likeNumber + ">" +
-                    likeStatus + 
+                    likeStatus +
                 "</div>" +
-                "<div class='click-to-comment no-accordion'>" + 
+                "<div class='click-to-comment no-accordion'>" +
                     "Comment" +
                 "</div>" +
                 "<div class='number-of-likes no-accordion'>" +
@@ -333,7 +333,7 @@ function displayMoreReferrals(moreRows) {
                             updateCommentsHTMLString(moreRows[i].CommentsList['CommentsList']) +
                         "</tbody>" +
                    "</table>" +
-               "</div>" + 
+               "</div>" +
                "<div class='comment-box no-accordion'>" +
                     "<form name='form-comment' class='form-comment' method='post'>" +
                         "<input type='text' class='comment-input'/>" +
