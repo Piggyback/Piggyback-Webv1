@@ -231,11 +231,29 @@ a, a:visited, .link {
     font-size: 13px;
     line-height: 21px;
     margin-right: auto;
-    cursor: pointer;
+ //   cursor: pointer;
 }
 
 #lists li {
-    margin-left: 44px;
+ /*   margin-left: 44px;*/
+	margin-left: 36px;
+}
+
+.delete-my-list {
+	cursor: pointer;
+	position: relative;
+	display: inline;
+	color: red;
+}
+
+.my-list {
+	cursor: pointer;
+	position: relative;
+	display: inline;
+}
+
+.my-list {
+	margin-left: 10px;
 }
 
 #scrollable-sections-bottom {
@@ -246,6 +264,15 @@ a, a:visited, .link {
     left: 0;
     margin-right: 0;
     position: absolute;
+}
+
+.accordion-remove {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    text-align: right;
+    width: auto;
+    color: #b8b7b7;
 }
 
 /*content*/

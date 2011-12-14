@@ -33,7 +33,8 @@ class referrals extends CI_Controller {
         $currentUserData = $this->session->userdata('currentUserData');
         $this->load->model('manage_referral_model');
 
-        $this->manage_referral_model->get_news_feed($currentUserData);
+        $data['newsFeedItems'] = $this->manage_referral_model->get_news_feed($currentUserData);
+        $this->load->view('news_feed_view', $data);
     }
 
     /*

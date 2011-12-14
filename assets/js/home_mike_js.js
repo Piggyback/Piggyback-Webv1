@@ -170,10 +170,6 @@ function initDeleteVendorFromList() {
 
         // delete vendor from div
         if ($('#list-content-lid--' + lid).length) {
-            // TODO: possible to have { and } inside content of list?
- //           var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
-   //         var openBrace = htmlString.lastIndexOf('{', htmlString.indexOf(vid));
-     //       var closedBrace = htmlString.indexOf('}', htmlString.indexOf(vid));
             var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
             var parsedJSON = jQuery.parseJSON(htmlString);
             parsedJSON.splice(row,1);

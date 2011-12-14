@@ -47,17 +47,6 @@ function bindReferDialog() {
             show: 'drop',
             hide: 'drop',
             resizable: true
-//            beforeClose: function() {
-//                // reset all values in pop up to blank
-//                $('#comment-box').val('');
-//                $('#friends-refer-right').html('');
-//                $('#tags').val('');
-////                friendList.length = 0;
-//                displayAutoCompleteResults(allFriends);
-//
-//                // fade out dark background
-//                $("#fuzz").fadeOut();  
-//            }
     });
 }
 

@@ -89,9 +89,9 @@
                                 <?php
                                 // add each list as its own <li>
                                 foreach ($myLists as $list) {
-                                    echo "<li id='my-list-lid--" . $list->lid . "'><span id='delete-my-list-lid--" . $list->lid . "' class='delete-my-list'>x</span>" . $list->name . "</li>";
-                                //   echo "<li class='my-list-wrapper'><span id='delete-my-list-lid--" . $list->lid . "' class='delete-my-list'>x</span>";
-                                 //  echo "<span id='my-list-lid--" . $list->lid . "' class='my-list>" . $list->name . "</span></li>";
+                                  //  echo "<li id='my-list-lid--" . $list->lid . "'><span id='delete-my-list-lid--" . $list->lid . "' class='delete-my-list'>x</span>" . $list->name . "</li>";
+                                    echo "<li class='my-list-wrapper'><span id='delete-my-list-lid--" . $list->lid . "' class='delete-my-list'>x</span>";
+                                    echo "<span id='my-list-lid--" . $list->lid . "' class='my-list'>" . $list->name . "</span></li>";
                                 }
                                 ?>
                            </ul>

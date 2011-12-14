@@ -45,17 +45,17 @@ class List_model extends CI_Model {
         $query = $this->db->get_where('UserLists', array('uid' => $uid, 'name' => $newListName, 'date' => $dateTime));
         echo json_encode($query->result());
     }
-    
+
     // add vendor to existing list -- pass lid that you want to add to, vid to add, date, and comment for vendor
     function add_vendor_to_list() {
-                
+
         $lid = $_POST["lid"];
         $vid = $_POST["vid"];
         $date = $_POST["date"];
         $comment = $_POST["comment"];
-        
+
         $existsQuery = "SELECT vid FROM Lists WHERE lid=$lid AND vid=\"$vid\"";
-        
+
         $existsResult = mysql_query($existsQuery);
         $count = mysql_num_rows($existsResult);
         if ($count == 0) {
@@ -74,4 +74,26 @@ class List_model extends CI_Model {
         echo false;
     }
 
+    function delete_list() {
+        $lid = $this->input->post('lid');
+        // delete from Lists table
+        $this->db->delete('Lists', array('lid' => $lid));
+
+        // delete from UserLists table
+        $this->db->delete('UserLists', array('lid' => $lid));
+    }
+
+    function delete_vendor_from_list() {
+        $lid = $this->input->post('lid');
+        $vid = $this->input->post('vid');
+
+        // delete from Lists table
+        $this->db->delete('Lists', array('lid' => $lid, 'vid' => $vid));
+    }
+
+    function refer_list() {
+        $lid = $_POST["lid"];
+        $date = $_POST["date"];
+        $comment = $_POST["comment"];
+    }
 }

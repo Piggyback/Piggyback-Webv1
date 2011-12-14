@@ -29,9 +29,21 @@ class List_controller extends CI_Controller {
     {
         $this->list_model->add_list();
     }
-    
+
     public function add_vendor_to_list() {
         $this->list_model->add_vendor_to_list();
+    }
+
+    public function delete_list() {
+        $this->list_model->delete_list();
+    }
+
+    public function delete_vendor_from_list() {
+        $this->list_model->delete_vendor_from_list();
+    }
+    
+    public function refer_list() {
+        $this->list_model->refer_list();
     }
 }
 

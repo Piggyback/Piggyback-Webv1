@@ -13,6 +13,11 @@ class test extends CI_Controller {
         $data['blah'] = $this->test_model->testMethod();
         $this->load->view('test_view',$data);
     }  
+    
+    public function refer_list() {
+        $this->load->model('test_model');
+        $this->test_model->refer_list();
+    }
 
 }
 
