@@ -16,23 +16,15 @@
 
         <script type="text/javascript" src="../../assets/jquery-ui-1.8.16.custom/development-bundle/ui/jquery.ui.accordionCustom.js"></script>
         
-        <script>
-        // eventually move all javascript code into separate file and call it,
-        // want to expose as little as possible
-        // TODO: migrate js code into separate file @andyjiang #inboxview
-        $(function() {
-           
-        });
-    </script>
     </head>
     
     <body>
-        <div id="inbox">
-            <div id="accordion-inbox">
-                <div id="inbox-wrapper">
+        <div id="news-feed">
+            <div id="accordion-news-feed" class="accordion-object">
+                <div id="news-feed-wrapper">
                 <?php foreach ($newsFeedItems as $row):?>
     <!--                                                    determine if $row is a list or single vendor-->
-                    <?php if ( $row->lid == 0 ):?>
+                    <?php if ( 1 ):?>
                         <?php
                             // get some vital variables ready
                             // the count of likes
@@ -72,7 +64,7 @@
                     -->
 
                             <!-- BEGINNING OF HEADER HERE of the ACCORDION    -->
-                    <div class="inbox-single-wrapper accordion-header">
+                    <div class="news-feed-single-wrapper accordion-header">
                         <div class="referral-date">
                             <?php echo $row->refDate; ?>
                         </div>

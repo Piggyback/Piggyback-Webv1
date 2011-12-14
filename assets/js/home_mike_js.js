@@ -24,6 +24,8 @@ $(document).ready(function() {
 	bindFuzzMike();
 	initAddList();
     searchAJAX();
+
+    bindReferDialogList(friendList);
 });
 
 /* functions for $(document).ready */
@@ -56,6 +58,61 @@ function initHoverTabs() {
     );
 }
 
+function bindReferDialogList(friendList) {
+    $('.refer-my-list').click(function() {
+        var lid_string = $(this).attr('id');
+        var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
+        var list_name = jQuery.trim($(this).prev('.my-list').html());
+        $('#fuzz').fadeIn();
+        $('#dialog').dialog('option', 'title', 'Refer Friends to ' + list_name);
+
+        displayAutoCompleteResults(allFriends);
+        // reset all values when dialog box closes
+        $('#dialog').bind('dialogbeforeclose', function(event, ui) {
+            $('#comment-box').val('');
+            $('#friends-refer-right').html('');
+            $('#tags').val('');
+            friendList.length = 0;
+            displayAutoCompleteResults(allFriends);
+
+            // fade out dark background
+            $('#fuzz').fadeOut();
+        });
+
+        $('#dialog').dialog('option', 'buttons', {
+            "Refer!": function() {
+                if (friendList.length < 1) {
+                    alert("You did not select any friends to refer. Please try again.");
+                } else {
+                    var now = new Date();
+                    now = now.format("yyyy-mm-dd HH:MM:ss");
+                    var uidFriendsObj = {};
+                    var friendNum;
+                    for (var i=0; i<friendList.length; i++) {
+                        friendNum = "friend" + i.toString();
+                        uidFriendsObj[friendNum] = friendList[i].uid;
+                    }
+
+                    var uidFriendsStr = JSON.stringify(uidFriendsObj);
+                    jQuery.post('list_controller/refer_list', {
+                        lid: lid,
+                        uid: myUID,
+                        numFriends: friendList.length,
+                        uidFriends: uidFriendsStr,
+                        date: now,
+                        comment: $('#comment-box').val()
+                    }, function() {
+                        $('#dialog').dialog('close');
+                    });
+                }
+            }
+        });
+
+        $('#dialog').dialog('open');
+        return false;
+    });
+}
+
 function getListContent() {
 	$(document).on("click", ".my-list", function() {
 //	$(document).on("click", "#lists li", function() {
@@ -75,10 +132,17 @@ function getListContent() {
 				htmlString = jQuery.trim($('#empty-list-content').html());
 			}
 			$('#list-content').html(htmlString);
+
+                        var parsedJSON = jQuery.parseJSON(jQuery.trim($('#list-content-lid--' + lid).html()));
+                        var vendorData = getVendorDataList(parsedJSON);
+
+                        bindReferDialogLink(friendList, vendorData);
+
+
 			// bind accordion to #list-content
 			bindAccordionList();
             overrideListAccordionEvent();
-initDeleteVendorFromList();
+            initDeleteVendorFromList();
 		} else {
 			jQuery.post('list_controller/get_list_content', {
 				lid: lid
@@ -112,7 +176,7 @@ initDeleteVendorFromList();
 //					bindAutoComplete();
 					bindAccordionList();
                     overrideListAccordionEvent();
-initDeleteVendorFromList();
+                    initDeleteVendorFromList();
 				}
 			});
 		}
@@ -166,19 +230,27 @@ function initDeleteVendorFromList() {
         });
 
         // delete vendor from HTML
-          $(this).closest(".accordion-list-header").parent().remove();
+        $(this).closest(".accordion-list-header").parent().remove();
 
         // delete vendor from div
         if ($('#list-content-lid--' + lid).length) {
             var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
             var parsedJSON = jQuery.parseJSON(htmlString);
-            parsedJSON.splice(row,1);
+//            parsedJSON.splice(row,1);
+//            delete parsedJSON[row];
+            for (var i=0; i<parsedJSON.length; i++) {
+                if (parsedJSON[i].vid == vid) {
+                    parsedJSON.splice(i,1);
+                }
+            }
             var json_text = JSON.stringify(parsedJSON, null, 2);
-            //alert(json_text);
             $('#list-content-lid--' + lid).html(json_text);
         }
 
         // what if list is empty? redirect to list is empty text
+        if (parsedJSON.length == 0) {
+			$('#list-content').html(jQuery.trim($('#empty-list-content').html()));
+        }
 
         return false;
     });
@@ -263,15 +335,15 @@ function overrideListAccordionEvent() {
 }
 
 function bindAccordionList() {
-	$('.accordion-list').addClass("ui-accordion ui-widget ui-helper-reset")
+	$('.accordion-list').addClass("ui-accordion ui-widget ui-helper-reset ui-accordion-icons")
 		.find(".accordion-list-header")
-	    .addClass("ui-accordion-header ui-helper-reset ui-state-default ui-corner-top ui-corner-bottom")
+	    .addClass("ui-accordion-header ui-helper-reset ui-state-default ui-corner-all")
 	    .prepend('<span class="ui-icon ui-icon-triangle-1-e"/>')
 	    .click(function() {
 		    $(this).toggleClass("ui-accordion-header-active").toggleClass("ui-state-active")
 				    .toggleClass("ui-state-default").toggleClass("ui-corner-bottom")
 					.find("> .ui-icon").toggleClass("ui-icon-triangle-1-e").toggleClass("ui-icon-triangle-1-s")
-			        .end().next().toggleClass("ui-accordion-content-active").toggle();
+			        .end().next().toggle().toggleClass("ui-accordion-content-active");
 			return false;
 		})
 		.next().addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom").hide();

@@ -15,6 +15,21 @@ class test_model extends CI_Model {
         return $hello;
     }
     
+    public function get_likes() {
+        $uid = $_POST["uid"];
+        
+        $q = "SELECT Referrals.rid, Likes.uid, Likes.date 
+              FROM Likes 
+              LEFT JOIN Referrals 
+              ON Likes.rid = Referrals.rid 
+              WHERE Referrals.uid1 = $uid";
+        
+        $result = mysql_query($q);
+        $count = mysql_num_rows($result);
+        echo $count;
+        
+    }
+    
     function refer_list() {
         $this->load->database();
         $lid = $_POST["lid"];

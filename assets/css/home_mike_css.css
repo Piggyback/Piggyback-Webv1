@@ -236,7 +236,7 @@ a, a:visited, .link {
 
 #lists li {
  /*   margin-left: 44px;*/
-	margin-left: 36px;
+	margin-left: 10px;
 }
 
 .delete-my-list {
@@ -248,12 +248,21 @@ a, a:visited, .link {
 
 .my-list {
 	cursor: pointer;
-	position: relative;
+	position: absolute;
 	display: inline;
+    font-weight: bold;
 }
 
 .my-list {
 	margin-left: 10px;
+}
+
+.refer-my-list {
+    cursor: pointer;
+    position: absolute;
+    display: inline;
+    text-align: right;
+    margin-left: 200px;
 }
 
 #scrollable-sections-bottom {

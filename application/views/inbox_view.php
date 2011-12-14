@@ -28,7 +28,7 @@
     
     <body>
         <div id="inbox">
-            <div id="accordion-inbox">
+            <div id="accordion-inbox" class="accordion-object">
                 <div id="inbox-wrapper">
                 <?php foreach ($inboxItems as $row):?>
     <!--                                                    determine if $row is a list or single vendor-->

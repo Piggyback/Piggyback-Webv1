@@ -23,8 +23,8 @@ $(document).ready(function() {
 /* functions for $(document).ready */
 //initialize the accordion features for inbox
 function bindAccordionInbox() {
-    $( "#accordion-inbox" ).accordionCustom({
-        header: 'div.inbox-single-wrapper',// div.inbox-list-wrapper',
+    $( ".accordion-object" ).accordionCustom({
+        header: 'div.accordion-header',
         content: 'div.accordion-content',
         footer: 'div.accordion-footer',
         collapsible: true,
@@ -36,7 +36,7 @@ function bindAccordionInbox() {
 
 // override accordion click handler when clicking Like, Comment, pressing enter or space
 function overrideAccordionEvent() {
-    $("#accordion-inbox p a, #accordion-inbox table, #accordion-inbox .no-accordion").click(function(e) {
+    $(".accordion-object p a, .accordion-object table, .accordion-object .no-accordion").click(function(e) {
         e.stopPropagation();
     });
 
@@ -267,7 +267,7 @@ function displayMoreReferrals(moreRows) {
     var likeStatus = "";
 
     // destroy the accordion first
-    $('#accordion-inbox').accordionCustom('destroy');
+    $('.accordion-object').accordionCustom('destroy');
 
     for(var i=0; i<moreRows.length; i++) {
         likeNumber = moreRows[i].LikesList['LikesList'].length;
