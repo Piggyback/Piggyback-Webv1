@@ -22,6 +22,11 @@ class referral_tracking extends CI_Controller {
     public function get_comments() {
         $this->referral_tracking_model->get_comments();
     }
+    
+    public function get_referral_tracking() {
+        $currentUserData = $this->session->userdata('currentUserData');        
+        echo json_encode($this->referral_tracking_model->get_referral_tracking($currentUserData));
+    }
 }
 
 ?>

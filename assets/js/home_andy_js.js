@@ -28,10 +28,19 @@ function bindAccordionInbox() {
         content: 'div.accordion-content',
         footer: 'div.accordion-footer',
         collapsible: true,
-        autoHeight: true,
+        autoHeight: false,
         navigation: true,
         active: 'none'
     });
+    $( ".subaccordion-object" ).accordionCustom({
+        header: 'div.subaccordion-header',
+        content: 'div.subaccordion-content',
+        footer: 'div.subaccordion-footer',
+        collapsible: true,
+        autoHeight: false,
+        navigation: true,
+        active: 'none'
+    })
 }
 
 // override accordion click handler when clicking Like, Comment, pressing enter or space
@@ -169,7 +178,47 @@ function initRemoveComment() {
 
 }
 
-// these are private functions
+
+function initLoadMoreComments() {
+    $('.hide-load-comments-button').hide();
+    $('.show-load-comments-button').show();
+    $('.hide-comment').hide();
+    $('.show-comment').show();
+
+    $('.show-load-comments-button').click(function() {
+        $(this).closest('.comments-table').find('.hide-comment').show();
+        $(this).hide();
+    });
+}
+
+function initLoadMoreButton() {
+    var inboxLoadStart = 3;
+    // call more data from mysql ('load more' button action)
+    $('#load-more-inbox-content-button').click(function(){
+        // jquery post to retrieve more rows
+        jQuery.post("http://192.168.11.28/referrals/get_more_inbox", {
+            rowStart: inboxLoadStart
+        }, function(data) {
+            var parsedJSON = jQuery.parseJSON(data);
+            displayMoreInbox(parsedJSON);
+            inboxLoadStart = inboxLoadStart+3;
+        });
+    });
+    
+    var friendActivityLoadStart = 3;
+    $('#load-more-friend-activity-content-button').click(function(){
+        jQuery.post("http://192.168.11.28/referrals/get_more_friend_activity", {
+            rowStart: friendActivityLoadStart
+        }, function(data) {
+            var parsedJSON = jQuery.parseJSON(data);
+            displayMoreFriendActivity(parsedJSON);
+            friendActivityLoadStart = friendActivityLoadStart+3;
+        });
+    });
+}
+
+
+// private function
 function updateComments(commentList, commentsTable, collapse) {
     var commentsHTMLString = updateCommentsHTMLString(commentList, collapse);
 
@@ -231,122 +280,186 @@ function updateCommentsHTMLString(commentList, collapse) {
     return commentsHTMLString;
 }
 
-function initLoadMoreComments() {
-    $('.hide-load-comments-button').hide();
-    $('.show-load-comments-button').show();
-    $('.hide-comment').hide();
-    $('.show-comment').show();
+// private function
+function createReferralsHTMLString(row, userReferralString) {
+    var VendorDetails = row.VendorList['VendorList'][0][0];
+    var likeNumber = 0;
+    var likeStatus = "";
+    
+    likeNumber = row.LikesList['LikesList'].length;
+    if(likeNumber>0) {
+        if(likeNumber == 1) {
+            likeNumber = likeNumber + " person likes this.";
+        } else {
+            likeNumber = likeNumber + " people like this.";
+        }
+    }
+    else {
+        likeNumber = "";
+    }
 
-    $('.show-load-comments-button').click(function() {
-        $(this).closest('.comments-table').find('.hide-comment').show();
-        $(this).hide();
-    });
+    if (row.alreadyLiked==1) {
+        likeStatus = "Unlike";
+    } else {
+        likeStatus = "Like";
+    }
+
+    displayReferralsHTMLString = "";
+    if ( row.lid == 0 ) {
+        displayReferralsHTMLString = displayReferralsHTMLString +
+            "<div class='inbox-single-wrapper accordion-header'>" +
+                "<div class='referral-date'>" +
+                    row.refDate +
+                "</div>" +
+                "<a>" +
+                    VendorDetails.name +
+                    "<div class='friend-referral-comment-wrapper'>" +
+                        "<div class='inbox-friend-pic'>" +
+                            "<img src='https://graph.facebook.com/" + row.fbid + "/picture'>" +
+                        "</div>" +
+                        "<div class='inbox-friend-referral'>" +
+                            userReferralString +
+                        "</div>" +
+                    "</div>" +
+                "</a>" +
+            "</div>" +
+
+       // details of the row
+           "<div class='drop-down-details accordion-content'>" +
+               VendorDetails.addrNum + " " + VendorDetails.addrStreet + "<br>" +
+               VendorDetails.addrCity + " " + VendorDetails.addrState + " " + VendorDetails.addrZip + "<br>" +
+               VendorDetails.phone + "<br>" +
+               VendorDetails.website +
+           "</div>";
+    } else {
+        var userListDetails = row.UserList[0];
+
+        displayReferralsHTMLString = displayReferralsHTMLString +
+            "<div class='inbox-single-wrapper accordion-header'>" +
+                "<div class='referral-date'>" +
+                    row.refDate +
+                "</div>" +
+                "<a>" + userListDetails.name +
+                    "<div class='friend-referral-comment-wrapper'>" +
+                        "<div class='inbox-friend-pic'>" +
+                            "<img src='https://graph.facebook.com/" + row.fbid + "/picture'>" +
+                        "</div>" +
+                        "<div class='inbox-friend-referral'>" +
+                            row.firstName + " " + row.lastName + " says \"" + row.ReferralsComment + "\"" +
+                        "</div>" +
+                    "</div>" +
+                "</a>" +
+            "</div>" +
+
+            "<div class='drop-down-details accordion-contest'>";
+
+        for(var j = 0; j<row.VendorList['VendorList'].length; j++) {
+            SubVendorDetails = row.VendorList['VendorList'][j][0];
+            displayReferralsHTMLString = displayReferralsHTMLString +
+                "<div class='subaccordion-object'>" +
+                    "<div class='subaccordion-header'>" +
+                        SubVendorDetails.name +
+                    "</div>" +
+                    "<div class='subaccordion-content'>" +
+                        SubVendorDetails.addrNum + " " + SubVendorDetails.addrStreet + "<br>" +
+                        SubVendorDetails.addrCity + " " + SubVendorDetails.addrState + " " + SubVendorDetails.addrZip + "<br>" +
+                        SubVendorDetails.phone + "<br>" +
+                        SubVendorDetails.website +
+                    "</div>" +
+                "</div>";
+        }
+
+        displayReferralsHTMLString = displayReferralsHTMLString +
+            "</div>";
+
+    }
+
+    // footer comments
+    displayReferralsHTMLString = displayReferralsHTMLString +
+    "<div class='accordion-footer'>" +
+       "<div id='row-rid-" + row.rid + "' class='row' data-rid=" + row.rid + ">" +
+            "<div class='click-to-like no-accordion' data-likeCounts=" + likeNumber + ">" +
+                likeStatus +
+            "</div>" +
+            "<div class='click-to-comment no-accordion'>" +
+                "Comment" +
+            "</div>" +
+            "<div class='number-of-likes no-accordion'>" +
+                likeNumber +
+            "</div>" +
+            "<div class='comments'>" +
+                "<table class='comments-table'>" +
+                    "<tbody class='comments-table-tbody'>" +
+                        // loop comments for the 'view all comments'
+                        updateCommentsHTMLString(row.CommentsList['CommentsList']) +
+                    "</tbody>" +
+               "</table>" +
+           "</div>" +
+           "<div class='comment-box no-accordion'>" +
+                "<form name='form-comment' class='form-comment' method='post'>" +
+                    "<input type='text' class='comment-input'/>" +
+                    "<button type='submit' class='submit-comment-button'>" +
+                        "Submit" +
+                    "</button>" +
+                "</form>" +
+           "</div>" +
+       "</div>" +
+    "</div>";
+
+    return displayReferralsHTMLString;
 }
 
-function initLoadMoreButton() {
-    var loadStart = 3;
-    // call more data from mysql ('load more' button action)
-    $('.load-more-button').click(function(){
-        // jquery post to retrieve more rows
-        jQuery.post("http://192.168.11.28/referrals/get_more_inbox", {
-            rowStart: loadStart
-        }, function(data) {
-            var parsedJSON = jQuery.parseJSON(data);
-            displayMoreReferrals(parsedJSON);
-            loadStart = loadStart+3;
-        });
-    });
-}
 
-// display additional rows
-function displayMoreReferrals(moreRows) {
+function displayMoreInbox(moreRows) {
     // moreRows is a parsedJSON object
     // create a string that captures all HTML required to write the next referral
     var displayReferralsHTMLString = "";
-    var likeNumber = 0;
-    var likeStatus = "";
-
+    
     // destroy the accordion first
     $('.accordion-object').accordionCustom('destroy');
+    $('.subaccordion-object').accordionCustom('destroy');
 
     for(var i=0; i<moreRows.length; i++) {
-        likeNumber = moreRows[i].LikesList['LikesList'].length;
-        if(likeNumber>0) {
-            if(likeNumber == 1) {
-                likeNumber = likeNumber + " person likes this.";
-            } else {
-                likeNumber = likeNumber + " people like this.";
-            }
-        }
-        else {
-            likeNumber = "";
-        }
+        var row = moreRows[i];
+        userReferralString = row.firstName + " " + row.lastName + " says \"" + row.ReferralsComment + "\"";
 
-        if (moreRows[i].alreadyLiked==1) {
-            likeStatus = "Unlike";
-        } else {
-            likeStatus = "Like";
-        }
-
-        displayReferralsHTMLString = "" +
-        "<div class='inbox-single-wrapper accordion-header'>" +
-            "<div class='referral-date'>" +
-                moreRows[i].refDate +
-            "</div>" +
-            "<a>" +
-                moreRows[i].name +
-                "<div class='friend-referral-comment-wrapper'>" +
-                    "<div class='inbox-friend-pic'>" +
-                        "<img src='https://graph.facebook.com/" + moreRows[i].fbid + "/picture'>" +
-                    "</div>" +
-                    "<div class='inbox-friend-referral'>" +
-                        moreRows[i].firstName + " " + moreRows[i].lastName + " says \"" + moreRows[i].ReferralsComment + "\"" +
-                    "</div>" +
-                "</div>" +
-            "</a>" +
-        "</div>" +
-
-   // details of the row
-       "<div class='drop-down-details accordion-content'>" +
-           moreRows[i].addrNum + " " + moreRows[i].addrStreet + "<br>" +
-           moreRows[i].addrCity + " " + moreRows[i].addrState + " " + moreRows[i].addrZip + "<br>" +
-           moreRows[i].phone + "<br>" +
-           moreRows[i].website +
-       "</div>" +
-
-   // footer comments
-        "<div class='accordion-footer'>" +
-           "<div id='row-rid-" + moreRows[i].rid + "' class='row' data-rid=" + moreRows[i].rid + ">" +
-                "<div class='click-to-like no-accordion' data-likeCounts=" + likeNumber + ">" +
-                    likeStatus +
-                "</div>" +
-                "<div class='click-to-comment no-accordion'>" +
-                    "Comment" +
-                "</div>" +
-                "<div class='number-of-likes no-accordion'>" +
-                    likeNumber +
-                "</div>" +
-                "<div class='comments'>" +
-                    "<table class='comments-table'>" +
-                        "<tbody class='comments-table-tbody'>" +
-                            // loop comments for the 'view all comments'
-                            updateCommentsHTMLString(moreRows[i].CommentsList['CommentsList']) +
-                        "</tbody>" +
-                   "</table>" +
-               "</div>" +
-               "<div class='comment-box no-accordion'>" +
-                    "<form name='form-comment' class='form-comment' method='post'>" +
-                        "<input type='text' class='comment-input'/>" +
-                        "<button type='submit' class='submit-comment-button'>" +
-                            "Submit" +
-                        "</button>" +
-                    "</form>" +
-               "</div>" +
-           "</div>" +
-        "</div>";
-
+        displayReferralsHTMLString = createReferralsHTMLString(row, userReferralString);
+    
         // append to inbox wrapper
         $(displayReferralsHTMLString).appendTo('#inbox-wrapper');
+
+        $('.click-to-comment').unbind();
+        initCommentInputDisplay();
+        $('.click-to-like').unbind();
+        initLike();
+        $('.submit-comment-button').unbind();
+        initComment();
+        $('.delete-comment').unbind();
+        initRemoveComment();
+        $('.show-load-comments-button').unbind();
+        initLoadMoreComments();
+    }
+    bindAccordionInbox();
+    overrideAccordionEvent();
+}
+
+
+
+function displayMoreFriendActivity(moreRows) {
+    var displayReferralsHTMLString = "";
+    
+    // destroy the accordion first
+    $('.accordion-object').accordionCustom('destroy');
+    $('.subaccordion-object').accordionCustom('destroy');
+
+    for(var i=0; i<moreRows.length; i++) {
+        var row = moreRows[i];
+        var RecipientDetails = row.RecipientDetails['RecipientDetails'][0];
+        userReferralString = row.firstName + " " + row.lastName + " recommended to " + RecipientDetails.firstName + " " + RecipientDetails.lastName + ": \"" + row.ReferralsComment + "\"";
+            
+        displayReferralsHTMLString = createReferralsHTMLString(row, userReferralString);
+
+        $(displayReferralsHTMLString).appendTo('#friend-activity-wrapper');
 
         $('.click-to-comment').unbind();
         initCommentInputDisplay();

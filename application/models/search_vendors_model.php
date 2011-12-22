@@ -100,43 +100,55 @@ class search_vendors_model extends CI_Model {
     function add_referral()
     {
         // pull paremeters
-        $query = $_POST["q"];
         $id = $_POST["id"];
+        $uid = $_POST["myUID"];
+        $numFriends = $_POST["numFriends"];
+        $uidFriends = json_decode($_POST["uidFriends"]);
+        $date = $_POST["date"];
+        $comment = $_POST["comment"];
         
-        // add referrals to Referral table
-        $result = mysql_query($query);
+        // add referrals to Referral table: one for each friend in uidFriends
+        if ($numFriends > 0) {
+            $q = "INSERT INTO Referrals VALUES ";
+            for ($i = 0; $i < $numFriends; $i++) {
+                $uidFriend = $uidFriends->$i;
+               $q = "$q (NULL, $uid, $uidFriend, \"$date\", 0, \"$comment\"),";
+            }
 
-        // parse string to get elements of query necessary to find rid
-        $q2 = str_replace("INSERT INTO Referrals VALUES ","",$query);
-        
-        // get rid of initial parenthesis
-        $queryElements = explode("),(NULL,",$q2);
-        $queryElements[0] = str_replace("(NULL,","",$queryElements[0]);
-        
-        // get rid of final parenthesis
-        $numRows = count($queryElements);
-        $queryElements[$numRows-1] = substr($queryElements[$numRows-1],0,-1);
-        
-        foreach ($queryElements as $row) {
-            // separate string into uid1, uid2, date, lid, comment
-            $rowElements = explode(",",$row);
-            $uid1 = $rowElements[0];
-            $uid2 = $rowElements[1];
-            $date = $rowElements[2];
-            $lid = $rowElements[3];
-            $comment = $rowElements[4];
+            // delete last comma
+            $q = substr($q,0,-1);
             
-            // get RID that was just inserted into Referrals table
-            $getRIDquery = "SELECT rid FROM Referrals WHERE uid1 = $uid1 AND uid2 = $uid2 AND date = $date AND lid = $lid AND comment = $comment";
-            $result = mysql_query($getRIDquery);
-            $resultRow = mysql_fetch_row($result);
-            $rid = $resultRow[0];
+            $result = mysql_query($q);
+            if (!$result) {
+                echo "Referral could not be processed";
+                return;
+            }
             
-            // add new row to ReferralDetails table using this rid and the vid
-            $addReferralDetailQuery = "INSERT INTO ReferralDetails VALUES ($rid,\"$id\",0,0)";
-            echo $addReferralDetailQuery;
-            mysql_query($addReferralDetailQuery);
+            // get RID that was just inserted into Referrals table and build query for adding to referral details: one for each friend
+            $addReferralDetailQuery = "INSERT INTO ReferralDetails VALUES ";
+            for ($i = 0; $i < $numFriends; $i++) {
+                $uidFriend = $uidFriends->$i;
+                $getRIDquery = "SELECT rid FROM Referrals WHERE uid1 = $uid AND uid2 = $uidFriend AND date = \"$date\" AND lid = 0 AND comment = \"$comment\"";
+                $result = mysql_query($getRIDquery);
+                if (!$result) {
+                    echo "Referral could not be processed";
+                    return;
+                }
+                $resultRow = mysql_fetch_row($result);
+                $rid = $resultRow[0];
+                $addReferralDetailQuery = "$addReferralDetailQuery ($rid,\"$id\",0,0),";
+            }
+            
+            // delete last comma
+            $addReferralDetailQuery = substr($addReferralDetailQuery,0,-1);
+            
+            $result = mysql_query($addReferralDetailQuery);
+            if (!$result) {
+                echo "Referral could not be processed";
+                return;
+            }
         }
+        return false;
     }
     
     // add vendor to db: called when a vendor is added to a list or referred to a friend
@@ -159,18 +171,31 @@ class search_vendors_model extends CI_Model {
         $icon = $_POST["icon"];
         $rating = $_POST["rating"];
         
-        // add vendor to vendor database if it does not exist yet
+        // find if vendor exists in db yet
         $existingVendorQuery = "SELECT id 
             FROM Vendors 
             WHERE id = \"$id\"";
         $existingVendorResult = mysql_query($existingVendorQuery);
+        if (!$existingVendorResult) {
+            echo "Could not add vendor";
+            return;
+        }
+        
         $count = mysql_num_rows($existingVendorResult);
+        
+        // add to vendor db if it does not exist yet
         if ($count == 0) {
            $addVendorQuery = "INSERT INTO Vendors 
                            VALUES (\"$name\",\"$reference\",\"$id\",$lat,$lng,\"$phone\",\"$addr\",\"$addrNum\",\"$addrStreet\",\"$addrCity\",\"$addrState\",\"$addrCountry\",\"$addrZip\",\"$vicinity\",\"$website\",\"$icon\",$rating)";
-            echo "\n\nquery: $addVendorQuery";
-            mysql_query($addVendorQuery);
+            $result = mysql_query($addVendorQuery);
+            if (!$result) {
+                echo "Could not add vendor";
+                return;
+            }
         }
+        
+        // return false if everything worked correctly
+        echo false;
     }
 
 }

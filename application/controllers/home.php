@@ -36,6 +36,9 @@ class Home extends CI_Controller {
 
         // andy's merge
         $data['inboxItems'] = $this->manage_referral_model->load_inbox_items($currentUserData);
+//        $data['friendActivityItems'] = $this->manage_referral_model->get_friend_activity($currentUserData);
+        $data['friendActivityItems'] = $this->manage_referral_model->load_friend_activity_items($currentUserData);
+
 
         $this->load->view('home_view', $data);
     }

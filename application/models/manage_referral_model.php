@@ -109,81 +109,7 @@ class Manage_Referral_Model extends CI_Model {
         $this->db->insert('ReferralDetails', $newReferralDetail);
     }
 
-    /*
-     * get_inbox_items
-     * 
-     * inputs: uid2 (receiving user)
-     * action: retrieve recent 10 items related data to the referral (lid, comment, rid)
-     * return: result()
-     * 
-     * 
-     */
-    public function get_inbox_items($data)
-    {
-        // should get uidRecipient from session
-        $uidRecipient = $data['uid'];
-        $rowStart = $data['rowStart'];
-        $rowsRequested = $data['rowsRequested'];
-        
-        $this->db->select('*, UserLists.name AS UserListsName, Vendors.name AS VendorsName, 
-            Referrals.comment AS ReferralsComment, Referrals.date AS refDate');
-        $this->db->from('Referrals');
-        $this->db->join('Users', 'Users.uid = Referrals.uid1', 'left');
-        $this->db->join('ReferralDetails', 'ReferralDetails.rid = Referrals.rid', 'left');
-        $this->db->join('UserLists', 'UserLists.lid = Referrals.lid', 'left');
-        $this->db->join('Vendors', 'Vendors.id = ReferralDetails.vid', 'left');
-        
-        // the following code limits query result to only 10 rows
-        $this->db->order_by('refDate', 'desc');
-        
-        // FOR NOW TESTING, only load THREE
-        $this->db->limit($rowsRequested, $rowStart);
-        
-        $this->db->where('uid2', $uidRecipient);
-        
-        
-        $result = $this->db->get()->result();
-
-        // result needs to be formatted to include an array of likes and comments
-        foreach($result as $row)
-        {
-            $rid = $row->rid;
-            
-            // retrieve a 'Likes' array of uid's
-            $this->db->select('*');
-            $this->db->from('Likes');
-            $this->db->where('rid', $rid);
-            $LikesList = $this->db->get()->result();
-          
-            $row->LikesList = array("LikesList" => $LikesList);
-            
-            // retrieve a 'Comments' with uid's
-            $this->db->select('*');
-            $this->db->from('Comments');
-            $this->db->join('Users', 'Users.uid = Comments.uid', 'left');
-            $this->db->order_by('date', 'asc');
-            $this->db->where('rid', $rid);
-            $CommentsList = $this->db->get()->result();
-            
-            $row->CommentsList = array("CommentsList" => $CommentsList);
-            
-            // add whether the user has Liked the status or not
-            $this->db->from('Likes');
-            $this->db->where('rid', $rid);
-            $this->db->where('uid', $uidRecipient);
-            
-            if ($this->db->count_all_results() == 0)
-            {
-                $row->alreadyLiked = "0";
-            } else {
-                // user has already liked it
-                $row->alreadyLiked = "1";
-            }
-        }
-        
-        return $result;
-    }
-    
+   
     public function get_friends_items($data)
     {
         // should get uidRecipient from session
@@ -208,29 +134,82 @@ class Manage_Referral_Model extends CI_Model {
         }
 
         // get appropriate query holding array of referrals
-        $this->db->select('*, UserLists.name AS UserListsName, Vendors.name AS VendorsName, 
-            Referrals.comment AS ReferralsComment, Referrals.date AS refDate');
-        $this->db->from('Referrals');
-        $this->db->join('Users', 'Users.uid = Referrals.uid1', 'left');
-        $this->db->join('ReferralDetails', 'ReferralDetails.rid = Referrals.rid', 'left');
-        $this->db->join('UserLists', 'UserLists.lid = Referrals.lid', 'left');
-        $this->db->join('Vendors', 'Vendors.id = ReferralDetails.vid', 'left');
+        $this->db->select('*, Referrals.comment AS ReferralsComment, Referrals.date AS refDate');
         
-        // the following code limits query result to only 10 rows
-        $this->db->order_by('refDate', 'desc');
+        $this->db->from('Referrals');
+        $this->db->join('Users', 'Users.uid = Referrals.uid1');
+       
+        // the following code limits query result
+        $this->db->order_by('Referrals.date', 'desc');
         
         // FOR NOW TESTING, only load THREE
         $this->db->limit($rowsRequested, $rowStart);
         
-        $where = "uid1 IN (" . implode(",", $friendArray) . ") OR uid2 IN (" . implode(",", $friendArray) . ")";
+        $where = "(uid1 != " . $uidRecipient . " AND " . "uid2 != " . $uidRecipient . ") AND ( uid1 IN (" . implode(",", $friendArray) . ") OR uid2 IN (" . implode(",", $friendArray) . ") )";
         $this->db->where($where);
         
         $result = $this->db->get()->result();
 
+
         // result needs to be formatted to include an array of likes and comments
         foreach($result as $row)
         {
+            // get the array of vendor detail(s)
             $rid = $row->rid;
+            $lid = $row->lid;
+            $VendorList = array();
+            
+            if ( $lid != 0 ) {
+                // if the referral is a list
+                $this->db->select('*');
+                $this->db->from('Lists');
+                $this->db->where('lid', $lid);
+                $vidList = $this->db->get()->result();
+                
+                foreach($vidList as $vidRow)
+                {
+                    $vid = $vidRow->vid;
+                    
+                    $this->db->select('*');
+                    $this->db->from('Vendors');
+                    $this->db->where('id', $vid);
+                    
+                    $vendorDetails = $this->db->get()->result();
+                    
+                    if($vendorDetails[0] === NULL ) {
+                    } else {
+                        $VendorList[] = $vendorDetails;
+                    }
+                }
+                
+                // retrieve userlist name and details
+                $this->db->select('*');
+                $this->db->from('UserLists');
+                $this->db->where('lid', $lid);
+                
+                $row->UserList = $this->db->get()->result();
+                
+            } else {
+                // if the referral is single vendor, then
+                $this->db->select('*');
+                $this->db->from('ReferralDetails');
+                $this->db->where('ReferralDetails.rid', $rid);
+                
+                // ReferralDetails is an associative array that holds the vendor information
+                $ReferralDetails = $this->db->get()->result();
+                                
+                $vid = $ReferralDetails[0]->vid;
+                
+                $this->db->select('*');
+                $this->db->from('Vendors');
+                $this->db->where('id', $vid);
+                
+                $vendorDetails = $this->db->get()->result();
+                
+                $VendorList[0] = $vendorDetails;        
+            }
+            
+            $row->VendorList = array("VendorList" => $VendorList);
             
             // retrieve a 'Likes' array of uid's
             $this->db->select('*');
@@ -262,7 +241,8 @@ class Manage_Referral_Model extends CI_Model {
                 // user has already liked it
                 $row->alreadyLiked = "1";
             }
-
+            
+            
             // add recipient detail information
             $recipientUid = $row->uid2;
             $this->db->select('*');
@@ -271,12 +251,164 @@ class Manage_Referral_Model extends CI_Model {
             $RecipientDetails = $this->db->get()->result();
 
             $row->RecipientDetails = array("RecipientDetails" => $RecipientDetails);
+            
+        }
+        return $result;
+    }
+    
+    
+    
+    /*
+     * get_inbox_items
+     * 
+     * inputs: uid2 (receiving user)
+     * action: retrieve recent 10 items related data to the referral (lid, comment, rid)
+     * return: result()
+     * 
+     * 
+     */
+    public function get_inbox_items($data)
+    {
+        // should get uidRecipient from session
+        $uidRecipient = $data['uid'];
+        $rowStart = $data['rowStart'];
+        $rowsRequested = $data['rowsRequested'];
+        
+        $this->db->select('*, Referrals.comment AS ReferralsComment, Referrals.date AS refDate');
+        
+        $this->db->from('Referrals');
+        $this->db->join('Users', 'Users.uid = Referrals.uid1');
+       
+        // the following code limits query result
+        $this->db->order_by('Referrals.date', 'desc');
+        $this->db->limit($rowsRequested, $rowStart);
+        $this->db->where('Referrals.uid2', $uidRecipient);
+        
+        $result = $this->db->get()->result();
 
+        //var_dump($result);
+        
+        // result needs to be formatted to include an array of likes and comments
+        foreach($result as $row)
+        {
+            // get the array of vendor detail(s)
+            $rid = $row->rid;
+            $lid = $row->lid;
+            $VendorList = array();
+            
+            if ( $lid != 0 ) {
+                // if the referral is a list
+                $this->db->select('*');
+                $this->db->from('Lists');
+                $this->db->where('lid', $lid);
+                $vidList = $this->db->get()->result();
+                
+                foreach($vidList as $vidRow)
+                {
+                    $vid = $vidRow->vid;
+                    
+                    $this->db->select('*');
+                    $this->db->from('Vendors');
+                    $this->db->where('id', $vid);
+                    
+                    $vendorDetails = $this->db->get()->result();
+                    
+                    // make sure that there is a corresponding record in
+                    // referral details
+                    if($vendorDetails) {
+                        if($vendorDetails[0] === NULL ) {
+                        } else {
+                            $VendorList[] = $vendorDetails;
+                        }
+                    }
+                }
+                
+                // retrieve userlist name and details
+                $this->db->select('*');
+                $this->db->from('UserLists');
+                $this->db->where('lid', $lid);
+                
+                $row->UserList = $this->db->get()->result();
+                
+            } else {
+                // if the referral is single vendor, then
+                $this->db->select('*');
+                $this->db->from('ReferralDetails');
+                $this->db->where('ReferralDetails.rid', $rid);
+                
+                // ReferralDetails is an associative array that holds the vendor information
+                $ReferralDetails = $this->db->get()->result();
+                                
+                $vid = $ReferralDetails[0]->vid;
+                
+                $this->db->select('*');
+                $this->db->from('Vendors');
+                $this->db->where('id', $vid);
+                
+                $vendorDetails = $this->db->get()->result();
+                
+                $VendorList[0] = $vendorDetails;        
+            }
+            
+            $row->VendorList = array("VendorList" => $VendorList);
+            
+            // retrieve a 'Likes' array of uid's
+            $this->db->select('*');
+            $this->db->from('Likes');
+            $this->db->where('rid', $rid);
+            $LikesList = $this->db->get()->result();
+          
+            $row->LikesList = array("LikesList" => $LikesList);
+            
+            // retrieve a 'Comments' with uid's
+            $this->db->select('*');
+            $this->db->from('Comments');
+            $this->db->join('Users', 'Users.uid = Comments.uid', 'left');
+            $this->db->order_by('date', 'asc');
+            $this->db->where('rid', $rid);
+            $CommentsList = $this->db->get()->result();
+            
+            $row->CommentsList = array("CommentsList" => $CommentsList);
+            
+            // add whether the user has Liked the status or not
+            $this->db->from('Likes');
+            $this->db->where('rid', $rid);
+            $this->db->where('uid', $uidRecipient);
+            
+            if ($this->db->count_all_results() == 0)
+            {
+                $row->alreadyLiked = "0";
+            } else {
+                // user has already liked it
+                $row->alreadyLiked = "1";
+            }
         }
         
         //var_dump($result);
-
+        
         return $result;
+    }
+    
+    /*
+     * remove_empty_elements
+     * 
+     * given input array, this will remove all empty elements in that array
+     * 
+     */
+    public function remove_empty_elements()
+    {
+        $array = array(0, 1, 2, 3);
+        
+        $index = 0;
+        foreach($array as $element)
+        {
+           if(!$element)
+           {
+               unset($array[$index]);
+           }
+           $index++;
+        }
+        $array = array_values($array);
     }
  
     /*
@@ -292,8 +424,7 @@ class Manage_Referral_Model extends CI_Model {
     {
         $data['rowStart'] = $this->input->post('rowStart');
         $data['rowsRequested'] = 3;
-        return $this->get_inbox_items($data);
-        
+        return $this->get_inbox_items($data);        
     }
     
     public function load_inbox_items($data)
@@ -302,10 +433,23 @@ class Manage_Referral_Model extends CI_Model {
         $data['rowsRequested'] = 3;
         return $this->get_inbox_items($data);
     }
+    
+    public function get_more_friend_activity($data)
+    {
+        $newData['uid'] = $data['uid'];
+        $newData['rowStart'] = $this->input->post('rowStart');
+        $newData['rowsRequested'] = 3;
+        return $this->get_friends_items($newData);
+    }
 
-
-
-
+    public function load_friend_activity_items($data)
+    {
+        $newData['uid'] = $data['uid'];
+        $newData['rowStart'] = 0;
+        $newData['rowsRequested'] = 3;
+        return $this->get_friends_items($newData);
+    }
+    
     /*
      * add_new_comment
      * 
@@ -442,16 +586,7 @@ class Manage_Referral_Model extends CI_Model {
         return $this->db->count_all_results();
     }
     
-    public function get_news_feed($data)
-    {
-      //echo "get news feed";
-      $uid = $data['uid'];
-      $newData['uid'] = $data['uid'];
-      $newData['rowStart'] = 0;
-      $newData['rowsRequested'] = 3;
 
-      return $this->get_friends_items($newData);
-    }
 
 }
 

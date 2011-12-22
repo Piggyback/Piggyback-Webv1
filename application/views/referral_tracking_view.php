@@ -14,8 +14,9 @@
     <script type="text/javascript">
             
     $(document).ready(function() {
-        get_likes();
-        get_comments();
+//        get_likes();
+//        get_comments();
+        loadReferralTracking();
     });
     
     function get_likes() {
@@ -44,7 +45,16 @@
         });
     }
     
-    
+    function loadReferralTracking() {
+        var loadStart = 3;
+
+        jQuery.post('referral_tracking/get_referral_tracking', function(data) {
+            var parsedJSON = jQuery.parseJSON(data);
+            alert(parsedJSON);
+//            displayMoreReferrals(parsedJSON);
+//            loadStart = loadStart+3;
+        });
+}
     
     </script>
     </body>

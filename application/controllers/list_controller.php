@@ -41,9 +41,13 @@ class List_controller extends CI_Controller {
     public function delete_vendor_from_list() {
         $this->list_model->delete_vendor_from_list();
     }
-    
+
     public function refer_list() {
         $this->list_model->refer_list();
+    }
+
+    public function edit_vendor_comment() {
+        $this->list_model->edit_vendor_comment();
     }
 }
 

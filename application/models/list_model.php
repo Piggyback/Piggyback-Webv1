@@ -47,6 +47,7 @@ class List_model extends CI_Model {
     }
 
     // add vendor to existing list -- pass lid that you want to add to, vid to add, date, and comment for vendor
+    // if vendor is already in list, return error messags
     function add_vendor_to_list() {
 
         $lid = $_POST["lid"];
@@ -57,11 +58,16 @@ class List_model extends CI_Model {
         $existsQuery = "SELECT vid FROM Lists WHERE lid=$lid AND vid=\"$vid\"";
 
         $existsResult = mysql_query($existsQuery);
+        if (!$existsResult) {
+            echo "Could not add to list";
+            return;
+        }
         $count = mysql_num_rows($existsResult);
+        
         if ($count == 0) {
             $query = "INSERT INTO Lists VALUES ($lid,\"$vid\",\"$date\",\"$comment\")";
-            $success = mysql_query($query);
-            if (!$success) {
+            $result = mysql_query($query);
+            if (!$result) {
                 echo "Could not add to list";
                 return;
             }
@@ -100,28 +106,28 @@ class List_model extends CI_Model {
         $uidFriends = json_decode($_POST["uidFriends"]);
         $date = $_POST["date"];
         $comment = $_POST["comment"];
-                
+
         $q = "INSERT INTO Referrals VALUES ";
         for ($i = 0; $i < $numFriends; $i++) {
            $friendNum = "friend".$i;
            $uidFriend = $uidFriends->$friendNum;
            $q = "$q (NULL, $uid, $uidFriend, \"$date\", $lid, \"$comment\"),";
         }
-        
+
         $q = substr($q,0,-1);
         echo $q;
-              
+
         // run the query to add one entry to the Referral table for each friend referred to the list
         if($numFriends > 0) {
             mysql_query($q);
-            
+
             // get all vendors in the referred list
             $getVendorQuery = "SELECT vid from Lists where lid = $lid";
             $vendorResult = mysql_query($getVendorQuery);
-            
+
             // set up string for adding all rows - one for each vendor in the list, for each friend
             $addRefDetsQuery = "INSERT INTO ReferralDetails VALUES ";
-            
+
             // get RID that was just inserted into Referrals table
             for ($i = 0; $i < $numFriends; $i++) {
                 $friendNum = "friend".$i;
@@ -135,18 +141,27 @@ class List_model extends CI_Model {
                 while($vid = mysql_fetch_row($vendorResult)) {
                     $addRefDetsQuery = "$addRefDetsQuery ($rid,\"$vid[0]\",0,0),";
                 }
-                
+
                 // move pointer to vendor array back to the beginning so it can be traversed again for next friend
                 mysql_data_seek($vendorResult,0);
             }
-            
+
             // remove last comma and run query to add rows to ReferralDetails table
             $addRefDetsQuery = substr($addRefDetsQuery,0,-1);
-            
+
             if(mysql_num_rows($vendorResult) > 0) {
                 echo $addRefDetsQuery;
                 mysql_query($addRefDetsQuery);
             }
         }
+    }
+
+    function edit_vendor_comment() {
+        $newComment = $this->input->post('newComment');
+        $lid = $this->input->post('lid');
+        $vid = $this->input->post('vid');
+
+        $data = array('comment' => $newComment);
+        $this->db->update('Lists', $data, array('lid' => $lid, 'vid' => $vid));
     }
 }

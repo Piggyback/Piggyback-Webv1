@@ -11,6 +11,7 @@
 
 
 $(document).ready(function() {
+    initEnterForm();
     setScrollHeight();
     initTabs();
     initHoverTabs();
@@ -21,12 +22,27 @@ $(document).ready(function() {
     bindReferDialog();
 	bindAutoComplete();
 	bindAddListDialog();
+    bindEditCommentDialog();
 	bindFuzzMike();
 	initAddList();
     searchAJAX();
 
     bindReferDialogList(friendList);
 });
+
+function initEnterForm() {
+    $('.no-enter-submit').keypress(function(e){
+        if (e.which == 13) {
+            e.preventDefault();
+        }
+    });
+
+     $('#edit-list-comment-dialog').keyup(function(e) {
+        if (e.keyCode == 13) {
+            $('#edit-comment-submit').trigger('click');
+        }
+    });
+}
 
 /* functions for $(document).ready */
 function setScrollHeight() {
@@ -220,8 +236,6 @@ function initDeleteVendorFromList() {
         var vid = vid_string.substring(vid_string.indexOf('vid--') + 'vid--'.length);
         var lid_string = $(this).closest(".accordion-list").attr("id");
         var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
-        var row_string = $(this).closest(".accordion-list-header").attr("id");
-        var row = row_string.substring(row_string.indexOf('row--') + 'row--'.length);
 
         // delete vendor from database
         jQuery.post('list_controller/delete_vendor_from_list', {
@@ -254,11 +268,55 @@ function initDeleteVendorFromList() {
 
         return false;
     });
+
+    $('.accordion-edit-comment').click(function() {
+        var editCommentObj = $(this);
+        var vid_string = $(this).attr('id');
+        var vid = vid_string.substring(vid_string.indexOf('vid--') + 'vid--'.length);
+        var lid_string = $(this).closest(".accordion-list").attr("id");
+        var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
+        var vendorName = jQuery.trim($(this).prev().prev().prev(".list-vendor-name").html());
+
+        $('#fuzz').fadeIn();
+        $('#edit-list-comment-dialog').dialog('option', 'title', 'Edit comment for ' + vendorName);
+
+        $('#edit-list-comment-dialog').dialog('option', 'buttons', {
+            "Submit": {
+                text: "Submit",
+                id: 'edit-comment-submit',
+                click: function() {
+                    var newComment = jQuery.trim($('.edit-list-comment-value').val());
+                    // change comment in database
+                    jQuery.post('list_controller/edit_vendor_comment', {
+                        lid: lid,
+                        vid: vid,
+                        newComment: newComment
+                    }, function() {
+                        // change comment in HTML
+                        editCommentObj.prev('.vendor-list-comment').html(newComment);
+                        var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
+                        var parsedJSON = jQuery.parseJSON(htmlString);
+                        for (var i=0; i<parsedJSON.length; i++) {
+                            if (parsedJSON[i].vid == vid) {
+                                parsedJSON[i].comment = newComment;
+                            }
+                        }
+                        var json_text = JSON.stringify(parsedJSON, null, 2);
+                        $('#list-content-lid--' + lid).html(json_text);
+
+                        $('#edit-list-comment-dialog').dialog('close');
+                    });
+                }
+            }
+        });
+
+        $('#edit-list-comment-dialog').dialog('open');
+
+        return false;
+    });
 }
 
 function addContentToAccordionTemplate(lid, parsedJSON) {
-//    alert(parsedJSON.length);
-//    alert(parsedJSON[parsedJSON.length-1].name);
 	if (parsedJSON.length == 0) {
 		return "";
 	} else {
@@ -268,9 +326,15 @@ function addContentToAccordionTemplate(lid, parsedJSON) {
 			"<div>" +
 				"<div id='accordion-list-header-row--" + i + "' class='accordion-list-header'>" +
                     "<a href='#' class='accordion-list-anchor'>" +
-                    parsedJSON[i].name +
+                        "<div class='list-vendor-name'>" +
+                            parsedJSON[i].name +
+                        "</div>" +
                         "<div id='accordion-remove-vid--" + parsedJSON[i].vid + "' class='accordion-remove no-accordion'>" +
-                        "remove" +
+                            "remove" +
+                        "</div>" +
+                        "<div class='vendor-list-comment'>" + parsedJSON[i].comment + "</div>" +
+                        "<div id='accordion-edit-comment-vid--" + parsedJSON[i].vid + "' class='accordion-edit-comment no-accordion'>" +
+                            "edit comment" +
                         "</div>" +
                     "</a>" +
                 "</div>" +
@@ -358,7 +422,7 @@ function clickAddListButton() {
 }
 
 // create the refer friends popup box. when you close the box, all values reset to blank
-function bindAddListDialog(friendList) {
+function bindAddListDialog() {
     var windowHeight = window.innerHeight;
     var windowWidth = window.innerWidth;
 
@@ -374,11 +438,30 @@ function bindAddListDialog(friendList) {
             beforeClose: function() {
               	// reset all values in pop up to blank
 				$('#add-list-name').val('');
-				$('#add-list-comment').val('');
 
                 // fade out dark background
                 $("#fuzz").fadeOut();
             }
+    });
+}
+
+function bindEditCommentDialog() {
+    var windowHeight = window.innerHeight;
+    var windwWidth = window.innerWidth;
+
+    $('#edit-list-comment-dialog').dialog({
+        autoOpen: false,
+        width: 400,
+        height: 200,
+        closeOnEscape: true,
+        show: 'drop',
+        hide: 'drop',
+        resizable: true,
+        beforeClose: function() {
+            $('.edit-list-comment-value').val('');
+
+            $('#fuzz').fadeOut();
+        }
     });
 }
 
@@ -388,6 +471,12 @@ function bindFuzzMike() {
 			$('#add-list-dialog').dialog("close");
 		}
 	});
+
+    $(document).on('click', '#fuzz', function() {
+        if($('#edit-list-comment-dialog').dialog('isOpen')) {
+            $('#edit-list-comment-dialog').dialog('close');
+        }
+    });
 }
 
 function initAddList() {
@@ -425,7 +514,6 @@ function initAddList() {
 		return false;
 	});
 }
-
 
 function searchAJAX() {
     // merge kim's search with home shell
@@ -483,6 +571,56 @@ function searchAJAX() {
 
         return false;
     });
+}
+
+function loadReferralTracking() {
+    jQuery.post('referral_tracking/get_referral_tracking', function(data){
+        var parsedJSON = jQuery.parseJSON(data);
+
+        displayReferralTracking(parsedJSON);
+    });
+}
+
+function displayReferralTracking(parsedJSON) {
+    var htmlString = "<div id='referral-tracking'><div id='accordion-referral-tracking' class='accordion-object'>";
+    var likeNumber = 0;
+    var likeStatus = "";
+
+    for (var i=0; i<parsedJSON.length; i++) {
+        likeNumber = parsedJSON[i].LikesList['LikesList'].length;
+        if (likeNumber > 0) {
+            if (likeNumber == 1) {
+                likeNumber = likeNumber + " person likes this.";
+            } else {
+                likeNumber = likeNumber + " people like this.";
+            }
+        } else {
+            likeNumber = "";
+        }
+
+        if (parsedJSON[i].alreadyLiked==1) {
+            likeStatus = "Unlike";
+        } else {
+            likeStatus = "Like";
+        }
+
+        htmlString = htmlString +
+            "<div class='inbox-single-wrapper accordion-header'>" +
+                "<div class='referral-date'>" +
+                    parsedJSON[i].refDate +
+                "</div>" +
+                "<a>" +
+                    parsedJSON[i].name +
+                "</a>" +
+            "</div>";
+
+    //    $('#referral-tracking-content').html(htmlString);
+    }
+    htmlString = htmlString + "</div></div>";
+    $('#referral-tracking-content').html(htmlString);
+
+    bindAccordionInbox();
+    overrideAccordionEvent();
 }
 
 function fbAPI() {

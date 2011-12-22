@@ -95,7 +95,6 @@ function bindAddFriend() {
                   }
                   else {
                       friendList.splice(0,0,allFriends[i]);
-                      //friendList.push(allFriends[i]);
                       displayAddedFriends(friendList);
                   }
                   break;
@@ -115,7 +114,6 @@ function bindAddFriend() {
 function bindReferDialogLink(friendList, vendorData) {
     // Dialog Link
     $('.refer-popup-link').click(function(){
-        alert("clicked");
         // get id of the vendor, which is the id of the pop up button
         var vendorID = $(this).attr('id');
         var vendorName;
@@ -149,25 +147,33 @@ function bindReferDialogLink(friendList, vendorData) {
                     alert("You did not select any friends to refer. Please try again.");
                 }
                 else {
-                    // create query for inserting row
-                    var addReferralQuery = "INSERT INTO Referrals VALUES ";
-                    for (var i = 0; i < friendList.length; i++){
-                        var now = new Date();
-                        now = now.format("yyyy-mm-dd HH:MM:ss");
-                        var comment = $('#comment-box').val();
-                        var friendUID = friendList[i]['uid'];
-                        addReferralQuery = addReferralQuery + "(NULL," + myUID + "," + friendUID + ",\"" + now + "\",0,\"" + comment + "\"),";
-                        alert(addReferralQuery);
-                }
-                    addReferralQuery = addReferralQuery.slice(0,-1);
-
-                    // perform query to add referrals to database
+                    var now = new Date();
+                    now = now.format("yyyy-mm-dd HH:MM:ss");
+                    var comment = $('#comment-box').val();
+                    
+                    // create list of friend uid's to refer to
+                    var uidFriendsObj = {};
+                    for (var i = 0; i < friendList.length; i++) {
+                        uidFriendsObj[i] = friendList[i].uid;
+                    }
+                    var uidFriendsStr = JSON.stringify(uidFriendsObj);
+                    
+                    // perform query to add referrals to Referrals and ReferralDetails databases
                     jQuery.post('searchvendors/add_referral',{
-                        q: addReferralQuery,
+                        myUID: myUID,
+                        date: now,
+                        comment: comment,
+                        numFriends: friendList.length,
+                        uidFriends: uidFriendsStr,
                         id: vendor.id
-                    }, function() {
-                        addVendorToDB(vendor);
-                        $('#dialog').dialog("close");
+                    }, function(data) {
+                        if (data) {
+                            alert(data);
+                        }
+                        else {
+                            addVendorToDB(vendor);
+                            $('#dialog').dialog("close");
+                        }
                     });
                 }
             }
@@ -178,6 +184,7 @@ function bindReferDialogLink(friendList, vendorData) {
     });
 }
 
+// when you click on the 'add to list' button, show the dialog
 function bindAddToListDialogLink(vendorData) {
     $('.add-to-list-popup-link').click(function(){
         // get id of the vendor, which is the id of the pop up
@@ -286,7 +293,6 @@ $("#accordion-search").addClass("ui-accordion ui-widget ui-helper-reset ui-accor
 function getFriends() {
     jQuery.post('searchvendors/get_friends', function(data) {
           var parsedJSON = jQuery.parseJSON(data);
-          //var friendTags = parsedJSON.friendTags;
           myUID = parsedJSON.myUID;
           friends = parsedJSON.allFriendsArray;
           allFriends = new Array();
@@ -468,15 +474,12 @@ function bindDropDownChange() {
                                "<input type='text' name='newListName' class='box' id='new-list-name'/><BR><BR>";
               $('#add-to-new-list').html(addNewHTML);
           }
-          else {
-              $('#add-to-new-list').html('');
-          }
     });
 }
 
 // display vendor search results in accordion
 function displaySearchResults(vendorData) {
-    // add rows to accordion
+    // add search result rows to accordion
     var htmlString = "<div id='accordion-search'>";
 
     for (var i=0; i<vendorData.length; i++) {
@@ -510,7 +513,6 @@ function displaySearchResults(vendorData) {
     displayAutoCompleteResults(allFriends);
 
     // initialize popup box for referring friends to a vendor
-//    bindAddFriend();
     bindReferDialogLink(friendList, vendorData);
     bindAccordion();
 
@@ -535,8 +537,8 @@ function displayAddedFriends(friendList) {
 
     // bind x on added friends to delete row
     $('table tr img.delete').click(function() {
-         var friendNameToRemove = $(this).parent().prev().prev().html();
-         var fbid = friendNameToRemove.split("/")[3];
+         var friendToRemove = $(this).parent().prev().prev().html();
+         var fbid = friendToRemove.split("/")[3];
 
          $(this).parent().parent().remove();
          var indexOfRemovedFriend;
@@ -550,6 +552,7 @@ function displayAddedFriends(friendList) {
      });
 }
 
+// add vendor to db whenever the vendor is added to a list or is referred to a friend
 function addVendorToDB(vendor) {
     jQuery.post('searchvendors/add_vendor', {
         name: vendor.name,
@@ -569,11 +572,17 @@ function addVendorToDB(vendor) {
         icon: vendor.icon,
         rating: vendor.rating,
         vicinity: vendor.vicinity
-    }, function() {
-
+    }, function(data) {
+        // alert error if one occurred
+        if (data) {
+            alert(data);
+        }
     });
 }
 
+// from search results, add vendor to an existing or new list
+// update database
+// update mylists sidebar to reflect new vendor/list
 function addVendorToList(lid, vendor) {
 
     //get date
@@ -596,12 +605,13 @@ function addVendorToList(lid, vendor) {
         }
         // if there was no error, then vendor was added to list. close the dialog
         else {
-            // if the div exists, then add on to the stored data
+            // if the div exists for the list, then add on to the stored data for displaying
             if ($('#list-content-lid--' + lid).length) {
                 // get html
                 var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
 
                 // convert vendor array to vendor json object so that it can be stringified (change into json string)
+                // because div data is stored in json format
                 var vendorObj = {};
                 vendorObj.lid = lid;
                 vendorObj.vid = vendor.id;

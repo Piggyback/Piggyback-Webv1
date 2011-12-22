@@ -33,8 +33,8 @@ class referrals extends CI_Controller {
         $currentUserData = $this->session->userdata('currentUserData');
         $this->load->model('manage_referral_model');
 
-        $data['newsFeedItems'] = $this->manage_referral_model->get_news_feed($currentUserData);
-        $this->load->view('news_feed_view', $data);
+        $data['newsFeedItems'] = $this->manage_referral_model->load_friend_activity_items($currentUserData);
+        $this->load->view('friend_activity_view', $data);
     }
 
     /*
@@ -82,6 +82,18 @@ class referrals extends CI_Controller {
         $this->load->model('manage_referral_model');
         
         echo json_encode($this->manage_referral_model->get_more_inbox($currentUserData));
+        //echo 1;
+    }
+        
+    /*
+     * only retrieve X rows from model / mysql
+     * 
+     */
+    public function get_more_friend_activity() {
+        $currentUserData = $this->session->userdata('currentUserData');
+        $this->load->model('manage_referral_model');
+        
+        echo json_encode($this->manage_referral_model->get_more_friend_activity($currentUserData));
         //echo 1;
     }
     

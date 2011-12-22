@@ -231,7 +231,7 @@ a, a:visited, .link {
     font-size: 13px;
     line-height: 21px;
     margin-right: auto;
- //   cursor: pointer;
+    cursor: pointer;
 }
 
 #lists li {
@@ -282,6 +282,27 @@ a, a:visited, .link {
     text-align: right;
     width: auto;
     color: #b8b7b7;
+}
+
+.vendor-list-comment {
+    display: inline;
+    font-size: 0.75em;
+    line-height: 200%;
+}
+
+.accordion-edit-comment {
+    display: inline;
+    right: 10px;
+    top: 31px;
+    width: auto;
+    float: right;
+    color: #b8b7b7;
+    font-size: 0.75em;
+    line-height: 200%;
+}
+
+.accordion-list-header {
+    height: 60px;
 }
 
 /*content*/
@@ -361,10 +382,10 @@ a, a:visited, .link {
 }
 
 #popup-widget {
-    width:300p;
+    width:300px;
     height:100px;
     float:left;
-    margin-buttom:10px;
+    margin-bottom:10px;
 }
 
 #comment-area {
