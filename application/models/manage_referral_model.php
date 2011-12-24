@@ -152,7 +152,7 @@ class Manage_Referral_Model extends CI_Model {
 
 
         // result needs to be formatted to include an array of likes and comments
-        foreach($result as $row)
+        foreach($result as $key => $row)
         {
             // get the array of vendor detail(s)
             $rid = $row->rid;
@@ -176,9 +176,15 @@ class Manage_Referral_Model extends CI_Model {
                     
                     $vendorDetails = $this->db->get()->result();
                     
-                    if($vendorDetails[0] === NULL ) {
+                    if($vendorDetails) {
+                        if($vendorDetails[0] === NULL ) {
+                        } else {
+                            $VendorList[] = $vendorDetails;
+                        }
                     } else {
-                        $VendorList[] = $vendorDetails;
+                        // empty list,
+                        // remove element from set
+                        unset($result[$key]);
                     }
                 }
                 
@@ -197,16 +203,25 @@ class Manage_Referral_Model extends CI_Model {
                 
                 // ReferralDetails is an associative array that holds the vendor information
                 $ReferralDetails = $this->db->get()->result();
-                                
-                $vid = $ReferralDetails[0]->vid;
                 
-                $this->db->select('*');
-                $this->db->from('Vendors');
-                $this->db->where('id', $vid);
-                
-                $vendorDetails = $this->db->get()->result();
-                
-                $VendorList[0] = $vendorDetails;        
+                if($ReferralDetails) {
+                    $vid = $ReferralDetails[0]->vid;
+
+                    $this->db->select('*');
+                    $this->db->from('Vendors');
+                    $this->db->where('id', $vid);
+
+                    $vendorDetails = $this->db->get()->result();
+
+                    if($vendorDetails) {
+                        if($vendorDetails[0] === NULL ) {
+                        } else {
+                            $VendorList[0] = $vendorDetails;
+                        }
+                    }    
+                } else {
+                    unset($result[$key]);
+                }
             }
             
             $row->VendorList = array("VendorList" => $VendorList);
@@ -285,11 +300,14 @@ class Manage_Referral_Model extends CI_Model {
         $this->db->where('Referrals.uid2', $uidRecipient);
         
         $result = $this->db->get()->result();
-
-        //var_dump($result);
         
+        // need to check whether it has reached the end.
+        // can retrieve three additional unique records?
+        // if so, proceed
+        // otherwise, stop and return error
+
         // result needs to be formatted to include an array of likes and comments
-        foreach($result as $row)
+        foreach($result as $key => $row)
         {
             // get the array of vendor detail(s)
             $rid = $row->rid;
@@ -320,6 +338,8 @@ class Manage_Referral_Model extends CI_Model {
                         } else {
                             $VendorList[] = $vendorDetails;
                         }
+                    } else {
+                        unset($result[$key]);
                     }
                 }
                 
@@ -339,15 +359,26 @@ class Manage_Referral_Model extends CI_Model {
                 // ReferralDetails is an associative array that holds the vendor information
                 $ReferralDetails = $this->db->get()->result();
                                 
-                $vid = $ReferralDetails[0]->vid;
-                
-                $this->db->select('*');
-                $this->db->from('Vendors');
-                $this->db->where('id', $vid);
-                
-                $vendorDetails = $this->db->get()->result();
-                
-                $VendorList[0] = $vendorDetails;        
+                if($ReferralDetails) {
+                    $vid = $ReferralDetails[0]->vid;
+
+                    $this->db->select('*');
+                    $this->db->from('Vendors');
+                    $this->db->where('id', $vid);
+
+                    $vendorDetails = $this->db->get()->result();
+
+                    if($vendorDetails) {
+                        if($vendorDetails[0] === NULL ) {
+                        } else {
+                            $VendorList[0] = $vendorDetails;
+                        }
+                    }
+                } else {
+                    // if no corresponding record in referralDetails
+                    // remove self from array
+                    unset($result[$key]);
+                }
             }
             
             $row->VendorList = array("VendorList" => $VendorList);

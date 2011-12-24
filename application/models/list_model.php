@@ -106,34 +106,57 @@ class List_model extends CI_Model {
         $uidFriends = json_decode($_POST["uidFriends"]);
         $date = $_POST["date"];
         $comment = $_POST["comment"];
-
+        
+        // nonduplicate friends that you are referring this list to
+        $newFriends = array();
+        
         $q = "INSERT INTO Referrals VALUES ";
         for ($i = 0; $i < $numFriends; $i++) {
-           $friendNum = "friend".$i;
-           $uidFriend = $uidFriends->$friendNum;
-           $q = "$q (NULL, $uid, $uidFriend, \"$date\", $lid, \"$comment\"),";
+           $uidFriend = $uidFriends->$i;
+           $existsQuery = "SELECT rid FROM Referrals WHERE uid1 = $uid AND uid2 = $uidFriend AND lid = $lid";
+           $result = mysql_query($existsQuery);
+           if (!$result) {
+               echo "Referral could not be processed";
+               return;
+           }
+           // if you have not yet referred this friend to this list, then add them onto the query
+           // TODO: right now, it does not notify you if you have referred some of the friends to the list already
+           if (mysql_num_rows($result) == 0) {
+               array_push($newFriends,$uidFriend);
+               $q = "$q (NULL, $uid, $uidFriend, \"$date\", $lid, \"$comment\"),";
+           }
         }
 
         $q = substr($q,0,-1);
-        echo $q;
 
         // run the query to add one entry to the Referral table for each friend referred to the list
-        if($numFriends > 0) {
-            mysql_query($q);
+        if(count($newFriends) > 0) {
+            $result = mysql_query($q);
+            if (!$result) {
+                echo "Referral could not be processed";
+                return;
+            }
 
             // get all vendors in the referred list
             $getVendorQuery = "SELECT vid from Lists where lid = $lid";
             $vendorResult = mysql_query($getVendorQuery);
+            if (!$vendorResult) {
+                echo "Could not retrieve vendors in referred list";
+                return;
+            }
 
             // set up string for adding all rows - one for each vendor in the list, for each friend
             $addRefDetsQuery = "INSERT INTO ReferralDetails VALUES ";
 
             // get RID that was just inserted into Referrals table
-            for ($i = 0; $i < $numFriends; $i++) {
-                $friendNum = "friend".$i;
-                $uidFriend = $uidFriends->$friendNum;
+            for ($i = 0; $i < count($newFriends); $i++) {
+                $uidFriend = $newFriends[$i];
                 $getRIDquery = "SELECT rid FROM Referrals WHERE uid1 = $uid AND uid2 = $uidFriend AND date = \"$date\" AND lid = $lid AND comment = \"$comment\"";
                 $result = mysql_query($getRIDquery);
+                if (!$result) {
+                    echo "Referral could not be processed";
+                    return;
+                }
                 $resultRow = mysql_fetch_row($result);
                 $rid = $resultRow[0];
 
@@ -150,10 +173,16 @@ class List_model extends CI_Model {
             $addRefDetsQuery = substr($addRefDetsQuery,0,-1);
 
             if(mysql_num_rows($vendorResult) > 0) {
-                echo $addRefDetsQuery;
-                mysql_query($addRefDetsQuery);
+                $result = mysql_query($addRefDetsQuery);
+                if (!$result) {
+                    echo "Referral details could not be processed";
+                    return;
+                }
             }
         }
+        
+        // return false if no errors
+        return false;
     }
 
     function edit_vendor_comment() {

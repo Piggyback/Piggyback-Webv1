@@ -256,13 +256,13 @@ function bindAddToListDialogLink(vendorData) {
 // whenever a letter is typed, check which friends have that string included and add to the list of friends to display
 function bindAutoComplete() {
     $('#tags').keyup(function() {
-        var typedString = document.forms["addFriend"]["friend"].value
+        var typedString = document.forms["addFriend"]["friend"].value.toLowerCase();
         var matchingFriends = [];
         var fullName;
 
         for (var i = 0; i < allFriends.length; i++) {
-            fullName = allFriends[i]['firstName'] + " " + allFriends[i]['lastName'];
-            if (fullName.indexOf(typedString) == 0 || allFriends[i]['lastName'].indexOf(typedString) == 0) {
+            fullName = allFriends[i]['firstName'].toLowerCase() + " " + allFriends[i]['lastName'].toLowerCase();
+            if (fullName.indexOf(typedString) == 0 || allFriends[i]['lastName'].toLowerCase().indexOf(typedString) == 0) {
                 matchingFriends.push(allFriends[i]);
             }
         }
@@ -301,8 +301,8 @@ function getFriends() {
               oneFriend['uid'] = friends[i][0];
               oneFriend['fbid'] = friends[i][1];
               oneFriend['email'] = friends[i][2];
-              oneFriend['firstName'] = friends[i][3].toLowerCase();
-              oneFriend['lastName'] = friends[i][4].toLowerCase();
+              oneFriend['firstName'] = friends[i][3];
+              oneFriend['lastName'] = friends[i][4];
               allFriends.push(oneFriend);
           }
      });
@@ -482,8 +482,36 @@ function displaySearchResults(vendorData) {
     // add search result rows to accordion
     var htmlString = "<div id='accordion-search'>";
 
+    var displayAddr;
     for (var i=0; i<vendorData.length; i++) {
-        var addr = vendorData[i].vicinity.split(",");
+        // use formatted address if available
+        if (vendorData[i].addr != "") {
+            var addr = vendorData[i].addr.split(",");
+            displayAddr = addr[0];
+            if (addr[1] != undefined) {
+                displayAddr = displayAddr + "<br>" + addr[1];
+                if (addr[2] != undefined) {
+                    displayAddr = displayAddr + ", " + addr[2];
+                }
+            }
+        }
+        // otherwise, use vicinity if available
+        else {
+            if (vendorData[i].vicinity != "") {
+                var addr = vendorData[i].vicinity.split(",");
+                if (addr[1] != undefined) {
+                    displayAddr = addr[0] + "<BR>" + addr[1] + " " + vendorData[i].addrState + " " + vendorData[i].addrZip;
+                }
+                else {
+                    displayAddr = addr[0] + "<BR>" + vendorData[i].addrCity + " " + vendorData[i].addrState + " " + vendorData[i].addrZip;
+                }
+            }
+            // otherwise, use individual address components
+            else {
+                displayAddr =  vendorData[i].addrNum + " " + vendorData[i].addrStreet + "<BR>" + 
+                                vendorData[i].addrCity + " " + vendorData[i].addrState + " " + vendorData[i].addrZip;
+            }
+        }
 
         htmlString = htmlString +
             "<div>" +
@@ -491,7 +519,7 @@ function displaySearchResults(vendorData) {
                 "<div> <table class='formatted-table'>" +
                     "<tr>" +
                         "<td class='formatted-table-info'>" +
-                            addr[0] + "<BR>" + addr[1] + ", " + vendorData[i].addrState + " " + vendorData[i].addrZip +
+                            displayAddr + 
                         "</td>" +
                         "<td class='formatted-table-button' align='right'>" +
                             "<p><a href='#' id=" + vendorData[i].id + " class='refer-popup-link dialog_link ui-state-default ui-corner-all'>" +

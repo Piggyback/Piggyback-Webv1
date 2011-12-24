@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -13,17 +12,9 @@
         <script type="text/javascript" src="../assets/js/home_mike_js.js"></script>
         <script type="text/javascript" src="../assets/js/home_andy_js.js"></script>
         <script type="text/javascript" src="../assets/js/home_kim_js.js"></script>
-
         <script type="text/javascript" src="../../assets/jquery-ui-1.8.16.custom/development-bundle/ui/jquery.ui.accordionCustom.js"></script>
+        <?php include "dateTimeDiff.php"; ?>
         
-        <script>
-        // eventually move all javascript code into separate file and call it,
-        // want to expose as little as possible
-        // TODO: migrate js code into separate file @andyjiang #inboxview
-        $(function() {
-           
-        });
-    </script>
     </head>
     
     <body>
@@ -57,6 +48,21 @@
                         }
                         
                         $VendorDetails = $row->VendorList['VendorList'][0][0];
+                        
+                        if ($row->ReferralsComment == "") {
+                            $recommendationComment = $row->firstName . " " . $row->lastName . " thinks you'll love this!";
+                        } else {
+                            $recommendationComment = $row->firstName . " " . $row->lastName . " says \"" . $row->ReferralsComment . "\"";
+                        }
+                        
+                        $data_ref = date('Y-m-d H:i:s', strtotime($row->refDate));
+                        
+                        $dateOfRecord = dateTimeDiff($data_ref);
+                        
+                        if ($dateOfRecord == "") {
+                            $dateOfRecord = date("g:ia, l, F d, y", strtotime($row->refDate));
+                        }
+                        
                     ?>
                     <!-- determine if $row is a list or single vendor -->
                     <?php if ( $row->lid == 0 ):?>
@@ -71,8 +77,7 @@
                     <!-- BEGINNING OF HEADER HERE of the ACCORDION    -->
                         <div class="inbox-single-wrapper accordion-header">
                             <div class="referral-date">
-                                <?php echo $row->refDate; ?>
-                            </div>
+                                <?php echo $dateOfRecord; ?>
                             <a> <?php echo $VendorDetails->name; ?>
                                 <!-- sub title here-->
                                 <div class="friend-referral-comment-wrapper">
@@ -80,10 +85,11 @@
                                         <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
                                     </div>
                                     <div class="inbox-friend-referral">
-                                        <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"
+                                        <?php echo $recommendationComment; ?>
                                     </div>
                                 </div>
                             </a>
+                            </div>
                         </div>
                         <!-- END HEADER OF ACCORDION HERE ENDS HERE -->
                         <!-- vendor details here (among anything else)-->
@@ -102,7 +108,7 @@
                         
                         <div class="inbox-single-wrapper accordion-header">
                             <div class="referral-date">
-                                <?php echo $row->refDate; ?>
+                                <?php echo $dateOfRecord; ?>
                             </div>
                             <a> <?php echo $userListDetails->name; ?>
                                 <!-- sub title here-->
@@ -111,7 +117,7 @@
                                         <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
                                     </div>
                                     <div class="inbox-friend-referral">
-                                        <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"
+                                        <?php echo $recommendationComment; ?>
                                     </div>
                                 </div>
                             </a>
@@ -218,12 +224,12 @@
                             </div>
                         </div>
                     <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
+            <div id="load-more-inbox-content-button" class="load-more-button">
+                Load more..
+            </div>  
         </div>
-        <div id="load-more-inbox-content-button" class="load-more-button">
-            Load more..
-        </div>  
-    </div>
     </body>
 </html>

@@ -81,15 +81,14 @@ class search_vendors_model extends CI_Model {
                                       SELECT uid1 FROM Friends WHERE uid2 = $currentUID)";
         $friends = mysql_query($friendQuery);
 
-        // create friend name list in a string that javascript will understand
-        $friendTags = "[";
-        while ($friend = mysql_fetch_row($friends)) {
-            $friendTags = $friendTags . "\"$friend[3] $friend[4]\",";
-            $friendArray[] = $friend;
+        // create friend array, if there is an error with the query, return an empty friends list
+        $friendArray = array();
+        if ($friends) {
+            while ($friend = mysql_fetch_row($friends)) {
+                $friendArray[] = $friend;
+            }
         }
-        $friendTags[strlen($friendTags)-1] = "]";
         
-        $retArray['friendTags'] = $friendTags;
         $retArray['allFriendsArray'] = $friendArray;
         $retArray['myUID'] = $currentUID;
         echo json_encode($retArray);
@@ -110,28 +109,61 @@ class search_vendors_model extends CI_Model {
         // add referrals to Referral table: one for each friend in uidFriends
         if ($numFriends > 0) {
             $q = "INSERT INTO Referrals VALUES ";
+            $newFriends = array();
+            
             for ($i = 0; $i < $numFriends; $i++) {
-                $uidFriend = $uidFriends->$i;
-               $q = "$q (NULL, $uid, $uidFriend, \"$date\", 0, \"$comment\"),";
+               $uidFriend = $uidFriends->$i;
+               $flag = 0;
+               
+               // check if this referral has already been made (user1 to user2 for this vendor)
+               $existsQuery = "SELECT rid FROM Referrals WHERE uid1 = $uid AND uid2 = $uidFriend AND lid = 0";
+               $result = mysql_query($existsQuery);
+               if (!$result) {
+                   echo "Referral could not be processed1";
+                   return;
+               }
+               
+               while ($rid = mysql_fetch_row($result)) {
+                   $existsQuery = "SELECT rid FROM ReferralDetails WHERE rid = $rid[0] AND vid = \"$id\"";
+                   $res = mysql_query($existsQuery);
+                   if (!$res) {
+                       echo "Referral could not be processed2";
+                       return;
+                   }
+                   
+                   // if referral is found to exist already, mark flag
+                   if (mysql_num_rows($res) > 0) {
+                       $flag = 1;
+                       break;
+                   }
+               }
+               
+               // if referral does not exist yet, then add it
+               if ($flag == 0) {
+                   $q = "$q (NULL, $uid, $uidFriend, \"$date\", 0, \"$comment\"),";
+                   array_push($newFriends,$uidFriend);
+               }
             }
 
             // delete last comma
             $q = substr($q,0,-1);
             
-            $result = mysql_query($q);
-            if (!$result) {
-                echo "Referral could not be processed";
-                return;
+            if (count($newFriends) > 0) {
+                $result = mysql_query($q);
+                if (!$result) {
+                    echo "Referral could not be processed3";
+                    return;
+                }
             }
             
             // get RID that was just inserted into Referrals table and build query for adding to referral details: one for each friend
             $addReferralDetailQuery = "INSERT INTO ReferralDetails VALUES ";
-            for ($i = 0; $i < $numFriends; $i++) {
-                $uidFriend = $uidFriends->$i;
+            for ($i = 0; $i < count($newFriends); $i++) {
+                $uidFriend = $newFriends[$i];
                 $getRIDquery = "SELECT rid FROM Referrals WHERE uid1 = $uid AND uid2 = $uidFriend AND date = \"$date\" AND lid = 0 AND comment = \"$comment\"";
                 $result = mysql_query($getRIDquery);
                 if (!$result) {
-                    echo "Referral could not be processed";
+                    echo "Referral could not be processed4";
                     return;
                 }
                 $resultRow = mysql_fetch_row($result);
@@ -142,10 +174,12 @@ class search_vendors_model extends CI_Model {
             // delete last comma
             $addReferralDetailQuery = substr($addReferralDetailQuery,0,-1);
             
-            $result = mysql_query($addReferralDetailQuery);
-            if (!$result) {
-                echo "Referral could not be processed";
-                return;
+            if (count($newFriends) > 0) {
+                $result = mysql_query($addReferralDetailQuery);
+                if (!$result) {
+                    echo "Referral could not be processed5";
+                    return;
+                }
             }
         }
         return false;

@@ -18,11 +18,24 @@ $(document).ready(function() {
     initRemoveComment();
     initLoadMoreComments();
     initLoadMoreButton();
+    initDatePrototype();
 });
 
 /* functions for $(document).ready */
 //initialize the accordion features for inbox
 function bindAccordionInbox() {
+//    $("#accordion-object").addClass("ui-accordion ui-widget ui-helper-reset ui-accordion-icons")
+//        .find("div.accordion-header")
+//        .addClass("ui-accordion-header ui-helper-reset ui-corner-all ui-state-default")
+//        .prepend('<span class="ui-icon ui-icon-triangle-1-e"/>')
+//        .click(function() {
+//            $(this).toggleClass("ui-accordion-header-active").toggleClass("ui-state-active")
+//                        .toggleClass("ui-state-default").toggleClass("ui-corner-bottom")
+//                .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e").toggleClass("ui-icon-triangle-1-s")
+//                .end().next().toggle().toggleClass("ui-accordion-content-active");
+//            return false;
+//        })
+//        .next().addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom").hide();
     $( ".accordion-object" ).accordionCustom({
         header: 'div.accordion-header',
         content: 'div.accordion-content',
@@ -108,7 +121,7 @@ function initLike() {
 
 function initComment() {
     $('.submit-comment-button').click(function(){
-        var name = $(this).closest('.row').find('.comment-input').val();
+        var name = jQuery.trim($(this).closest('.row').find('.comment-input').val());
         //var referId = $(this).closest('.row').data("rid");
 
         var ridString = $(this).closest('.row').attr("id");
@@ -285,6 +298,11 @@ function createReferralsHTMLString(row, userReferralString) {
     var VendorDetails = row.VendorList['VendorList'][0][0];
     var likeNumber = 0;
     var likeStatus = "";
+    var recommendationComment = "";
+    
+    var t = row.refDate.split(/[- :]/);
+    var d = new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5]);
+    var timeStamp = d.getFuzzyTimeElapsed();
     
     likeNumber = row.LikesList['LikesList'].length;
     if(likeNumber>0) {
@@ -303,13 +321,14 @@ function createReferralsHTMLString(row, userReferralString) {
     } else {
         likeStatus = "Like";
     }
+    
 
     displayReferralsHTMLString = "";
     if ( row.lid == 0 ) {
         displayReferralsHTMLString = displayReferralsHTMLString +
             "<div class='inbox-single-wrapper accordion-header'>" +
                 "<div class='referral-date'>" +
-                    row.refDate +
+                    timeStamp +
                 "</div>" +
                 "<a>" +
                     VendorDetails.name +
@@ -337,7 +356,7 @@ function createReferralsHTMLString(row, userReferralString) {
         displayReferralsHTMLString = displayReferralsHTMLString +
             "<div class='inbox-single-wrapper accordion-header'>" +
                 "<div class='referral-date'>" +
-                    row.refDate +
+                    timeStamp +
                 "</div>" +
                 "<a>" + userListDetails.name +
                     "<div class='friend-referral-comment-wrapper'>" +
@@ -410,6 +429,149 @@ function createReferralsHTMLString(row, userReferralString) {
 }
 
 
+
+/*
+ * date and time related functions begin here
+ */
+function initDatePrototype () {
+    Date.prototype.toFormattedString = function (f)
+    {
+        var nm = this.getMonthName();
+        var nd = this.getDayName();
+        var ampm = 'am';
+        if ( this.getHours() > 12 ) {ampm = 'pm'};
+        
+        f = f.replace(/x/g, ampm);
+        f = f.replace(/yyyy/g, this.getFullYear());
+        f = f.replace(/MMM/g, nm.substr(0,3).toUpperCase());
+        f = f.replace(/Mmm/g, nm.substr(0,3));
+        f = f.replace(/MM\*/g, nm.toUpperCase());
+        f = f.replace(/Mm\*/g, nm);
+        f = f.replace(/mm/g, String(this.getMonth()+1).padLeft('0', 2));
+        f = f.replace(/DDD/g, nd.substr(0,3).toUpperCase());
+        f = f.replace(/Ddd/g, nd.substr(0,3));
+        f = f.replace(/DD\*/g, nd.toUpperCase());
+        f = f.replace(/Dd\*/g, nd);
+        f = f.replace(/dd/g, String(this.getDate()).padLeft('0', 2));
+        f = f.replace(/d\*/g, this.getDate());
+        f = f.replace(/h/g, this.getHours() % 12);
+        f = f.replace(/i/g, String(this.getMinutes()).padLeft('0', 2));
+        f = f.replace(/z/g, this.getDayName());
+        f = f.replace(/q/g, this.getMonthName());
+        
+        return f
+    };
+
+    Date.prototype.getMonthName = function () {
+        switch(this.getMonth())
+        {
+            case 0:return 'January';
+            case 1:return 'February';
+            case 2:return 'March';
+            case 3:return 'April';
+            case 4:return 'May';
+            case 5:return 'June';
+            case 6:return 'July';
+            case 7:return 'August';
+            case 8:return 'September';
+            case 9:return 'October';
+            case 10:return 'November';
+            case 11:return 'December';
+        }
+    };
+
+    Date.prototype.getDayName = function ()
+    {
+        switch(this.getDay())
+        {
+            case 0:return 'Sunday';
+            case 1:return 'Monday';
+            case 2:return 'Tuesday';
+            case 3:return 'Wednesday';
+            case 4:return 'Thursday';
+            case 5:return 'Friday';
+            case 6:return 'Saturday';
+        }    
+    };
+
+    String.prototype.padLeft = function (value, size)
+    {
+        var x = this;
+        while (x.length<size) {x = value + x;}
+        return x;
+    };
+    
+    Date.prototype.getFuzzyTimeElapsed = function ()
+    {
+        // Get the current date and reference date
+        var currentDate = new Date();
+        var refDate = new Date(this);
+        var dateOfRecord = "";
+        
+        // Extract from currentDate
+        var currentYear = currentDate.getYear();
+        var currentMonth = currentDate.getMonth() + 1;
+        var currentDay = currentDate.getDate();
+        
+        // Extract from refDate
+        var refYear = refDate.getYear();
+        var refMonth = refDate.getMonth() + 1;
+        var refDay = refDate.getDate();
+        
+        // Determine the difference in time
+        var diffInYears = currentYear - refYear;
+        var diffInMonths = (currentMonth - refMonth + 12) % 12;
+        var diffInDays = currentDay - refDay;
+        
+        if (diffInDays > 7) {
+            // display regular time stamp
+            dateOfRecord = refDate.toFormattedString('h:ix, z, q dd, yyyy');
+        } else {
+            var currentHour = currentDate.getHours();
+            var currentMin = currentDate.getMinutes();
+            var currentSec = currentDate.getSeconds();
+            
+            var refHour = refDate.getHours();
+            var refMin = refDate.getMinutes();
+            var refSec = refDate.getSeconds();
+            
+            var diffInHours = currentHour - refHour;
+            var diffInMin = currentMin - refMin;
+            var diffInSec = currentSec - refSec;
+            
+            // show time difference
+            if (diffInDays < 1) {
+                if (diffInHours > 0) {
+                    if (diffInMin < 0) {
+                        diffInMin = 60 + diffInMin;
+                        diffInHours = diffInHours - 1;
+                        dateOfRecord = String(diffInMin) + ' min ago';
+                    } else {
+                        dateOfRecord = String(diffInHours) + ' hr ' + String(diffInMin) + ' min ago';
+                    }
+                } else {
+                    if (diffInMin > 0) {
+                        dateOfRecord = String(diffInMin) + ' min ' + String(diffInSec) + ' sec ago';
+                    } else {
+                        dateOfRecord = String(diffInSec) + ' sec ago';
+                    }
+                }
+            } else {
+                if (diffInDays > 1) {
+                    dateOfRecord = String(diffInDays) + ' days ago';
+                } else {
+                    dateOfRecord = String(diffInDays) + ' day and ' + String(diffInHours) + ' hr ago';
+                }
+            }
+        }
+        
+        return dateOfRecord;
+        
+    }
+    
+}
+
+
 function displayMoreInbox(moreRows) {
     // moreRows is a parsedJSON object
     // create a string that captures all HTML required to write the next referral
@@ -419,10 +581,17 @@ function displayMoreInbox(moreRows) {
     $('.accordion-object').accordionCustom('destroy');
     $('.subaccordion-object').accordionCustom('destroy');
 
+    
+
     for(var i=0; i<moreRows.length; i++) {
         var row = moreRows[i];
-        userReferralString = row.firstName + " " + row.lastName + " says \"" + row.ReferralsComment + "\"";
-
+        
+        if (row.ReferralsComment == "") {
+            userReferralString = row.firstName + " " + row.lastName + " thinks you'll love this!";
+        } else {
+            userReferralString = row.firstName + " " + row.lastName + " says \"" + row.ReferralsComment + "\"";
+        }
+        
         displayReferralsHTMLString = createReferralsHTMLString(row, userReferralString);
     
         // append to inbox wrapper
@@ -455,7 +624,11 @@ function displayMoreFriendActivity(moreRows) {
     for(var i=0; i<moreRows.length; i++) {
         var row = moreRows[i];
         var RecipientDetails = row.RecipientDetails['RecipientDetails'][0];
-        userReferralString = row.firstName + " " + row.lastName + " recommended to " + RecipientDetails.firstName + " " + RecipientDetails.lastName + ": \"" + row.ReferralsComment + "\"";
+        
+        userReferralString = row.firstName + " " + row.lastName + " recommended to " + RecipientDetails.firstName + " " + RecipientDetails.lastName;
+        if (row.ReferralsComment != "") {
+            userReferralString = userReferralString + ": \"" + row.ReferralsComment + "\"";
+        }
             
         displayReferralsHTMLString = createReferralsHTMLString(row, userReferralString);
 

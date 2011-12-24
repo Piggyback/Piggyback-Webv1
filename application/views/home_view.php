@@ -27,6 +27,7 @@
         <script type="text/javascript" src="../assets/js/home_kim_js.js"></script>
         <script type="text/javascript" src="../assets/js/fixedSplit.js"></script>
         <script type="text/javascript" src="../../assets/jquery-ui-1.8.16.custom/development-bundle/ui/jquery.ui.accordionCustom.js"></script>
+        <?php include "dateTimeDiff.php" ?>
     </head>
     <body>
         <div id='currentUserNameWrapper'>
@@ -147,8 +148,22 @@
                                                                 } else {
                                                                     $likeStatus = "Like";
                                                                 }
-
+                        
                                                                 $VendorDetails = $row->VendorList['VendorList'][0][0];
+
+                                                                if ($row->ReferralsComment == "") {
+                                                                    $recommendationComment = $row->firstName . " " . $row->lastName . " thinks you'll love this!";
+                                                                } else {
+                                                                    $recommendationComment = $row->firstName . " " . $row->lastName . " says \"" . $row->ReferralsComment . "\"";
+                                                                }
+
+                                                                $data_ref = date('Y-m-d H:i:s', strtotime($row->refDate));
+
+                                                                $dateOfRecord = dateTimeDiff($data_ref);
+
+                                                                if ($dateOfRecord == "") {
+                                                                    $dateOfRecord = date("g:ia, l, F d, y", strtotime($row->refDate));
+                                                                }
                                                             ?>
                                                             <!-- determine if $row is a list or single vendor -->
                                                             <?php if ( $row->lid == 0 ):?>
@@ -163,7 +178,7 @@
                                                             <!-- BEGINNING OF HEADER HERE of the ACCORDION    -->
                                                                 <div class="inbox-single-wrapper accordion-header">
                                                                     <div class="referral-date">
-                                                                        <?php echo $row->refDate; ?>
+                                                                        <?php echo $dateOfRecord; ?>
                                                                     </div>
                                                                     <a> <?php echo $VendorDetails->name; ?>
                                                                         <!-- sub title here-->
@@ -172,7 +187,7 @@
                                                                                 <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
                                                                             </div>
                                                                             <div class="inbox-friend-referral">
-                                                                                <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"
+                                                                                <?php echo $recommendationComment; ?>
                                                                             </div>
                                                                         </div>
                                                                     </a>
@@ -185,92 +200,13 @@
                                                                     echo $VendorDetails->phone . "<br>";
                                                                     echo $VendorDetails->website; ?>
                                                                 </div>
-
-                                                                <div class="accordion-footer">
-
-                                                                    <!-- new div for like/comment button, comment fields, etc like button here -->
-                                                                    <div id="row-rid-<?=$row->rid?>" class="row" data-rid=<?php echo $row->rid; ?>>
-                                                                        <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
-                                                                            <?php echo $likeStatus; ?>
-                                                                        </div>
-
-                                                                        <!--comment button here -->
-                                                                        <div class="click-to-comment no-accordion">
-                                                                            Comment
-                                                                        </div>
-                                                                        <div class="number-of-likes no-accordion">
-                                                                            <?php echo $likeNumber; ?>
-                                                                        </div>
-
-                                                                        <!-- create the divs to show other peoples comments-->
-                                                                        <div class="comments">
-                                                                            <table class="comments-table">
-                                                                                <tbody class="comments-table-tbody">
-                                                                                    <?php $commentsCountdown = count($commentsArray);
-                                                                                    // default is that we do not need to show all (0)
-                                                                                    $needShowAllButton = "hide-load-comments-button"; ?>
-                                                                                    <?php foreach($commentsArray as $line): ?>
-                                                                                        <?php
-                                                                                        if($commentsCountdown < 3) {
-                                                                                            $showStatus = 'show-comment';
-                                                                                        } else {
-                                                                                            // more than two comments, will hide them
-                                                                                            // also turn on the showAllButton flag
-                                                                                            $showStatus = 'hide-comment';
-                                                                                            $needShowAllButton = 'show-load-comments-button';
-                                                                                        }
-                                                                                        $commentsCountdown--;
-                                                                                        ?>
-
-                                                                                        <?php if($commentsCountdown==count($commentsArray)-1): ?>
-                                                                                        <tr>
-                                                                                            <td class="show-all-comments-button no-accordion <?php echo $needShowAllButton; ?>">
-                                                                                                View all <?php echo count($commentsArray);?> comments.
-                                                                                            </td>
-                                                                                            <td></td>
-                                                                                            <td></td>
-                                                                                        </tr>
-                                                                                        <?php endif; ?>
-
-                                                                                        <tr class='inbox-single-comment'>
-                                                                                            <td class="commenter-pic">
-                                                                                                <?php echo '<img src="https://graph.facebook.com/' . $line->fbid . '/picture">' ?>
-                                                                                            </td>
-                                                                                            <td class="comments-name">
-                                                                                                <?php echo $line->firstName . " " . $line->lastName . ": "; ?>
-                                                                                            </td>
-                                                                                            <td class="comments-content">
-                                                                                                <?php echo $line->comment; ?>
-                                                                                            </td>
-                                                                                            <td>
-                                                                                                <button id="delete-comment-button-cid-<?=$line->cid?>" class="delete-comment" data-cid=<?php echo $line->cid;?>>x</button>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                    <?php endforeach; ?>
-                                                                                </tbody>
-                                                                            </table>
-                                                                        </div>
-
-                                                                        <div class="comment-box no-accordion">
-                                                                            <form name="form-comment" class="form-comment" method="post">
-                                                                                <input type="text" class="comment-input"/>
-                                                                                <button type="submit" class="submit-comment-button">
-                                                                                    Submit
-                                                                                </button>
-                                                                            </form>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
                                                             <?php else: ?>
-
                                                                 <?php
                                                                     $userListDetails = $row->UserList[0];
                                                                 ?>
-
                                                                 <div class="inbox-single-wrapper accordion-header">
                                                                     <div class="referral-date">
-                                                                        <?php echo $row->refDate; ?>
+                                                                        <?php echo $dateOfRecord; ?>
                                                                     </div>
                                                                     <a> <?php echo $userListDetails->name; ?>
                                                                         <!-- sub title here-->
@@ -279,7 +215,7 @@
                                                                                 <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
                                                                             </div>
                                                                             <div class="inbox-friend-referral">
-                                                                                <?php echo $row->firstName . " " . $row->lastName; ?> says "<?php echo $row->ReferralsComment ?>"
+                                                                                <?php echo $recommendationComment; ?>
                                                                             </div>
                                                                         </div>
                                                                     </a>
@@ -304,19 +240,15 @@
                                                                             ?>
                                                                         </div>
                                                                     </div>
-
                                                                     <?php endforeach; ?>
-
                                                                 </div>
-
+                                                            <?php endif; ?>
                                                                 <div class="accordion-footer">
-
                                                                     <!-- new div for like/comment button, comment fields, etc like button here -->
                                                                     <div id="row-rid-<?=$row->rid?>" class="row" data-rid=<?php echo $row->rid; ?>>
                                                                         <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
                                                                             <?php echo $likeStatus; ?>
                                                                         </div>
-
                                                                         <!--comment button here -->
                                                                         <div class="click-to-comment no-accordion">
                                                                             Comment
@@ -324,7 +256,6 @@
                                                                         <div class="number-of-likes no-accordion">
                                                                             <?php echo $likeNumber; ?>
                                                                         </div>
-
                                                                         <!-- create the divs to show other peoples comments-->
                                                                         <div class="comments">
                                                                             <table class="comments-table">
@@ -373,7 +304,6 @@
                                                                                 </tbody>
                                                                             </table>
                                                                         </div>
-
                                                                         <div class="comment-box no-accordion">
                                                                             <form name="form-comment" class="form-comment" method="post">
                                                                                 <input type="text" class="comment-input"/>
@@ -384,14 +314,11 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
-
-                                                            <?php endif; ?>
-
-                                                        <?php endforeach; ?>
+                                                            <?php endforeach; ?>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="load-more-button">
+                                                <div id="load-more-inbox-content-button" class="load-more-button">
                                                     Load more..
                                                 </div>  
                                             </div>

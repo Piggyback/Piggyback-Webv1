@@ -103,10 +103,8 @@ function bindReferDialogList(friendList) {
                     var now = new Date();
                     now = now.format("yyyy-mm-dd HH:MM:ss");
                     var uidFriendsObj = {};
-                    var friendNum;
                     for (var i=0; i<friendList.length; i++) {
-                        friendNum = "friend" + i.toString();
-                        uidFriendsObj[friendNum] = friendList[i].uid;
+                        uidFriendsObj[i] = friendList[i].uid;
                     }
 
                     var uidFriendsStr = JSON.stringify(uidFriendsObj);
@@ -117,8 +115,13 @@ function bindReferDialogList(friendList) {
                         uidFriends: uidFriendsStr,
                         date: now,
                         comment: $('#comment-box').val()
-                    }, function() {
-                        $('#dialog').dialog('close');
+                    }, function(data) {
+                        if (data) {
+                            alert(data);
+                        }
+                        else {
+                            $('#dialog').dialog('close');
+                        }
                     });
                 }
             }
