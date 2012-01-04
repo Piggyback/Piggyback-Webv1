@@ -116,7 +116,6 @@ function bindReferDialogLink(friendList, vendorData) {
     $('.refer-popup-link').click(function(){
         // get id of the vendor, which is the id of the pop up button
         var vendorID = $(this).attr('id');
-        var vendorName;
         var vendor;
 
         for(var i = 0; i < vendorData.length; i++) {
@@ -189,7 +188,6 @@ function bindAddToListDialogLink(vendorData) {
     $('.add-to-list-popup-link').click(function(){
         // get id of the vendor, which is the id of the pop up
         var vendorID = $(this).attr('id');
-        var vendorName;
         var vendor;
 
         for(var i = 0; i < vendorData.length; i++) {

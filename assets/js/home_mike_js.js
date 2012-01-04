@@ -13,6 +13,8 @@
 $(document).ready(function() {
     initEnterForm();
     setScrollHeight();
+    bindAccordionInbox();
+    overrideAccordionEvent();
     initTabs();
     initHoverTabs();
 	getListContent();
@@ -28,6 +30,10 @@ $(document).ready(function() {
     searchAJAX();
 
     bindReferDialogList(friendList);
+    
+    
+    initAddAndReferButtons();
+
 });
 
 function initEnterForm() {
@@ -201,7 +207,7 @@ function getListContent() {
 		}
 
 		$('#list-content').removeClass("ui-tabs-hide");
-	    $('#inbox-content, #ui-tabs-1, #ui-tabs-2, #search-content').addClass("ui-tabs-hide")
+	    $('#inbox-content, #friend-activity-content, #referral-tracking-content, #search-content').addClass("ui-tabs-hide")
     	$('#inbox-tab, #friend-activity-tab, #referral-tracking-tab').removeClass("ui-tabs-selected ui-state-active");
 
 		return false;
@@ -224,7 +230,7 @@ function initDeleteList() {
 
 		// if current content is specified list content, then replace with inbox content (for now)
 		$('#inbox-content').removeClass("ui-tabs-hide");
-	    $('#list-content, #ui-tabs-1, #ui-tabs-2, #search-content').addClass("ui-tabs-hide")
+	    $('#list-content, #friend-activity-content, #referral-tracking-content, #search-content').addClass("ui-tabs-hide")
 		$("#inbox-tab").addClass("ui-tabs-selected ui-state-active");
     //	$('#inbox-tab, #friend-activity-tab, #referral-tracking-tab').removeClass("ui-tabs-selected ui-state-active");
 
@@ -569,7 +575,7 @@ function searchAJAX() {
             });
 
         $('#search-content').removeClass("ui-tabs-hide");
-        $('#inbox-content, #ui-tabs-1, #ui-tabs-2, #list-content').addClass("ui-tabs-hide")
+        $('#inbox-content, #friend-activity-content, #referral-tracking-content, #list-content').addClass("ui-tabs-hide")
         $('#inbox-tab, #friend-activity-tab, #referral-tracking-tab').removeClass("ui-tabs-selected ui-state-active");
 
         return false;
@@ -579,13 +585,85 @@ function searchAJAX() {
 function loadReferralTracking() {
     jQuery.post('referral_tracking/get_referral_tracking', function(data){
         var parsedJSON = jQuery.parseJSON(data);
-
         displayReferralTracking(parsedJSON);
     });
 }
 
+function loadFriendActivity() {
+    jQuery.post('referrals/load_friend_activity_items', function(data) {
+        var parsedJSON = jQuery.parseJSON(data);
+        displayFriendActivity(parsedJSON);
+    });
+}
+
+/*
+ * untested
+ */
+function loadInboxActivity() {
+    jQuery.post('referrals/load_inbox_items', function(data) {
+        var parsedJSON = jQuery.parseJSON(data);
+        displayInboxItems(parsedJSON);
+    });
+}
+
+/*
+ * untested
+ */
+function displayMoreInbox(parsedJSON) {
+    $('#accordion-inbox-items').html('');
+    displayMoreInbox(parsedJSON);
+}
+
+function displayFriendActivity(parsedJSON) {
+   // var htmlString = "<div id='accordion-friend-activity' class='accordion-object'>";
+   $('#accordion-friend-activity').html('');
+   displayMoreFriendActivity(parsedJSON);
+}
+
 function displayReferralTracking(parsedJSON) {
-    var htmlString = "<div id='referral-tracking'><div id='accordion-referral-tracking' class='accordion-object'>";
+    // moreRows is a parsedJSON object
+    // create a string that captures all HTML required to write the next referral
+    var htmlString = "<div id='accordion-referral-tracking' class='accordion-object'>";
+
+    for(var i=0; i<parsedJSON.length; i++) {
+        var row = parsedJSON[i];
+        var RecipientDetails = row.RecipientDetails['RecipientDetails'][0];
+
+        userReferralString = "You recommended to " + RecipientDetails.firstName + " " + RecipientDetails.lastName;
+        if (row.ReferralsComment != "") {
+            userReferralString = userReferralString + ": \"" + row.ReferralsComment + "\"";
+        }
+
+        htmlString = htmlString + createReferralsHTMLString(row, userReferralString, RecipientDetails.fbid);
+
+    }
+    bindAccordionInbox();
+    overrideAccordionEvent();
+
+    htmlString = htmlString + "</div>";
+
+    $('#referral-tracking-content').html(htmlString);
+
+  //  $('.accordion-object').accordionCustom('destroy');
+//    $('.subaccordion-object').accordionCustom('destroy');
+    $('.click-to-comment').unbind();
+    initCommentInputDisplay();
+    $('.click-to-like').unbind();
+    initLike();
+    $('.submit-comment-button').unbind();
+    initComment();
+    $('.delete-comment').unbind();
+    initRemoveComment();
+    $('.show-load-comments-button').unbind();
+    initLoadMoreComments();
+    bindAccordionInbox();
+    overrideAccordionEvent();
+
+    initAddAndReferButtons();
+}
+
+function displayReferralTracking2(parsedJSON) {
+    var htmlString = "<div id='accordion-referral-tracking' class='accordion-object'>";
     var likeNumber = 0;
     var likeStatus = "";
 
@@ -607,6 +685,7 @@ function displayReferralTracking(parsedJSON) {
             likeStatus = "Like";
         }
 
+//       /if (parsedJSON[i].lid == 0) {
         htmlString = htmlString +
             "<div class='inbox-single-wrapper accordion-header'>" +
                 "<div class='referral-date'>" +
@@ -614,14 +693,71 @@ function displayReferralTracking(parsedJSON) {
                 "</div>" +
                 "<a>" +
                     parsedJSON[i].name +
+                    "<div class='friend-referral-comment-wrapper'>" +
+                        "<div class='inbox-friend-pic'>" +
+                            "<img src='https://graph.facebook.com/" + parsedJSON[i].fbid + "/picture'>" +
+                        "</div>" +
+                        "<div class='inbox-friend-referral'>" +
+                            parsedJSON[i].comment +
+                        "</div>" +
+                    "</div>" +
                 "</a>" +
-            "</div>";
+            "</div>" +
 
-    //    $('#referral-tracking-content').html(htmlString);
+            "<div class='drop-down-details accordion-content'>" +
+                parsedJSON[i].addrNum + " " + parsedJSON[i].addrStreet + "<br>" +
+                parsedJSON[i].addrCity + " " + parsedJSON[i].addrState + " " + parsedJSON[i].addrZip + "<br>" +
+                parsedJSON[i].phone + "<br>" +
+                parsedJSON[i].website +
+            "</div>";
+ //       }
+
+        // footer comments
+        htmlString = htmlString +
+            "<div class='accordion-footer'>" +
+                "<div id='row-rid-" + parsedJSON[i].rid + "' class='row' data-rid=" + parsedJSON[i].rid + ">" +
+                    "<div class='click-to-like no-accordion' data-likeCounts=" + likeNumber + ">" +
+                        likeStatus +
+                    "</div>" +
+                    "<div class='click-to-comment no-accordion'>" +
+                        "Comment" +
+                    "</div>" +
+                    "<div class='number-of-likes no-accordion'>" +
+                        likeNumber +
+                    "</div>" +
+                    "<div class='comments'>" +
+                        "<table class='comments-table'>" +
+                            "<tbody class='comments-table-tbody'>" +
+                                updateCommentsHTMLString(parsedJSON[i].CommentsList['CommentsList']) +
+                            "</tbody>" +
+                        "</table>" +
+                    "</div>" +
+                    "<div class='comment-box no-accordion'>" +
+                        "<form name='form-comment' class='form-comment' method='post'>" +
+                            "<input type='text' class='comment-input'/>" +
+                            "<button type='submit' class='submit-comment-button'>" +
+                                "Submit" +
+                            "</button>" +
+                        "</form>" +
+                    "</div>" +
+                "</div>" +
+            "</div>";
     }
-    htmlString = htmlString + "</div></div>";
+    htmlString = htmlString + "</div>";
     $('#referral-tracking-content').html(htmlString);
 
+  //  $('.accordion-object').accordionCustom('destroy');
+//    $('.subaccordion-object').accordionCustom('destroy');
+    $('.click-to-comment').unbind();
+    initCommentInputDisplay();
+    $('.click-to-like').unbind();
+    initLike();
+    $('.submit-comment-button').unbind();
+    initComment();
+    $('.delete-comment').unbind();
+    initRemoveComment();
+    $('.show-load-comments-button').unbind();
+    initLoadMoreComments();
     bindAccordionInbox();
     overrideAccordionEvent();
 }
@@ -632,7 +768,8 @@ function fbAPI() {
             appId      : '251920381531962',
             status     : true,
             cookie     : true,
-            xfbml      : true
+            xfbml      : true,
+            oauth      : true,
         });
 
         // If user is not logged in, redirect user to login page

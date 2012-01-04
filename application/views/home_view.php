@@ -25,6 +25,7 @@
         <script type="text/javascript" src="../assets/js/home_mike_js.js"></script>
         <script type="text/javascript" src="../assets/js/home_andy_js.js"></script>
         <script type="text/javascript" src="../assets/js/home_kim_js.js"></script>
+        <script type="text/javascript" src="../assets/js/jQuery.corner.js"></script>
         <script type="text/javascript" src="../assets/js/fixedSplit.js"></script>
         <script type="text/javascript" src="../../assets/jquery-ui-1.8.16.custom/development-bundle/ui/jquery.ui.accordionCustom.js"></script>
         <?php include "dateTimeDiff.php" ?>
@@ -114,7 +115,7 @@
                                         <div class="ui-tabs ui-widget ui-widget-content ui-corner-all" id="tabs">
                                             <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
                                                 <li id="inbox-tab" class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#inbox-content">Inbox</a></li>
-                                                <li id="friend-activity-tab" class="ui-state-default ui-corner-top"><a href="ajax/content2.html">Friend Activity</a></li>
+                                                <li id="friend-activity-tab" class="ui-state-default ui-corner-top"><a href="#friend-activity-content" onClick=loadFriendActivity();>Friend Activity</a></li>
                                                 <li id="referral-tracking-tab" class="ui-state-default ui-corner-top"><a href="#referral-tracking-content" onClick=loadReferralTracking();>Referral Tracking</a></li>
                                                 <li id="search-tab" class="ui-state-default ui-corner-top none"><a href="#search-content"></a></li>
                                                 <li id="list-tab" class="ui-state-default ui-corner-top none"><a href="#list-content"></a></li>
@@ -123,7 +124,7 @@
                                                 <div id="inbox">
                                                     <div id="accordion-inbox" class="accordion-object">
                                                         <div id="inbox-wrapper">
-                                                        <?php foreach ($inboxItems as $row):?>    
+                                                        <?php foreach ($inboxItems as $row):?>
                                                             <?php
                                                                 // get some vital variables ready
                                                                 // the count of likes
@@ -148,7 +149,7 @@
                                                                 } else {
                                                                     $likeStatus = "Like";
                                                                 }
-                        
+
                                                                 $VendorDetails = $row->VendorList['VendorList'][0][0];
 
                                                                 if ($row->ReferralsComment == "") {
@@ -162,7 +163,7 @@
                                                                 $dateOfRecord = dateTimeDiff($data_ref);
 
                                                                 if ($dateOfRecord == "") {
-                                                                    $dateOfRecord = date("g:ia, l, F d, y", strtotime($row->refDate));
+                                                                    $dateOfRecord = date("g:ia, l, F dS, Y", strtotime($row->refDate));
                                                                 }
                                                             ?>
                                                             <!-- determine if $row is a list or single vendor -->
@@ -183,22 +184,48 @@
                                                                     <a> <?php echo $VendorDetails->name; ?>
                                                                         <!-- sub title here-->
                                                                         <div class="friend-referral-comment-wrapper">
-                                                                            <div class="inbox-friend-pic">
-                                                                                <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
-                                                                            </div>
-                                                                            <div class="inbox-friend-referral">
-                                                                                <?php echo $recommendationComment; ?>
-                                                                            </div>
+                                                                            <table class='formatted-table'>
+                                                                                <tr>
+                                                                                    <td class='formatted-table-info'>
+                                                                                        <div class="inbox-friend-pic">
+                                                                                            <?php echo '<img class="round-element" src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
+                                                                                        </div>
+                                                                                        <div class="inbox-friend-referral">
+                                                                                            <?php echo $recommendationComment; ?>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                    <td class="formatted-table-button" align="right">
+                                                                                        <p>
+                                                                                            <a href="#" id="<?php echo $VendorDetails->id; ?>" class="refer-popup-link dialog_link ui-state-default ui-corner-all">
+                                                                                                <span class="ui-icon ui-icon-plus"></span>
+                                                                                                Refer to Friends
+                                                                                            </a>
+                                                                                        </p>
+                                                                                        <p>
+                                                                                            <a href="#" id="<?php echo $VendorDetails->id; ?>" class="add-to-list-popup-link dialog_link ui-state-default ui-corner-all">
+                                                                                                <span class="ui-icon ui-icon-plus"></span>
+                                                                                                Add to List
+                                                                                            </a>
+                                                                                        </p>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
                                                                         </div>
                                                                     </a>
                                                                 </div>
                                                                 <!-- END HEADER OF ACCORDION HERE ENDS HERE -->
                                                                 <!-- vendor details here (among anything else)-->
                                                                 <div class="drop-down-details accordion-content">
-                                                                    <?php echo $VendorDetails->addrNum . " " . $VendorDetails->addrStreet . "<br>"; // add all list detail here
-                                                                    echo $VendorDetails->addrCity . " " . $VendorDetails->addrState . " " . $VendorDetails->addrZip . "<br>";
-                                                                    echo $VendorDetails->phone . "<br>";
-                                                                    echo $VendorDetails->website; ?>
+                                                                    <table class='formatted-table'>
+                                                                        <tr>
+                                                                            <td class='formatted-table-info'>
+                                                                                <?php echo $VendorDetails->addrNum . " " . $VendorDetails->addrStreet . "<br>"; // add all list detail here
+                                                                                echo $VendorDetails->addrCity . " " . $VendorDetails->addrState . " " . $VendorDetails->addrZip . "<br>";
+                                                                                echo $VendorDetails->phone . "<br>";
+                                                                                echo $VendorDetails->website; ?>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
                                                                 </div>
                                                             <?php else: ?>
                                                                 <?php
@@ -227,17 +254,44 @@
 
                                                                     <div class="subaccordion-object">
                                                                         <div class="subaccordion-header">
-                                                                            <!-- vendor name here -->
-                                                                            <?php echo $vendorRow[0]->name; ?>
+                                                                            <table class='formatted-table'>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <!-- vendor name here -->
+                                                                                        <?php echo $vendorRow[0]->name; ?>
+                                                                                    </td>
+                                                                                    <td class="formatted-table-button" align="right">
+                                                                                        <p>
+                                                                                            <a href="#" id="<?php echo $VendorDetails->id; ?>" class="refer-popup-link dialog_link ui-state-default ui-corner-all">                                    
+                                                                                                <span class="ui-icon ui-icon-plus"></span>
+                                                                                                Refer to Friends
+                                                                                            </a>
+                                                                                        </p>
+                                                                                        <p>
+                                                                                            <a href="#" id="<?php echo $VendorDetails->id; ?>" class="add-to-list-popup-link dialog_link ui-state-default ui-corner-all">
+                                                                                                <span class="ui-icon ui-icon-plus"></span>
+                                                                                                Add to List
+                                                                                            </a>
+                                                                                        </p>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
                                                                         </div>
+                                                                        
                                                                         <div class="subaccordion-content">
-                                                                            <!-- vendor details here -->
-                                                                            <?php
-                                                                                echo $vendorRow[0]->addrNum . " " . $vendorRow[0]->addrStreet . "<br>";
-                                                                                echo $vendorRow[0]->addrCity . " " . $vendorRow[0]->addrState . " " . $vendorRow[0]->addrZip . "<br>";
-                                                                                echo $vendorRow[0]->phone . "<br>";
-                                                                                echo $vendorRow[0]->website;
-                                                                            ?>
+                                                                            <table class="formatted-table-button">
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <!-- vendor details here -->
+                                                                                        <?php
+                                                                                            echo $vendorRow[0]->addrNum . " " . $vendorRow[0]->addrStreet . "<br>";
+                                                                                            echo $vendorRow[0]->addrCity . " " . $vendorRow[0]->addrState . " " . $vendorRow[0]->addrZip . "<br>";
+                                                                                            echo $vendorRow[0]->phone . "<br>";
+                                                                                            echo $vendorRow[0]->website;
+                                                                                        ?>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
                                                                         </div>
                                                                     </div>
                                                                     <?php endforeach; ?>
@@ -320,15 +374,16 @@
                                                 </div>
                                                 <div id="load-more-inbox-content-button" class="load-more-button">
                                                     Load more..
-                                                </div>  
+                                                </div>
                                             </div>
-<!--                                            <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="friend-activity-content">
-                                                
-                                            </div>-->
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="search-content">
                                                 <p> search </p>
                                             </div>
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="list-content">
+                                            </div>
+                                            <div class='ui-tabs-panel ui-widget-content ui-corner-bottom' id='friend-activity-content'>
+                                                <div id='accordion-friend-activity' class='accordion-object'>
+                                                </div>
                                             </div>
                                             <div class='ui-tabs-panel ui-widget-content ui-corner-bottom' id='referral-tracking-content'>
                                             </div>

@@ -1,4 +1,4 @@
-<!-- 
+<!--
     Document   : login_view.php
     Created on : Nov 30, 2011, 6:49:47 AM
     Author     : gaobi
@@ -13,12 +13,12 @@
         <link rel="stylesheet" type="text/css" href="../assets/css/login_css.css" media="screen" />
         <script type="text/javascript" src="../assets/js/jquery.min.js" ></script>
         <title>Piggyback Login</title>
-        
+
         <!-- facebook required og meta properties -->
 <!--        <meta property="og:title" content="Piggyback"/>
         <meta property="og:type" content="website"/>
         <meta property="og:url" content="http://192.168.11.28/login"/>-->
-        
+
     </head>
     <body>
         <div class="logo"></div>
@@ -27,11 +27,12 @@
             window.fbAsyncInit = function() {
                 FB.init({
                     appId      : '251920381531962',
-                    status     : true, 
+                    status     : true,
                     cookie     : true,
-                    xfbml      : true
+                    xfbml      : true,
+                    oauth      : true,
                 });
-                
+
                 FB.Event.subscribe('auth.login', function() {
                     FB.api('/me', function(response_me) {
                         jQuery.post("http://192.168.11.28/login/check_if_user_exists", {
@@ -63,7 +64,7 @@
 
                     });
                 });
-                
+
                 // If user is already logged in, redirect to home page
                 FB.getLoginStatus(function(response) {
                     if (response && response.status == "connected") {
@@ -88,6 +89,6 @@
                 d.getElementsByTagName('head')[0].appendChild(js);
             }(document));
         </script>
-        <div class="fb-login-button" data-perms="email" style="text-align: center;">Login with Facebook</div>
+        <div class="fb-login-button" data-scope="email" style="text-align: center;">Login with Facebook</div>
     </body>
 </html>

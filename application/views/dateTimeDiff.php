@@ -49,20 +49,34 @@ function dateTimeDiff($data_ref)
         $mDf = $current_min-$ref_min;
         $sDf = $current_seconds-$ref_seconds;
 
-
         // Show time difference ex: 2 min 54 sec ago.
         if($dDf<1) {
             if($hDf>0) {
                 if($mDf<0) {
                     $mDf = 60 + $mDf;
                     $hDf = $hDf - 1;
-                    $dateOfRecord = $mDf . ' min ago';
+                    if ($hDf == 0){
+                        $dateOfRecord = $mDf . ' min ago';
+                    } else {
+                        $dateOfRecord = $hDf . ' hr ago'; // . $mDf . ' min ago';
+                    }
                 } else {
-                    $dateOfRecord = $hDf. ' hr ' . $mDf . ' min ago';
+                    $dateOfRecord = $hDf. ' hr ago'; // . $mDf . ' min ago';
                 }
             } else {
                 if($mDf>0){
-                    $dateOfRecord = $mDf . ' min ' . $sDf . ' sec ago';
+                    if ($sDf < 0) {
+                        $mDf = $mDf - 1;
+                        $sDf = $sDf + 60;
+                        if ($mDf == 0) {
+                            $dateOfRecord = $sDf . ' sec ago';
+                        } else {
+                            $dateOfRecord = $mDf . ' min ago';
+                        }
+                    } else {
+                        $dateOfRecord = $mDf . ' min ago';
+                    }
+                    $dateOfRecord = $mDf . ' min ago'; // . $sDf . ' sec ago';
                 } else {
                     $dateOfRecord = $sDf . ' sec ago';
                 }
@@ -71,7 +85,16 @@ function dateTimeDiff($data_ref)
             if ($dDf > 1) {
                 $dateOfRecord = $dDf . ' days ago';
             } else {
-                $dateOfRecord = $dDf . ' day and ' . $hDf . ' hr ago';
+                if ($hDf < 0) {
+                    $hDf = $hDf + 24;
+                    $dDf = $dDf - 1;
+                    if ($dDf == 0) {
+                        $dateOfRecord = $hDf . ' hr ago';
+                    } else {
+                        $dateOfRecord = $dDf . ' day ago';
+                    }
+                }
+                $dateOfRecord = $dDf . ' day ago'; // and ' . $hDf . ' hr ago';
             }
         }
     } else {

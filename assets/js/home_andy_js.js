@@ -19,7 +19,20 @@ $(document).ready(function() {
     initLoadMoreComments();
     initLoadMoreButton();
     initDatePrototype();
+
+    initAddAndReferButtons();
+    
+    // initialize round elements
+    initRoundElements();
 });
+
+function initAddAndReferButtons() {
+    displayListDropDown();
+    bindAddToListButton();
+    bindAddToListDialog();
+    bindReferDialog();
+    bindReferDialogButton(friendList);
+}
 
 /* functions for $(document).ready */
 //initialize the accordion features for inbox
@@ -58,7 +71,7 @@ function bindAccordionInbox() {
 
 // override accordion click handler when clicking Like, Comment, pressing enter or space
 function overrideAccordionEvent() {
-    $(".accordion-object p a, .accordion-object table, .accordion-object .no-accordion").click(function(e) {
+    $(".accordion-object p a, .accordion-object .no-accordion").click(function(e) {
         e.stopPropagation();
     });
 
@@ -68,6 +81,10 @@ function overrideAccordionEvent() {
             e.stopPropagation();
         }
     });
+}
+
+function initRoundElements() {
+    $(".round-element").corner();
 }
 
 // init with comment input hidden; show upon click
@@ -154,7 +171,7 @@ function initComment() {
 						'<td class="comments-content">' +
 					   		name +
 						'</td>' +
-                        '<td>' +
+                                                '<td>' +
 							'<button id="delete-comment-button-cid-' + data + '" class="delete-comment" data-cid=' + data + '>' +
 								'x' +
 							'</button>' +
@@ -217,7 +234,7 @@ function initLoadMoreButton() {
             inboxLoadStart = inboxLoadStart+3;
         });
     });
-    
+
     var friendActivityLoadStart = 3;
     $('#load-more-friend-activity-content-button').click(function(){
         jQuery.post("http://192.168.11.28/referrals/get_more_friend_activity", {
@@ -294,16 +311,16 @@ function updateCommentsHTMLString(commentList, collapse) {
 }
 
 // private function
-function createReferralsHTMLString(row, userReferralString) {
+function createReferralsHTMLString(row, userReferralString, fbidPicture) {
     var VendorDetails = row.VendorList['VendorList'][0][0];
     var likeNumber = 0;
     var likeStatus = "";
     var recommendationComment = "";
-    
+
     var t = row.refDate.split(/[- :]/);
     var d = new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5]);
     var timeStamp = d.getFuzzyTimeElapsed();
-    
+
     likeNumber = row.LikesList['LikesList'].length;
     if(likeNumber>0) {
         if(likeNumber == 1) {
@@ -322,6 +339,10 @@ function createReferralsHTMLString(row, userReferralString) {
         likeStatus = "Like";
     }
     
+    // allow for a little flexibility
+    if(fbidPicture == undefined) {
+        var fbidPicture = row.fbid;
+    }
 
     displayReferralsHTMLString = "";
     if ( row.lid == 0 ) {
@@ -333,12 +354,32 @@ function createReferralsHTMLString(row, userReferralString) {
                 "<a>" +
                     VendorDetails.name +
                     "<div class='friend-referral-comment-wrapper'>" +
-                        "<div class='inbox-friend-pic'>" +
-                            "<img src='https://graph.facebook.com/" + row.fbid + "/picture'>" +
-                        "</div>" +
-                        "<div class='inbox-friend-referral'>" +
-                            userReferralString +
-                        "</div>" +
+                        "<table class='formatted-table'>" +
+                            "<tr>" +
+                                "<td class='formatted-table-info'>" +
+                                    "<div class='inbox-friend-pic'>" +
+                                        "<img src='https://graph.facebook.com/" + fbidPicture + "/picture'>" +
+                                    "</div>" +
+                                    "<div class='inbox-friend-referral'>" +
+                                        userReferralString +
+                                    "</div>" +
+                                "</td>" +
+                                "<td class='formatted-table-button' align='right'>" +
+                                    "<p>" +
+                                        "<a href='#' id=" + VendorDetails.id + " class='refer-popup-link dialog_link ui-state-default ui-corner-all'>" +
+                                            "<span class='ui-icon ui-icon-plus'></span>" +
+                                                "Refer to Friends" +
+                                        "</a>" +
+                                    "</p>" +
+                                    "<p>" +
+                                        "<a href='#' id=" + VendorDetails.id + " class='add-to-list-popup-link dialog_link ui-state-default ui-corner-all'>" +
+                                            "<span class='ui-icon ui-icon-plus'></span>" +
+                                                "Add to List" +
+                                        "</a>" +
+                                    "</p>" +
+                                "</td>" +
+                            "</tr>" +
+                        "</table>" +
                     "</div>" +
                 "</a>" +
             "</div>" +
@@ -361,23 +402,43 @@ function createReferralsHTMLString(row, userReferralString) {
                 "<a>" + userListDetails.name +
                     "<div class='friend-referral-comment-wrapper'>" +
                         "<div class='inbox-friend-pic'>" +
-                            "<img src='https://graph.facebook.com/" + row.fbid + "/picture'>" +
+                            "<img src='https://graph.facebook.com/" + fbidPicture + "/picture'>" +
                         "</div>" +
                         "<div class='inbox-friend-referral'>" +
-                            row.firstName + " " + row.lastName + " says \"" + row.ReferralsComment + "\"" +
+                            userReferralString +
                         "</div>" +
                     "</div>" +
                 "</a>" +
             "</div>" +
 
-            "<div class='drop-down-details accordion-contest'>";
+            "<div class='drop-down-details accordion-content'>";
 
         for(var j = 0; j<row.VendorList['VendorList'].length; j++) {
             SubVendorDetails = row.VendorList['VendorList'][j][0];
             displayReferralsHTMLString = displayReferralsHTMLString +
                 "<div class='subaccordion-object'>" +
                     "<div class='subaccordion-header'>" +
-                        SubVendorDetails.name +
+                        "<table class='formatted-table'>" +
+                            "<tr>" +
+                                "<td>" +
+                                    SubVendorDetails.name +
+                                "</td>" +
+                                "<td class='formatted-table-button' align='right'>" +
+                                    "<p>" +
+                                        "<a href='#' id=" + SubVendorDetails.id + " class='refer-popup-link dialog_link ui-state-default ui-corner-all'>" +
+                                            "<span class='ui-icon ui-icon-plus'></span>" +
+                                                "Refer to Friends" +
+                                        "</a>" +
+                                    "</p>" +
+                                    "<p>" +
+                                        "<a href='#' id=" + SubVendorDetails.id + " class='add-to-list-popup-link dialog_link ui-state-default ui-corner-all'>" +
+                                            "<span class='ui-icon ui-icon-plus'></span>" +
+                                                "Add to List" +
+                                        "</a>" +
+                                    "</p>" +
+                                "</td>" +
+                            "</tr>" +
+                        "</table>" +
                     "</div>" +
                     "<div class='subaccordion-content'>" +
                         SubVendorDetails.addrNum + " " + SubVendorDetails.addrStreet + "<br>" +
@@ -440,7 +501,7 @@ function initDatePrototype () {
         var nd = this.getDayName();
         var ampm = 'am';
         if ( this.getHours() > 12 ) {ampm = 'pm'};
-        
+
         f = f.replace(/x/g, ampm);
         f = f.replace(/yyyy/g, this.getFullYear());
         f = f.replace(/MMM/g, nm.substr(0,3).toUpperCase());
@@ -458,7 +519,8 @@ function initDatePrototype () {
         f = f.replace(/i/g, String(this.getMinutes()).padLeft('0', 2));
         f = f.replace(/z/g, this.getDayName());
         f = f.replace(/q/g, this.getMonthName());
-        
+        f = f.replace(/X/g, this.getSuffix());
+
         return f
     };
 
@@ -479,6 +541,42 @@ function initDatePrototype () {
             case 11:return 'December';
         }
     };
+    
+    Date.prototype.getMonthString = function () {
+        switch(this.getMonth())
+        {
+            case 0:return '01';
+            case 1:return '02';
+            case 2:return '03';
+            case 3:return '04';
+            case 4:return '05';
+            case 5:return '06';
+            case 6:return '07';
+            case 7:return '08';
+            case 8:return '09';
+            case 9:return '10';
+            case 10:return '11';
+            case 11:return '12';
+        }
+    };
+    
+    Date.prototype.getSuffix = function () {
+        switch(this.getDate())
+        {
+            case 1:
+            case 21:
+            case 31:
+                return 'st';
+            case 2:
+            case 22:
+                return 'nd';
+            case 3:
+            case 23:
+                return 'rd';
+            default:
+                return 'th';
+        }
+    }
 
     Date.prototype.getDayName = function ()
     {
@@ -491,7 +589,7 @@ function initDatePrototype () {
             case 4:return 'Thursday';
             case 5:return 'Friday';
             case 6:return 'Saturday';
-        }    
+        }
     };
 
     String.prototype.padLeft = function (value, size)
@@ -500,75 +598,112 @@ function initDatePrototype () {
         while (x.length<size) {x = value + x;}
         return x;
     };
-    
+
     Date.prototype.getFuzzyTimeElapsed = function ()
     {
         // Get the current date and reference date
         var currentDate = new Date();
         var refDate = new Date(this);
         var dateOfRecord = "";
-        
+
         // Extract from currentDate
-        var currentYear = currentDate.getYear();
-        var currentMonth = currentDate.getMonth() + 1;
-        var currentDay = currentDate.getDate();
+        var currentYear = currentDate.getFullYear().toString();
+        var currentMonth = currentDate.getMonthString();
         
+        if (currentDate.getDate() < 10) {
+            currentDay = '0' + currentDate.getDate().toString();
+        } else {
+            currentDay = currentDate.getDate().toString();
+        }
+
         // Extract from refDate
-        var refYear = refDate.getYear();
-        var refMonth = refDate.getMonth() + 1;
-        var refDay = refDate.getDate();
+        var refYear = refDate.getFullYear().toString();
+        var refMonth = refDate.getMonthString();
         
+        if (refDate.getDate() < 10) {
+            refDay = '0' + refDate.getDate().toString();
+        } else {
+            refDay = refDate.getDate().toString();
+        }
+
         // Determine the difference in time
-        var diffInYears = currentYear - refYear;
-        var diffInMonths = (currentMonth - refMonth + 12) % 12;
-        var diffInDays = currentDay - refDay;
         
-        if (diffInDays > 7) {
+        var tempMaxDate = currentYear + currentMonth + currentDay;
+        var tempDateRef = refYear + refMonth + refDay;
+        var diffInDays = parseInt(currentDay) - parseInt(refDay);
+        
+        var tempDifference = parseInt(tempMaxDate) - parseInt(tempDateRef);
+        
+        if (tempDifference > 7) {
             // display regular time stamp
-            dateOfRecord = refDate.toFormattedString('h:ix, z, q dd, yyyy');
+            dateOfRecord = refDate.toFormattedString('h:ix, z, q ddX, yyyy');
         } else {
             var currentHour = currentDate.getHours();
             var currentMin = currentDate.getMinutes();
             var currentSec = currentDate.getSeconds();
-            
+
             var refHour = refDate.getHours();
             var refMin = refDate.getMinutes();
             var refSec = refDate.getSeconds();
-            
+
             var diffInHours = currentHour - refHour;
             var diffInMin = currentMin - refMin;
             var diffInSec = currentSec - refSec;
-            
+
             // show time difference
-            if (diffInDays < 1) {
+            if (tempDifference < 1) {
                 if (diffInHours > 0) {
                     if (diffInMin < 0) {
                         diffInMin = 60 + diffInMin;
                         diffInHours = diffInHours - 1;
-                        dateOfRecord = String(diffInMin) + ' min ago';
+                        if (diffInHours == 0 ) {
+                            dateOfRecord = String(diffInMin) + ' min ago';
+                        } else {
+                            dateOfRecord = String(diffInHours) + ' hr ago';// + String(diffInMin) + ' min ago';
+                        }
                     } else {
-                        dateOfRecord = String(diffInHours) + ' hr ' + String(diffInMin) + ' min ago';
+                        dateOfRecord = String(diffInHours) + ' hr ago';// + String(diffInMin) + ' min ago';
                     }
                 } else {
                     if (diffInMin > 0) {
-                        dateOfRecord = String(diffInMin) + ' min ' + String(diffInSec) + ' sec ago';
+                        if (diffInSec < 0) {
+                            diffInMin = diffInMin - 1;
+                            diffInSec = diffInSec + 60;
+                            if (diffInMin == 0) {
+                                dateOfRecord = String(diffInSec) + ' sec ago';
+                            } else {
+                                dateOfRecord = String(diffInMin) + ' min ago'; // + String(diffInSec) + ' sec ago';
+                            }
+                        } else {
+                            dateOfRecord = String(diffInMin) + ' min ago'; // + String(diffInSec) + ' sec ago';
+                        }
                     } else {
                         dateOfRecord = String(diffInSec) + ' sec ago';
                     }
                 }
             } else {
-                if (diffInDays > 1) {
+                if (tempDifference > 1) {
                     dateOfRecord = String(diffInDays) + ' days ago';
                 } else {
-                    dateOfRecord = String(diffInDays) + ' day and ' + String(diffInHours) + ' hr ago';
+                    if (diffInHours < 0) {
+                        diffInHours = diffInHours + 24;
+                        diffInDays = diffInDays - 1;
+                        if(diffInDays == 0) {
+                            dateOfRecord = String(diffInHours) + ' hr ago';
+                        } else {
+                            dateOfRecord = String(diffInDays) + ' day ago'; // + String(diffInHours) + ' hr ago';
+                        }
+                    } else {
+                        dateOfRecord = String(diffInDays) + ' day ago'; // + String(diffInHours) + ' hr ago';
+                    }
                 }
             }
         }
-        
+
         return dateOfRecord;
-        
+
     }
-    
+
 }
 
 
@@ -576,24 +711,22 @@ function displayMoreInbox(moreRows) {
     // moreRows is a parsedJSON object
     // create a string that captures all HTML required to write the next referral
     var displayReferralsHTMLString = "";
-    
+
     // destroy the accordion first
     $('.accordion-object').accordionCustom('destroy');
     $('.subaccordion-object').accordionCustom('destroy');
 
-    
-
     for(var i=0; i<moreRows.length; i++) {
         var row = moreRows[i];
-        
+
         if (row.ReferralsComment == "") {
             userReferralString = row.firstName + " " + row.lastName + " thinks you'll love this!";
         } else {
             userReferralString = row.firstName + " " + row.lastName + " says \"" + row.ReferralsComment + "\"";
         }
-        
+
         displayReferralsHTMLString = createReferralsHTMLString(row, userReferralString);
-    
+
         // append to inbox wrapper
         $(displayReferralsHTMLString).appendTo('#inbox-wrapper');
 
@@ -610,13 +743,17 @@ function displayMoreInbox(moreRows) {
     }
     bindAccordionInbox();
     overrideAccordionEvent();
+    
+    
+    
+    initAddAndReferButtons();
 }
 
 
 
 function displayMoreFriendActivity(moreRows) {
     var displayReferralsHTMLString = "";
-    
+
     // destroy the accordion first
     $('.accordion-object').accordionCustom('destroy');
     $('.subaccordion-object').accordionCustom('destroy');
@@ -629,10 +766,10 @@ function displayMoreFriendActivity(moreRows) {
         if (row.ReferralsComment != "") {
             userReferralString = userReferralString + ": \"" + row.ReferralsComment + "\"";
         }
-            
+        
         displayReferralsHTMLString = createReferralsHTMLString(row, userReferralString);
-
-        $(displayReferralsHTMLString).appendTo('#friend-activity-wrapper');
+        $(displayReferralsHTMLString).appendTo('#accordion-friend-activity');
+//        $(displayReferralsHTMLString).appendTo('#friend-activity-wrapper');
 
         $('.click-to-comment').unbind();
         initCommentInputDisplay();
@@ -647,4 +784,137 @@ function displayMoreFriendActivity(moreRows) {
     }
     bindAccordionInbox();
     overrideAccordionEvent();
+    
+    
+    initAddAndReferButtons();
+}
+
+function getVendorDetails(id, callback) {
+    // ajax call to get array of details given only the id
+
+    jQuery.post("http://192.168.11.28/referrals/get_vendor_details", {
+        vendorID: id
+    }, function(data) {
+        var parsedJSON = jQuery.parseJSON(data);
+        return callback(parsedJSON);
+    });
+}
+
+
+function bindAddToListButton() {
+    $('.add-to-list-popup-link').click(function() {
+
+        var vendor = {};
+        vendor['id'] = $(this).attr('id');
+
+        $('#fuzz').fadeIn();
+        $('#addToListDialog').dialog("option", "title", "Add to a List");
+        $('#addToListDialog').dialog("option", "buttons", {
+            "Add!": function() {
+
+                // get value selected in dropdown and comment
+                var selectedList = $('#selectList').val();
+
+                // create new list if specified and add vendor to that new list
+                if (selectedList == 'addNew') {
+                    var newListName = $('#new-list-name').val();
+                    jQuery.post('list_controller/add_list', {
+                        newListName: newListName,
+                        uid: myUID
+                    }, function(data) {
+                        var newListData = jQuery.parseJSON(data);
+                        if (newListData.length == 0) {
+                            alert("List was not added successfully");
+                        } else if (newListData.length > 1) {
+                            alert("Multiple lists were returned");
+                        } else {
+                            // refresh sidebar that displays your lists
+                            var htmlString = "<li class='my-list-wrapper'><span id='delete-my-list-lid--" + newListData[0].lid + "' class='delete-my-list'>x</span>";
+                            htmlString = htmlString + "<span id='my-list-lid--" + newListData[0].lid + "' class='my-list'>" + newListData[0].name + "</span></li>";                                $('#lists').append(htmlString);
+
+                            // set selectedList to the lid that was just created
+                            addVendorToList(newListData[0].lid, vendor);
+                        }
+                    });
+                }
+
+                // add vendor to existing list
+                else if (selectedList != 'none') {
+                    addVendorToList(selectedList, vendor);
+                }
+
+                // no list was selected from dropdown
+                else {
+                    alert("Please select a list");
+                }
+            }
+        });
+
+        $('#addToListDialog').dialog('open');
+        return false;
+    });
+}
+
+function bindReferDialogButton(friendList) {
+    $('.refer-popup-link').click(function(){
+        // get id of the vendor, which is the id of the pop up button
+        var vendor = {};
+        vendor['id'] = $(this).attr('id');
+
+        $("#fuzz").fadeIn();
+        $('#dialog').dialog("option","title","Refer Friends");
+
+        // reset all values when dialog box closes
+        $( "#dialog" ).bind( "dialogbeforeclose", function(event, ui) {
+                $('#comment-box').val('');
+                $('#friends-refer-right').html('');
+                $('#tags').val('');
+                friendList.length = 0;
+                displayAutoCompleteResults(allFriends);
+
+                // fade out dark background
+                $("#fuzz").fadeOut();
+        });
+
+
+        $('#dialog').dialog("option","buttons", {
+            "Refer!": function() {
+                if (friendList.length < 1) {
+                    alert("You did not select any friends to refer. Please try again.");
+                }
+                else {
+                    var now = new Date();
+                    now = now.format("yyyy-mm-dd HH:MM:ss");
+                    var comment = $('#comment-box').val();
+
+                    // create list of friend uid's to refer to
+                    var uidFriendsObj = {};
+                    for (var i = 0; i < friendList.length; i++) {
+                        uidFriendsObj[i] = friendList[i].uid;
+                    }
+                    var uidFriendsStr = JSON.stringify(uidFriendsObj);
+
+                    // perform query to add referrals to Referrals and ReferralDetails databases
+                    jQuery.post('searchvendors/add_referral',{
+                        myUID: myUID,
+                        date: now,
+                        comment: comment,
+                        numFriends: friendList.length,
+                        uidFriends: uidFriendsStr,
+                        id: vendor.id
+                    }, function(data) {
+                        if (data) {
+                            alert(data);
+                        }
+                        else {
+                            $('#dialog').dialog("close");
+                        }
+                    });
+                }
+            }
+        });
+
+        $('#dialog').dialog('open');
+        return false;
+    });
 }

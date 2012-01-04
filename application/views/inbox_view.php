@@ -78,15 +78,36 @@
                         <div class="inbox-single-wrapper accordion-header">
                             <div class="referral-date">
                                 <?php echo $dateOfRecord; ?>
+                            </div>
                             <a> <?php echo $VendorDetails->name; ?>
                                 <!-- sub title here-->
                                 <div class="friend-referral-comment-wrapper">
-                                    <div class="inbox-friend-pic">
-                                        <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
-                                    </div>
-                                    <div class="inbox-friend-referral">
-                                        <?php echo $recommendationComment; ?>
-                                    </div>
+                                    <table class='formatted-table'>
+                                        <tr>
+                                            <td class='formatted-table-info'>
+                                                <div class="inbox-friend-pic">
+                                                    <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
+                                                </div>
+                                                <div class="inbox-friend-referral">
+                                                    <?php echo $recommendationComment; ?>
+                                                </div>
+                                            </td>
+                                            <td class="formatted-table-button" align="right">
+                                                <p>
+                                                    <a href="#" id="<?php echo $VendorDetails->id; ?>" class="refer-popup-link dialog_link ui-state-default ui-corner-all">                                    
+                                                        <span class="ui-icon ui-icon-plus"></span>
+                                                        Refer to Friends
+                                                    </a>
+                                                </p>
+                                                <p>
+                                                    <a href="#" id="<?php echo $VendorDetails->id; ?>" class="add-to-list-popup-link dialog_link ui-state-default ui-corner-all">
+                                                        <span class="ui-icon ui-icon-plus"></span>
+                                                        Add to List
+                                                    </a>
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </div>
                             </a>
                             </div>
@@ -133,13 +154,33 @@
                                     <?php echo $vendorRow[0]->name; ?>
                                 </div>
                                 <div class="subaccordion-content">
-                                    <!-- vendor details here -->
-                                    <?php
-                                        echo $vendorRow[0]->addrNum . " " . $vendorRow[0]->addrStreet . "<br>";
-                                        echo $vendorRow[0]->addrCity . " " . $vendorRow[0]->addrState . " " . $vendorRow[0]->addrZip . "<br>";
-                                        echo $vendorRow[0]->phone . "<br>";
-                                        echo $vendorRow[0]->website;
-                                    ?>
+                                    <table class="formatted-table-button">
+                                        <tr>
+                                            <td>
+                                                <!-- vendor details here -->
+                                                <?php
+                                                    echo $vendorRow[0]->addrNum . " " . $vendorRow[0]->addrStreet . "<br>";
+                                                    echo $vendorRow[0]->addrCity . " " . $vendorRow[0]->addrState . " " . $vendorRow[0]->addrZip . "<br>";
+                                                    echo $vendorRow[0]->phone . "<br>";
+                                                    echo $vendorRow[0]->website;
+                                                ?>
+                                            </td>
+                                            <td class="formatted-table-button" align="right">
+                                                <p>
+                                                    <a href="#" id="<?php echo $VendorDetails->id; ?>" class="refer-popup-link dialog_link ui-state-default ui-corner-all">                                    
+                                                        <span class="ui-icon ui-icon-plus"></span>
+                                                        Refer to Friends
+                                                    </a>
+                                                </p>
+                                                <p>
+                                                    <a href="#" id="<?php echo $VendorDetails->id; ?>" class="add-to-list-popup-link dialog_link ui-state-default ui-corner-all">
+                                                        <span class="ui-icon ui-icon-plus"></span>
+                                                        Add to List
+                                                    </a>
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </div>
                             </div>
                             
@@ -161,6 +202,7 @@
                                 <div class="click-to-comment no-accordion">
                                     Comment
                                 </div>
+                                
                                 <div class="number-of-likes no-accordion">
                                     <?php echo $likeNumber; ?>
                                 </div>
@@ -230,6 +272,60 @@
             <div id="load-more-inbox-content-button" class="load-more-button">
                 Load more..
             </div>  
+        </div>
+        
+        <div id='add-list-dialog' class='none'>
+            <form id='add-list-form' method='post' onsubmit='return false;'>
+                <label for='add-list-name'>Name: </label>
+                <br>
+                <input type='text' id='add-list-name' name='add-list-name'>
+                <br>
+                <br>
+                <input type='submit' id='add-list-submit' value='Create new list!'>
+            </form>
+        </div>
+        <div id='edit-list-comment-dialog' class='none'>
+            <form id='edit-list-comment-form' method='post' onsubmit='return false;'>
+                <label for='edit-list-comment-value'>New comment: </label>
+                <br>
+                <input type='text' class='edit-list-comment-value no-enter-submit' name='edit-list-comment-value'>
+            </form>
+        </div>
+        <div id='dialog' class='none'>
+            <div id='friends-refer-upper'>
+                <div id='friends-refer-left'>
+                    <div id='friends-refer-search'>
+                        <form id='addFriend' method='post' onsubmit='return false;'>
+                            <label for='tags'><B>Who do you want to refer to?</b><BR></label>
+                            <input type='text' id='tags' autocomplete='off' name='friend'>
+                            <input type='submit' id='searchFriendsButton' value='Add to List'/>
+                        </form>
+                    </div>
+                    <div id='friends-refer-display'>
+                        <div id='friends-refer-display-left'>
+                        </div>
+                        <div id='friends-refer-display-right'>
+                        </div>
+                    </div>
+                </div>
+                <div id='friends-refer-right'>
+                </div>
+            </div>
+            <div id='friends-refer-comment'>
+                 <label for='comment-box'><B>Add a comment with your referral!</B></label>
+                 <textarea name='comment' id='comment-box'></textarea>
+            </div>
+        </div>
+
+        <div id='addToListDialog' class='none'>
+             <div id='add-to-existing-list'>
+             </div>
+             <div id='add-to-new-list'>
+             </div>
+             <div id='add-to-list-comment'>
+                  <label for='add-to-list-comment-box'><B>Add a comment!</B></label>
+                  <textarea name='addToListComment' id='add-to-list-comment-box'></textarea>
+             </div>
         </div>
     </body>
 </html>
