@@ -85,6 +85,7 @@ function dateTimeDiff($data_ref)
             if ($dDf > 1) {
                 $dateOfRecord = $dDf . ' days ago';
             } else {
+                // if dDf == 1
                 if ($hDf < 0) {
                     $hDf = $hDf + 24;
                     $dDf = $dDf - 1;
@@ -93,8 +94,9 @@ function dateTimeDiff($data_ref)
                     } else {
                         $dateOfRecord = $dDf . ' day ago';
                     }
+                } else {
+                    $dateOfRecord = $dDf . ' day ago'; // and ' . $hDf . ' hr ago';
                 }
-                $dateOfRecord = $dDf . ' day ago'; // and ' . $hDf . ' hr ago';
             }
         }
     } else {

@@ -92,6 +92,13 @@ class referrals extends CI_Controller {
         echo json_encode($this->manage_referral_model->load_friend_activity_items($currentUserData));
     }
 
+    // added by mike gao for ajax tabs
+    public function load_inbox_items() {
+        $currentUserData = $this->session->userdata('currentUserData');
+        $this->load->model('manage_referral_model');
+        echo json_encode($this->manage_referral_model->load_inbox_items($currentUserData));
+    }
+
     /*
      * only retrieve X rows from model / mysql
      *

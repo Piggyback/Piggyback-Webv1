@@ -114,7 +114,7 @@
                                     <div id="content">
                                         <div class="ui-tabs ui-widget ui-widget-content ui-corner-all" id="tabs">
                                             <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-                                                <li id="inbox-tab" class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#inbox-content">Inbox</a></li>
+                                                <li id="inbox-tab" class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#inbox-content" onClick=loadInbox();>Inbox</a></li>
                                                 <li id="friend-activity-tab" class="ui-state-default ui-corner-top"><a href="#friend-activity-content" onClick=loadFriendActivity();>Friend Activity</a></li>
                                                 <li id="referral-tracking-tab" class="ui-state-default ui-corner-top"><a href="#referral-tracking-content" onClick=loadReferralTracking();>Referral Tracking</a></li>
                                                 <li id="search-tab" class="ui-state-default ui-corner-top none"><a href="#search-content"></a></li>
@@ -123,7 +123,6 @@
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="inbox-content">
                                                 <div id="inbox">
                                                     <div id="accordion-inbox" class="accordion-object">
-                                                        <div id="inbox-wrapper">
                                                         <?php foreach ($inboxItems as $row):?>
                                                             <?php
                                                                 // get some vital variables ready
@@ -238,12 +237,32 @@
                                                                     <a> <?php echo $userListDetails->name; ?>
                                                                         <!-- sub title here-->
                                                                         <div class="friend-referral-comment-wrapper">
-                                                                            <div class="inbox-friend-pic">
-                                                                                <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
-                                                                            </div>
-                                                                            <div class="inbox-friend-referral">
-                                                                                <?php echo $recommendationComment; ?>
-                                                                            </div>
+                                                                            <table class='formatted-table'>
+                                                                                <tr>
+                                                                                    <td class='formatted-table-info'>
+                                                                                        <div class="inbox-friend-pic">
+                                                                                            <?php echo '<img class="round-element" src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
+                                                                                        </div>
+                                                                                        <div class="inbox-friend-referral">
+                                                                                            <?php echo $recommendationComment; ?>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                    <td class="formatted-table-button" align="right">
+                                                                                        <p>
+                                                                                            <a href="#" id="<?php echo $row->lid; ?>" class="refer-list-popup-link dialog_link ui-state-default ui-corner-all">
+                                                                                                <span class="ui-icon ui-icon-plus"></span>
+                                                                                                Refer List to Friends
+                                                                                            </a>
+                                                                                        </p>
+                                                                                        <p>
+                                                                                            <a href="#" id="<?php echo $row->lid; ?>" class="add-list-to-list-popup-link dialog_link ui-state-default ui-corner-all">
+                                                                                                <span class="ui-icon ui-icon-plus"></span>
+                                                                                                Add List to List
+                                                                                            </a>
+                                                                                        </p>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
                                                                         </div>
                                                                     </a>
                                                                 </div>
@@ -262,13 +281,13 @@
                                                                                     </td>
                                                                                     <td class="formatted-table-button" align="right">
                                                                                         <p>
-                                                                                            <a href="#" id="<?php echo $VendorDetails->id; ?>" class="refer-popup-link dialog_link ui-state-default ui-corner-all">                                    
+                                                                                            <a href="#" id="<?php echo $vendorRow[0]->id; ?>" class="refer-popup-link dialog_link ui-state-default ui-corner-all">
                                                                                                 <span class="ui-icon ui-icon-plus"></span>
                                                                                                 Refer to Friends
                                                                                             </a>
                                                                                         </p>
                                                                                         <p>
-                                                                                            <a href="#" id="<?php echo $VendorDetails->id; ?>" class="add-to-list-popup-link dialog_link ui-state-default ui-corner-all">
+                                                                                            <a href="#" id="<?php echo $vendorRow[0]->id; ?>" class="add-to-list-popup-link dialog_link ui-state-default ui-corner-all">
                                                                                                 <span class="ui-icon ui-icon-plus"></span>
                                                                                                 Add to List
                                                                                             </a>
@@ -277,7 +296,7 @@
                                                                                 </tr>
                                                                             </table>
                                                                         </div>
-                                                                        
+
                                                                         <div class="subaccordion-content">
                                                                             <table class="formatted-table-button">
                                                                                 <tr>
@@ -369,7 +388,6 @@
                                                                     </div>
                                                                 </div>
                                                             <?php endforeach; ?>
-                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div id="load-more-inbox-content-button" class="load-more-button">

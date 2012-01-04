@@ -30,8 +30,8 @@ $(document).ready(function() {
     searchAJAX();
 
     bindReferDialogList(friendList);
-    
-    
+
+
     initAddAndReferButtons();
 
 });
@@ -599,18 +599,18 @@ function loadFriendActivity() {
 /*
  * untested
  */
-function loadInboxActivity() {
+function loadInbox() {
     jQuery.post('referrals/load_inbox_items', function(data) {
         var parsedJSON = jQuery.parseJSON(data);
-        displayInboxItems(parsedJSON);
+        displayInbox(parsedJSON);
     });
 }
 
 /*
  * untested
  */
-function displayMoreInbox(parsedJSON) {
-    $('#accordion-inbox-items').html('');
+function displayInbox(parsedJSON) {
+    $('#accordion-inbox').html('');
     displayMoreInbox(parsedJSON);
 }
 

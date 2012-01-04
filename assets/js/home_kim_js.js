@@ -606,6 +606,23 @@ function addVendorToDB(vendor) {
     });
 }
 
+// add list to list
+//
+// put lid1 into lid2
+//
+function addListToList(lid2, lid1) {
+    // turn lid into an array, right now it is just an integer
+    jQuery.post('list_controller/get_list_content', {
+        lid: lid1
+    }, function(data) {
+        var parsedJSON = jQuery.parseJSON(data);
+        for (var i = 0; i < parsedJSON.length; i++ ) {
+            addVendorToList(lid2, parsedJSON[i]);
+        }
+    })    
+}
+
+
 // from search results, add vendor to an existing or new list
 // update database
 // update mylists sidebar to reflect new vendor/list
@@ -677,3 +694,4 @@ function addVendorToList(lid, vendor) {
         }
     });
 }
+

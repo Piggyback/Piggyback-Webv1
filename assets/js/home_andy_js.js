@@ -21,7 +21,7 @@ $(document).ready(function() {
     initDatePrototype();
 
     initAddAndReferButtons();
-    
+
     // initialize round elements
     initRoundElements();
 });
@@ -32,6 +32,7 @@ function initAddAndReferButtons() {
     bindAddToListDialog();
     bindReferDialog();
     bindReferDialogButton(friendList);
+    
 }
 
 /* functions for $(document).ready */
@@ -338,7 +339,7 @@ function createReferralsHTMLString(row, userReferralString, fbidPicture) {
     } else {
         likeStatus = "Like";
     }
-    
+
     // allow for a little flexibility
     if(fbidPicture == undefined) {
         var fbidPicture = row.fbid;
@@ -401,12 +402,32 @@ function createReferralsHTMLString(row, userReferralString, fbidPicture) {
                 "</div>" +
                 "<a>" + userListDetails.name +
                     "<div class='friend-referral-comment-wrapper'>" +
-                        "<div class='inbox-friend-pic'>" +
-                            "<img src='https://graph.facebook.com/" + fbidPicture + "/picture'>" +
-                        "</div>" +
-                        "<div class='inbox-friend-referral'>" +
-                            userReferralString +
-                        "</div>" +
+                        "<table class='formatted-table'>" +
+                            "<tr>" +
+                                "<td class='formatted-table-info'>" +
+                                    "<div class='inbox-friend-pic'>" +
+                                        "<img src='https://graph.facebook.com/" + fbidPicture + "/picture'>" +
+                                    "</div>" +
+                                    "<div class='inbox-friend-referral'>" +
+                                        userReferralString +
+                                    "</div>" +
+                                "</td>" +
+                                "<td class='formatted-table-button' align='right'>" +
+                                    "<p>" +
+                                        "<a href='#' id=" + row.lid + " class='refer-popup-link dialog_link ui-state-default ui-corner-all'>" +
+                                            "<span class='ui-icon ui-icon-plus'></span>" +
+                                                "Refer to Friends" +
+                                        "</a>" +
+                                    "</p>" +
+                                    "<p>" +
+                                        "<a href='#' id=" + row.lid + " class='add-to-list-popup-link dialog_link ui-state-default ui-corner-all'>" +
+                                            "<span class='ui-icon ui-icon-plus'></span>" +
+                                                "Add to List" +
+                                        "</a>" +
+                                    "</p>" +
+                                "</td>" +
+                            "</tr>" +
+                        "</table>" +
                     "</div>" +
                 "</a>" +
             "</div>" +
@@ -490,7 +511,6 @@ function createReferralsHTMLString(row, userReferralString, fbidPicture) {
 }
 
 
-
 /*
  * date and time related functions begin here
  */
@@ -541,7 +561,7 @@ function initDatePrototype () {
             case 11:return 'December';
         }
     };
-    
+
     Date.prototype.getMonthString = function () {
         switch(this.getMonth())
         {
@@ -559,7 +579,7 @@ function initDatePrototype () {
             case 11:return '12';
         }
     };
-    
+
     Date.prototype.getSuffix = function () {
         switch(this.getDate())
         {
@@ -609,7 +629,7 @@ function initDatePrototype () {
         // Extract from currentDate
         var currentYear = currentDate.getFullYear().toString();
         var currentMonth = currentDate.getMonthString();
-        
+
         if (currentDate.getDate() < 10) {
             currentDay = '0' + currentDate.getDate().toString();
         } else {
@@ -619,7 +639,7 @@ function initDatePrototype () {
         // Extract from refDate
         var refYear = refDate.getFullYear().toString();
         var refMonth = refDate.getMonthString();
-        
+
         if (refDate.getDate() < 10) {
             refDay = '0' + refDate.getDate().toString();
         } else {
@@ -627,13 +647,13 @@ function initDatePrototype () {
         }
 
         // Determine the difference in time
-        
+
         var tempMaxDate = currentYear + currentMonth + currentDay;
         var tempDateRef = refYear + refMonth + refDay;
         var diffInDays = parseInt(currentDay) - parseInt(refDay);
-        
+
         var tempDifference = parseInt(tempMaxDate) - parseInt(tempDateRef);
-        
+
         if (tempDifference > 7) {
             // display regular time stamp
             dateOfRecord = refDate.toFormattedString('h:ix, z, q ddX, yyyy');
@@ -706,6 +726,28 @@ function initDatePrototype () {
 
 }
 
+function reInitReferralItems() {
+    $('.click-to-comment').unbind();
+    $('.click-to-like').unbind();
+    $('.submit-comment-button').unbind();
+    $('.delete-comment').unbind();
+    $('.show-load-comments-button').unbind();
+    
+    initRemoveComment();
+    initComment();
+    initLike();
+    initCommentInputDisplay();
+    initLoadMoreComments();
+
+    $('.add-to-list-popup-link').unbind();
+    $('.refer-popup-link').unbind();
+
+    // are the following two bindings necessary?
+    $('#addToListDialog').unbind();
+    $('#dialog').unbind();
+
+    initAddAndReferButtons();
+}
 
 function displayMoreInbox(moreRows) {
     // moreRows is a parsedJSON object
@@ -728,25 +770,13 @@ function displayMoreInbox(moreRows) {
         displayReferralsHTMLString = createReferralsHTMLString(row, userReferralString);
 
         // append to inbox wrapper
-        $(displayReferralsHTMLString).appendTo('#inbox-wrapper');
+//        $(displayReferralsHTMLString).appendTo('#inbox-wrapper');
+        $(displayReferralsHTMLString).appendTo('#accordion-inbox');
 
-        $('.click-to-comment').unbind();
-        initCommentInputDisplay();
-        $('.click-to-like').unbind();
-        initLike();
-        $('.submit-comment-button').unbind();
-        initComment();
-        $('.delete-comment').unbind();
-        initRemoveComment();
-        $('.show-load-comments-button').unbind();
-        initLoadMoreComments();
+        reInitReferralItems();
     }
     bindAccordionInbox();
     overrideAccordionEvent();
-    
-    
-    
-    initAddAndReferButtons();
 }
 
 
@@ -761,32 +791,18 @@ function displayMoreFriendActivity(moreRows) {
     for(var i=0; i<moreRows.length; i++) {
         var row = moreRows[i];
         var RecipientDetails = row.RecipientDetails['RecipientDetails'][0];
-        
+
         userReferralString = row.firstName + " " + row.lastName + " recommended to " + RecipientDetails.firstName + " " + RecipientDetails.lastName;
         if (row.ReferralsComment != "") {
             userReferralString = userReferralString + ": \"" + row.ReferralsComment + "\"";
         }
-        
+
         displayReferralsHTMLString = createReferralsHTMLString(row, userReferralString);
         $(displayReferralsHTMLString).appendTo('#accordion-friend-activity');
-//        $(displayReferralsHTMLString).appendTo('#friend-activity-wrapper');
-
-        $('.click-to-comment').unbind();
-        initCommentInputDisplay();
-        $('.click-to-like').unbind();
-        initLike();
-        $('.submit-comment-button').unbind();
-        initComment();
-        $('.delete-comment').unbind();
-        initRemoveComment();
-        $('.show-load-comments-button').unbind();
-        initLoadMoreComments();
+        reInitReferralItems();
     }
     bindAccordionInbox();
     overrideAccordionEvent();
-    
-    
-    initAddAndReferButtons();
 }
 
 function getVendorDetails(id, callback) {
@@ -853,27 +869,82 @@ function bindAddToListButton() {
         $('#addToListDialog').dialog('open');
         return false;
     });
+    
+    $('.add-list-to-list-popup-link').click(function() {
+
+        var lid = $(this).attr('id');
+
+        $('#fuzz').fadeIn();
+        $('#addToListDialog').dialog("option", "title", "Add to a List");
+        $('#addToListDialog').dialog("option", "buttons", {
+            "Add!": function() {
+
+                // get value selected in dropdown and comment
+                var selectedList = $('#selectList').val();
+
+                // create new list if specified and add vendor to that new list
+                if (selectedList == 'addNew') {
+                    var newListName = $('#new-list-name').val();
+                    jQuery.post('list_controller/add_list', {
+                        newListName: newListName,
+                        uid: myUID
+                    }, function(data) {
+                        var newListData = jQuery.parseJSON(data);
+                        if (newListData.length == 0) {
+                            alert("List was not added successfully");
+                        } else if (newListData.length > 1) {
+                            alert("Multiple lists were returned");
+                        } else {
+                            // refresh sidebar that displays your lists
+                            var htmlString = "<li class='my-list-wrapper'><span id='delete-my-list-lid--" + newListData[0].lid + "' class='delete-my-list'>x</span>";
+                            htmlString = htmlString + "<span id='my-list-lid--" + newListData[0].lid + "' class='my-list'>" + newListData[0].name + "</span></li>";                                $('#lists').append(htmlString);
+
+                            // set selectedList to the lid that was just created
+                            // addVendorToList(newListData[0].lid, vendor);
+                            addListToList(newListData[0].lid, lid)
+                        }
+                    });
+                }
+
+                // add vendor to existing list
+                else if (selectedList != 'none') {
+                    // addVendorToList(selectedList, vendor);
+                    addListToList(selectedList, lid);
+                }
+
+                // no list was selected from dropdown
+                else {
+                    alert("Please select a list");
+                }
+            }
+        });
+
+        $('#addToListDialog').dialog('open');
+        return false;
+    });
+    
 }
 
 function bindReferDialogButton(friendList) {
     $('.refer-popup-link').click(function(){
-        // get id of the vendor, which is the id of the pop up button
         var vendor = {};
         vendor['id'] = $(this).attr('id');
 
+        displayAutoCompleteResults(allFriends);
+        
         $("#fuzz").fadeIn();
         $('#dialog').dialog("option","title","Refer Friends");
 
         // reset all values when dialog box closes
         $( "#dialog" ).bind( "dialogbeforeclose", function(event, ui) {
-                $('#comment-box').val('');
-                $('#friends-refer-right').html('');
-                $('#tags').val('');
-                friendList.length = 0;
-                displayAutoCompleteResults(allFriends);
+            $('#comment-box').val('');
+            $('#friends-refer-right').html('');
+            $('#tags').val('');
+            friendList.length = 0;
+            displayAutoCompleteResults(allFriends);
 
-                // fade out dark background
-                $("#fuzz").fadeOut();
+            // fade out dark background
+            $("#fuzz").fadeOut();
         });
 
 
@@ -902,6 +973,70 @@ function bindReferDialogButton(friendList) {
                         numFriends: friendList.length,
                         uidFriends: uidFriendsStr,
                         id: vendor.id
+                    }, function(data) {
+                        if (data) {
+                            alert(data);
+                        }
+                        else {
+                            $('#dialog').dialog("close");
+                        }
+                    });
+                }
+            }
+        });
+
+        $('#dialog').dialog('open');
+        return false;
+    });
+    
+    
+    $('.refer-list-popup-link').click(function(){
+
+        var lid = $(this).attr('id');
+        
+        displayAutoCompleteResults(allFriends);
+        
+        $("#fuzz").fadeIn();
+        $('#dialog').dialog("option","title","Refer Friends");
+
+        // reset all values when dialog box closes
+        $( "#dialog" ).bind( "dialogbeforeclose", function(event, ui) {
+            $('#comment-box').val('');
+            $('#friends-refer-right').html('');
+            $('#tags').val('');
+            friendList.length = 0;
+            displayAutoCompleteResults(allFriends);
+
+            // fade out dark background
+            $("#fuzz").fadeOut();
+        });
+
+
+        $('#dialog').dialog("option","buttons", {
+            "Refer!": function() {
+                if (friendList.length < 1) {
+                    alert("You did not select any friends to refer. Please try again.");
+                }
+                else {
+                    var now = new Date();
+                    now = now.format("yyyy-mm-dd HH:MM:ss");
+                    var comment = $('#comment-box').val();
+
+                    // create list of friend uid's to refer to
+                    var uidFriendsObj = {};
+                    for (var i = 0; i < friendList.length; i++) {
+                        uidFriendsObj[i] = friendList[i].uid;
+                    }
+                    var uidFriendsStr = JSON.stringify(uidFriendsObj);
+
+                    // perform query to add referrals to Referrals and ReferralDetails databases
+                    jQuery.post('searchvendors/add_referral',{
+                        myUID: myUID,
+                        date: now,
+                        comment: comment,
+                        numFriends: friendList.length,
+                        uidFriends: uidFriendsStr,
+                        id: lid
                     }, function(data) {
                         if (data) {
                             alert(data);

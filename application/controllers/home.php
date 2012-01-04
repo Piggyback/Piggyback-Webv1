@@ -16,12 +16,12 @@ class Home extends CI_Controller {
     function __construct()
     {
         parent::__construct();
+        $this->load->model('list_model');
+        $this->load->model('manage_referral_model');        
     }
 
     public function index()
     {
-        $this->load->model('list_model');
-        $this->load->model('manage_referral_model');
         // get current user data
         $currentUserData = $this->session->userdata('currentUserData');
 
