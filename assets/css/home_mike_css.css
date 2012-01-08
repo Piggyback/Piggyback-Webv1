@@ -88,6 +88,24 @@ a, a:visited, .link {
 }
 
 #top-nav-bar {
+    float: right;
+}
+
+#search {
+    display: inline-block;
+}
+
+#current-pic {
+    display: inline-block;
+}
+
+/*logout*/
+#logout {
+    display: inline-block;
+    cursor: pointer;
+}
+
+/*#top-nav-bar {
     margin-left: 264px;
 }
 
@@ -145,7 +163,7 @@ a, a:visited, .link {
 	right: 50px;
 }
 
-/*logout*/
+logout
 #logout {
     z-index: 10;
     cursor: pointer;
@@ -154,11 +172,11 @@ a, a:visited, .link {
     top: 21px;
 }
 
-/*main page below top bar*/
+main page below top bar
 #main {
     overflow-x: auto;
     position: relative;
-}
+}*/
 
 /*left-list-pane*/
 #left-list-pane {

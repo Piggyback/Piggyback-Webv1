@@ -76,7 +76,6 @@ function dateTimeDiff($data_ref)
                     } else {
                         $dateOfRecord = $mDf . ' min ago';
                     }
-                    $dateOfRecord = $mDf . ' min ago'; // . $sDf . ' sec ago';
                 } else {
                     $dateOfRecord = $sDf . ' sec ago';
                 }

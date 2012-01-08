@@ -4,14 +4,15 @@ class test extends CI_Controller {
 
     public function index()
     {
-        $this->load->model('test_model');
+        //$this->load->model('test_model');
         $this->load->view('test');
     }
     
     public function testmeth() {
         $this->load->model('test_model');
-        $data['blah'] = $this->test_model->testMethod();
-        $this->load->view('test_view',$data);
+        $this->test_model->get_referral_items();
+//        $data['blah'] = $this->test_model->testMethod();
+//        $this->load->view('test_view',$data);
     }  
     
     public function refer_list() {

@@ -140,7 +140,7 @@ class search_vendors_model extends CI_Model {
                
                // if referral does not exist yet, then add it
                if ($flag == 0) {
-                   $q = "$q (NULL, $uid, $uidFriend, \"$date\", 0, \"$comment\"),";
+                   $q = "$q (NULL, $uid, $uidFriend, \"$date\", 0, \"$comment\", 0, 0),";
                    array_push($newFriends,$uidFriend);
                }
             }
