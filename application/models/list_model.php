@@ -23,7 +23,8 @@ class List_model extends CI_Model {
     public function get_list_content()
     {
         $lid = $this->input->post('lid');
-        $query = $this->db->query("SELECT *, Lists.date AS listsDate FROM Lists INNER JOIN Vendors ON Lists.vid = Vendors.id WHERE Lists.lid = " . $lid . " AND deleted != 1;");
+        // and deleted != 1?
+        $query = $this->db->query("SELECT *, Lists.date AS listsDate FROM Lists INNER JOIN Vendors ON Lists.vid = Vendors.id WHERE Lists.lid = $lid AND deleted != 1;");
         echo json_encode($query->result());
     }
 
@@ -55,6 +56,7 @@ class List_model extends CI_Model {
         $date = $_POST["date"];
         $comment = $_POST["comment"];
 
+        // and delete !=1 ?
         $existsQuery = "SELECT vid FROM Lists WHERE lid=$lid AND vid=\"$vid\" AND deleted != 1";
 
         $existsResult = mysql_query($existsQuery);

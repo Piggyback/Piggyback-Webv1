@@ -54,6 +54,8 @@ function bindAccordion() {
 //            return false;
 //        })
 //        .next().addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom").hide();
+
+    //TODO: Optimize binding calls with Andy -- currently rebinding ALL accordions
     $( ".accordion-object" ).accordionCustom({
         header: 'div.accordion-header',
         content: 'div.accordion-content',
@@ -154,8 +156,8 @@ function initLike() {
             rid: referId
         }, function(likeCount){
             // parse the existing number of likes from the front end html div
-            likeNumber = likes.text();
-            likeNumber = likeNumber.substring(0, likeNumber.indexOf(' '));
+            likeNumber = likes.text().trim();
+            likeNumber = likeNumber.substring(0, likeNumber.indexOf(' ')).trim();
             var a = parseInt(likeNumber) || 0;
             
             // toggle Like and Unlike
@@ -186,6 +188,9 @@ function initLike() {
     });
 }
 
+/*
+ *  NEED TO UPDATE TO MATCH HOMEVIEW
+ */
 function initComment() {
     $(document).on("click", ".submit-comment-button", function() {
         var name = jQuery.trim($(this).closest('.row').find('.comment-input').val());
@@ -219,7 +224,7 @@ function initComment() {
                             name +
                         '</td>' +
                         '<td>' +
-                            '<button id="delete-comment-button-cid--' + data + '" class="delete-comment" data-cid=' + data + '>' +
+                            '<button id="remove-comment-button-cid--' + data + '" class="remove-comment-button" data-cid=' + data + '>' +
                                 'x' +
                             '</button>' +
                         '</td>' +
@@ -232,7 +237,7 @@ function initComment() {
 }
 
 function initRemoveComment() {
-    $(document).on("click", ".delete-comment", function() {
+    $(document).on("click", ".remove-comment-button", function() {
         var cidString = $(this).attr('id');
         var cid = cidString.substring(cidString.indexOf('cid--') + 'cid--'.length);
         var singleComment = $(this).closest('.single-comment');
@@ -257,6 +262,7 @@ function initRemoveReferralButton() {
             itemType: itemType
         }, function(data) {
             // remove referral from html
+            //TODO: Talk to Andy -- make this its own function so i can use it for my accordion
             refElem.next().next().remove();
             refElem.next().remove();
             refElem.remove();
@@ -306,12 +312,18 @@ function resetReferralContent(itemType) {
     //  inbox-tab
     //  friend-activity-tab
     //  referral-tracking-tab
-    itemType = "#accordion-" + itemType.substring(0, itemType.indexOf('-tab'));
+    //  list-tab
+    if (itemType == 'list-tab') {
+        itemType = '#list-content';
+    } else {
+        itemType = "#accordion-" + itemType.substring(0, itemType.indexOf('-tab'));
+    }
     
     // itemType:
     //  #accordion-inbox
     //  #accordion-friend-activity
     //  #accordion-referral-tracking
+    //  #accordion-list
     $(itemType).empty();
 }
 
@@ -332,15 +344,23 @@ function displayReferralItems(parsedJSON, itemType) {
     var displayReferralsHTMLString = "";
     
     // destroy the accordion first
-    $('.accordion-object').accordionCustom('destroy');
+    //TODO: Optimize destroy to specific accordion. Code review with Andy. maybe even remove other accordions when tab is not selected (minimize html?)
+    if (itemType == 'inbox-tab') {
+        $('#accordion-inbox').accordionCustom('destroy');
+    } else if (itemType == 'friend-activity-tab') {
+        $('#accordion-friend-activity').accordionCustom('destroy');
+    } else if (itemType == 'referral-tracking-tab') {
+        $('#accordion-referral-tracking').accordionCustom('destroy');
+    }
+    
     $('.subaccordion-object').accordionCustom('destroy');
 
     for(var i=0; i<parsedJSON.length; i++) {
         var row = parsedJSON[i];
-        
         // first only allow non-corrupted data (consistent table servers)
         if(row.isCorrupted != 1) {
             displayReferralsHTMLString = createReferralsHTMLString(row, itemType);
+            //TODO: Talk to Andy -- move variable declaration outside of for loop to avoid redundant instructions
             var accordionName = "#accordion-" + itemType.substring(0, itemType.length-4);
             $(displayReferralsHTMLString).appendTo(accordionName);
         }
@@ -361,7 +381,8 @@ function displayReferralItems(parsedJSON, itemType) {
  *      one referral item's html
  */
 function createReferralsHTMLString(row, itemType) {
-    displayReferralsHTMLString = "";
+    //TODO: Discuss global javascript variables with Andy -- variables without 'var' keyword are global (green colorcode)'
+    var displayReferralsHTMLString = "";
     if ( row.lid == 0 ) {
         displayReferralsHTMLString += createReferralsHeaderHTMLString(row, itemType, row.lid) +//createReferralsHeaderHTMLString(timeStamp, fbidPicture, userReferralString, VendorDetails.name, VendorDetails.id, refID, 0);
         // details of the row
@@ -376,11 +397,11 @@ function createReferralsHTMLString(row, itemType) {
         for(var j = 0; j<row.VendorList['VendorList'].length; j++) {
             SubVendorDetails = row.VendorList['VendorList'][j][0];
             displayReferralsHTMLString +=
-                "<div class='subaccordion-object'>" +
+                "<div class='subaccordion-object name-wrapper'>" +
                     "<div class='subaccordion-header'>" +
                         "<table class='formatted-table'>" +
                             "<tr>" +
-                                "<td>" +
+                                "<td class='vendor-name'>" +
                                     SubVendorDetails.name +
                                 "</td>" +
                                 "<td>" +
@@ -390,7 +411,16 @@ function createReferralsHTMLString(row, itemType) {
                         "</table>" +
                     "</div>" +
                     "<div class='subaccordion-content'>" +
-                        createReferralsDetailsHTMLString(SubVendorDetails) +
+                        "<table class='formatted-table'>" +
+                            "<tr>" +
+                                "<td>" +
+                                    createReferralsDetailsHTMLString(SubVendorDetails) +
+                                "</td>" +
+                                "<td>" +
+                                    "<span class='referral-comment'>" + row.VendorList['VendorList'][j].senderComment + "</span>" +
+                                "</td>" +
+                            "</tr>" +
+                        "</table>" +
                     "</div>" +
                 "</div>";
         }
@@ -426,6 +456,7 @@ function createReferralsHeaderHTMLString(row, itemType, listOrSingle) {
     var referralID = row.rid;
     var fbidPicture = "";
     var genName, genID;
+    var userReferralString;
     
     // logic based on what tab, what default 'comment' to show as well as fb picture
     if (itemType != 'inbox-tab') {
@@ -433,13 +464,15 @@ function createReferralsHeaderHTMLString(row, itemType, listOrSingle) {
         if (itemType == 'friend-activity-tab') {
             userReferralString = row.firstName + " " + row.lastName + " recommended to " + RecipientDetails.firstName + " " + RecipientDetails.lastName;
             referralID = -1;
+            fbidPicture = row.fbid;
         } else if (itemType == 'referral-tracking-tab') {
             userReferralString = "You recommended to " + RecipientDetails.firstName + " " + RecipientDetails.lastName;
+            fbidPicture = RecipientDetails.fbid;
         }
         if (row.ReferralsComment != "") {
-            userReferralString = userReferralString + ": \"" + row.ReferralsComment + "\"";
+//            userReferralString = userReferralString + ": \"" + row.ReferralsComment + "\"";
+            userReferralString = userReferralString + ": \"<span class='referral-comment'>" + row.ReferralsComment + "</span>\"";
         }
-        fbidPicture = RecipientDetails.fbid;
     } else {
         if (row.ReferralsComment == "") {
             userReferralString = row.firstName + " " + row.lastName + " thinks you'll love this!";
@@ -463,7 +496,7 @@ function createReferralsHeaderHTMLString(row, itemType, listOrSingle) {
     }
     
     var referralsHeaderHTMLString =
-        "<div class='single-wrapper accordion-header list-name-wrapper'>" +
+        "<div class='single-wrapper accordion-header name-wrapper'>" +
             "<a>" +
                 "<table class='formatted-table'>" +
                     "<tr>" +
@@ -588,6 +621,7 @@ function createReferralsReferButtonsHTMLString(genID, listOrSingle) {
         referClassName = "refer-list-popup-link";
         addClassName = "add-list-to-list-popup-link";
     }
+    //TODO: Talk to Andy -- elements can't have the same IDs
     var referralsReferButtonsHTMLString =
             "<p>" +
                 "<a href='#' id='referral-item-id--" + genID + "' class='" + referClassName + " dialog_link ui-state-default ui-corner-all no-accordion'>" +
@@ -700,7 +734,7 @@ function createCommentsHTMLString(commentList) {
         if (myUID == commentList[j].uid) {
             commentsHTMLString = commentsHTMLString +
                 "<td>" +
-                  "<button id='delete-comment-button-cid--" + commentList[j].cid + "' class='delete-comment' data-cid=" +
+                  "<button id='remove-comment-button-cid--" + commentList[j].cid + "' class='remove-comment-button' data-cid=" +
                      commentList[j].cid +
                        ">x</button>" +
                 "</td>";
@@ -710,4 +744,99 @@ function createCommentsHTMLString(commentList) {
            "</tr>";
     }
     return commentsHTMLString;
+}
+
+/**
+ * @mikegao functions for list accordion
+ */
+function displayListItems(parsedJSON, itemType, lid) {
+    resetReferralContent('list-tab');
+    // moreRows is a parsedJSON object
+    // create a string that captures all HTML required to write the next referral
+    var displayListHTMLString = "";
+    var accordionName = "#accordion-" + itemType.substring(0, itemType.length-4);
+//    var accordionName = '#list-content';
+    
+    // destroy the accordion first
+    $('#accordion-list').accordionCustom('destroy');
+    $('.subaccordion-object').accordionCustom('destroy');
+    
+    var tempHTML = "<div id='accordion-list' class='accordion-object'><div class='none' id='accordion-list-lid'>" + lid + "</div>";
+    $(tempHTML).appendTo('#list-content');
+
+    for(var i=0; i<parsedJSON.length; i++) {
+        var row = parsedJSON[i];
+        
+        // first only allow non-corrupted data (consistent table servers)
+        if(row.isCorrupted != 1) {
+            displayListHTMLString = createListHTMLString(row, itemType);
+            // itemType has to be 'list-tab' for now
+            $(displayListHTMLString).appendTo(accordionName);
+        }
+    }
+    $("</div>").appendTo('#list-content');
+    bindAccordion();
+    overrideAccordionEvent();
+}
+
+function createListHTMLString(row, itemType) {
+    var displayListHTMLString = "";
+    
+    displayListHTMLString += createListHeaderHTMLString(row, itemType, 0) +
+    // details of the row
+       "<div class='drop-down-details accordion-content'>" +
+           createListDetailsHTMLString(row) +
+       "</div>";
+
+
+    displayListHTMLString +=
+        "</div>";
+
+//    displayReferralsHTMLString += createReferralsFooterHTMLString(row);
+    return displayListHTMLString;
+}
+
+function createListHeaderHTMLString(row, itemType, listOrSingle) {
+    var listHeaderHTMLString =
+        "<div class='single-wrapper accordion-header name-wrapper'>" +
+            "<a>" +
+                "<table class='formatted-table'>" +
+                    "<tr>" +
+                        "<td class='list-name vendor-name'>" +
+                            row.name +
+                        "</td>" +
+                        "<td id='accordion-remove-vid--" + row.vid + "' class='accordion-remove no-accordion'>" +
+                            "remove" +
+                        "</td>" +
+                    "</tr>" +
+                    "<tr>" +
+                        "<td class='vendor-list-comment'>" +
+                            row.comment +
+                        "</td>" +
+                        "<td id='accordion-edit-comment-vid--" + row.vid + "' class='accordion-edit-comment no-accordion'>" +
+                            "edit comment" +
+                        "</td>" +
+                    "</tr>" +
+                    "<tr>" +
+                        "<td></td>" +
+                        "<td>" +
+                            createReferralsReferButtonsHTMLString(row.vid, 0) +
+                        "</td>" +
+                    "</tr>" +
+                "</table>" +
+            "</a>" +
+        "</div>";
+    return listHeaderHTMLString;
+}
+
+// TODO: same code as andy's function createReferralsDetailsHTMLString
+function createListDetailsHTMLString(details) {
+    // vendor details are here
+    var listDetailsHTMLString =
+        details.addrNum + " " + details.addrStreet + "<br>" +
+        details.addrCity + " " + details.addrState + " " + details.addrZip + "<br>" +
+        details.phone + "<br>" +
+        details.website;
+    
+    return listDetailsHTMLString;
 }

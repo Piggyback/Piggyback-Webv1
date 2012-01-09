@@ -124,7 +124,7 @@ class Referrals_Model extends CI_Model {
 
             if ( $lid != 0 ) {
                 // if the referral is a list
-                $this->db->select('*');
+                $this->db->select('vid, comment');
                 $this->db->from('Lists');
                 $this->db->where('lid', $lid);
                 $vidList = $this->db->get()->result();
@@ -147,6 +147,7 @@ class Referrals_Model extends CI_Model {
                                 //unset($result[$key]);                                
                                 $isCorrupted = 1;
                             } else {
+                                $vendorDetails['senderComment'] = $vidRow->comment;
                                 $VendorList[] = $vendorDetails;
                             }
                         } else {
@@ -311,8 +312,6 @@ class Referrals_Model extends CI_Model {
                 } else {
                     $where = "uid1 = " . $myUID;
                 }
-                
-                $where = "uid2 != 14";
                 
                 $data['where'] = $where;
                 $data['onCriterion'] = "Referrals.uid1";

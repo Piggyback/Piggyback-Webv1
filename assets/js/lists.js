@@ -28,6 +28,7 @@ function initGetListContent() {
 	var lid_string = $(this).attr('id');
 	var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
         var htmlString;
+        var parsedJSON;
 
         // check if the specific list content div already exists
 	if ($('#list-content-lid--' + lid).length) {
@@ -35,30 +36,31 @@ function initGetListContent() {
             htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
             
             //TODO: Merge with Andy
-            htmlString = addContentToAccordionTemplate(lid, jQuery.parseJSON(htmlString));
+//            htmlString = addContentToAccordionTemplate(lid, jQuery.parseJSON(htmlString));
 
             // if list is empty, display empty list message
-            if (htmlString.length == 0) {
+            parsedJSON = jQuery.parseJSON(htmlString);
+            if (parsedJSON.length == 0) {
                 // added surrounding div for empty content for delete list purposes
                 htmlString = "<div id='empty-list-content-lid--" + lid + "'>";
                 htmlString = htmlString + jQuery.trim($('#empty-list-content').html());
                 htmlString = htmlString + "</div>";
+                //TODO: Do not need duplicate statement below once we move to event delegations
+                $('#list-content').html(htmlString);
+//                $(htmlString).appendTo('accordion-list');
+            } else {
+                displayListItems(parsedJSON, 'list-tab', lid);
             }
             
             // place list contents in content frame
-            $('#list-content').html(htmlString);
-                        
-//            var parsedJSON = jQuery.parseJSON(jQuery.trim($('#list-content-lid--' + lid).html()));
-//            var vendorData = getVendorDataList(parsedJSON);
+//            $('#list-content').html(htmlString);
 
-//            bindReferDialogButton(friendList);
-//              bindReferDialogButton(friendList,0,lid,fdfsdf);
 
             // bind accordion to #list-content
             //TODO: Merge with Andy
-            bindAccordionList();
+//            bindAccordionList();
             //TODO: Merge with Andy -- note: stopPropagation prevents by event delegations
-            overrideListAccordionEvent();
+//            overrideListAccordionEvent();
             //TODO: Fix accordion code with Andy -- no need to rebind if we use event delegations (jquery .on)
             bindDeleteVendorFromList();
 	} else {
@@ -71,44 +73,39 @@ function initGetListContent() {
 		// add div under empty-list-content
 		$('#empty-list-content').after(htmlString);
 
-		// reset htmlString to html inside of div (does not include class .none)
-//		htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
                 
                 //TODO: Merge with Andy
-		htmlString = addContentToAccordionTemplate(lid, jQuery.parseJSON(data));
+//		htmlString = addContentToAccordionTemplate(lid, jQuery.parseJSON(data));
 
-		if (htmlString.length == 0) {
+                parsedJSON = jQuery.parseJSON(data);
+		if (parsedJSON.length == 0) {
                     // added surrounding div for empty content for delete list purposes
                     htmlString = "<div id='empty-list-content-lid--" + lid + "'>";
                     htmlString = htmlString + jQuery.trim($('#empty-list-content').html());
                     htmlString = htmlString + "</div>";
                     //TODO: Do not need duplicate statement below once we move to event delegations
                     $('#list-content').html(htmlString);
-
+//                    $(htmlString).appendTo('accordion-list');
                 } else {
-                    $('#list-content').html(htmlString);
+                    displayListItems(parsedJSON, 'list-tab', lid);
+                }
+//
+//                } else {
+//                    $('#list-content').html(htmlString);
                     // bind accordion to #list-content
                     // from home_kim_js.js
                     
                     //TODO: Merge with Kim -- why is this called here??
                     displayAutoCompleteResults(allFriends);
-                    // initialize popup box for referring friends to a vendor
-//					var friendList = [];
 
-//					var vendorData = getVendorDataList(parsedJSON);
-//					bindReferDialog(friendList);
-//					bindAddFriend();
-//					bindReferDialogLink(friendList, vendorData);
-//                    bindReferDialogButton(friendList);
-//					bindAutoComplete();
                     // bind accordion to #list-content
                     //TODO: Merge with Andy
-                    bindAccordionList();
+//                    bindAccordionList();
                     //TODO: Merge with Andy -- note: stopPropagation prevents by event delegations
-                    overrideListAccordionEvent();
+//                    overrideListAccordionEvent();
                     //TODO: Fix accordion code with Andy -- no need to rebind if we use event delegations (jquery .on)
                     bindDeleteVendorFromList();
-		}
+//		}
             });
         }
 
@@ -158,8 +155,9 @@ function bindDeleteVendorFromList() {
 //    $(document).on("click", ".accordion-remove", function() {        
         var vid_string = $(this).attr('id');
         var vid = vid_string.substring(vid_string.indexOf('vid--') + 'vid--'.length);
-        var lid_string = $(this).closest(".accordion-list").attr("id");
-        var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
+//        var lid_string = $(this).closest(".accordion-list").attr("id");
+//        var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
+        var lid = $(this).closest("#accordion-list").find("#accordion-list-lid").html();
 
         // delete vendor from database
         jQuery.post('list_controller/delete_vendor_from_list', {
@@ -168,14 +166,15 @@ function bindDeleteVendorFromList() {
         });
 
         // delete vendor from HTML
-        $(this).closest(".accordion-list-header").parent().remove();
+//        $(this).closest(".single-wrapper").next().next().remove();
+        $(this).closest(".single-wrapper").next().remove();
+        $(this).closest(".single-wrapper").remove();
 
         // delete vendor from div
         if ($('#list-content-lid--' + lid).length) {
             var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
             var parsedJSON = jQuery.parseJSON(htmlString);
-//            parsedJSON.splice(row,1);
-//            delete parsedJSON[row];
+
             for (var i=0; i<parsedJSON.length; i++) {
                 if (parsedJSON[i].vid == vid) {
                     parsedJSON.splice(i,1);
@@ -183,11 +182,11 @@ function bindDeleteVendorFromList() {
             }
             var json_text = JSON.stringify(parsedJSON, null, 2);
             $('#list-content-lid--' + lid).html(json_text);
-        }
-
-        // what if list is empty? redirect to list is empty text
-        if (parsedJSON.length == 0) {
-            $('#list-content').html(jQuery.trim($('#empty-list-content').html()));
+            
+            // what if list is empty? redirect to list is empty text
+            if (parsedJSON.length == 0) {
+                $('#list-content').html(jQuery.trim($('#empty-list-content').html()));
+            }
         }
 
         return false;
@@ -197,9 +196,10 @@ function bindDeleteVendorFromList() {
         var editCommentObj = $(this);
         var vid_string = $(this).attr('id');
         var vid = vid_string.substring(vid_string.indexOf('vid--') + 'vid--'.length);
-        var lid_string = $(this).closest(".accordion-list").attr("id");
-        var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
-        var vendorName = jQuery.trim($(this).prev().prev().prev(".list-vendor-name").html());
+//        var lid_string = $(this).closest(".accordion-list").attr("id");
+//        var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
+        var lid = $(this).closest('#accordion-list').find('#accordion-list-lid').html();
+        var vendorName = jQuery.trim($(this).prev().prev().prev(".vendor-name").html());
 
         $('#fuzz').fadeIn();
         $('#edit-list-comment-dialog').dialog('option', 'title', 'Edit comment for ' + vendorName);
@@ -247,10 +247,10 @@ function addContentToAccordionTemplate(lid, parsedJSON) {
         var htmlString = "<div id='accordion-list-lid--" + lid + "' class='accordion-list'>";
 	for (var i=0; i<parsedJSON.length; i++) {
 	htmlString = htmlString +
-            "<div>" +
+            "<div class='name-wrapper'>" +
                 "<div id='accordion-list-header-row--" + i + "' class='accordion-list-header'>" +
                     "<a href='#' class='accordion-list-anchor'>" +
-                        "<div class='list-vendor-name'>" +
+                        "<div class='vendor-name'>" +
                             parsedJSON[i].name +
                         "</div>" +
                         "<div id='accordion-remove-vid--" + parsedJSON[i].vid + "' class='accordion-remove no-accordion'>" +
@@ -435,5 +435,70 @@ function initAddList() {
         }
 
     return false;
+    });
+}
+
+// add list to list -- put lid1 into lid2
+function addListToList(lid2, lid1) {
+    // turn lid into an array, right now it is just an integer
+    jQuery.post('list_controller/get_list_content', {
+        lid: lid1
+    }, function(data) {
+        var parsedJSON = jQuery.parseJSON(data);
+        for (var i = 0; i < parsedJSON.length; i++ ) {
+            addVendorToList(lid2, parsedJSON[i].vid, parsedJSON[i].comment);
+        }
+    });
+}
+
+
+// update database and update mylists sidebar to reflect new vendor/list
+function addVendorToList(lid, vid, comment) {
+
+    //get date
+    var now = new Date();
+    now = now.format("yyyy-mm-dd HH:MM:ss");
+
+    // get comment
+//    var comment = $('#add-to-list-comment-box').val();
+//    comment = "";
+
+    // add vendor to list (new or old) and make it so that list div is updated to show new vendor
+    jQuery.post('list_controller/add_vendor_to_list', {
+        lid: lid,
+        vid: vid,
+        date: now,
+        comment: comment
+    }, function(data) {
+        if (data == "Could not add to list") {
+            alert("Could not add to list");
+        }
+        // if there was no error, then vendor was added to list. close the dialog
+        else {
+            $('#addToListDialog').dialog("close");
+
+            // if the div exists for the list, then add on to the stored data for displaying
+            if ($('#list-content-lid--' + lid).length) {
+                var vendorObj = jQuery.parseJSON(data);
+                
+                // get existing html that is stored in div
+                var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
+                
+                // get new html to add to div
+                var newHtmlString = JSON.stringify(vendorObj);
+                newHtmlString = newHtmlString.slice(1,-1);
+
+                // add a comma if there is now more than one object
+                htmlString = htmlString.slice(0,-1);
+                if (htmlString != "[") {
+                    htmlString = htmlString + ",";
+                }
+                htmlString = htmlString + newHtmlString + "]";
+
+                // save new json string to the appropriate list div
+                $('#list-content-lid--' + lid).html(htmlString);
+
+            }
+        }
     });
 }

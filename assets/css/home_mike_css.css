@@ -6,11 +6,6 @@
         Purpose of the stylesheet follows.
 */
 
-/*
-   TODO customize this sample style
-   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
-*/
-
 html, body, input {
     font-family: arial,sans-serif;
 }
@@ -47,18 +42,16 @@ ul#icons span.ui-icon {
     margin: 0 4px;
 }
 
-/* CSS borrowed from Google reader */
-/* top bar */
-#top-bar {
-    border-bottom: 1px solid #E5E5E5;
-    height: 60px;
-    position: relative;
+.none {
+    display: none;
 }
 
-/*logo*/
-#logo-container {
-    clear: left;
-    padding: 0;
+/* top bar */
+#top-bar {
+    border: 1px solid #E5E5E5;
+    background: url('../images/piggyback_topbar1024x100.jpg');
+    height: 100px;
+    position: relative;
 }
 
 #left-list-pane, #logo-container, #left-list-pane-header, #scrollable-sections-bottom {
@@ -70,39 +63,67 @@ a, a:visited, .link {
 }
 
 #logo {
-    background: url(../images/piggyback.png) no-repeat scroll 0 0 transparent;
-    cursor: pointer;
-    height: 27px;
-    margin: -10px 0 0;
     position: absolute;
-    top: 50%;
-    width: 138px;
+    padding: 0px 0px 0px 0px;
+    margin: 12px 0px 0px 35px;
 }
 
-.none {
-    display: none;
-}
-
-#logo {
-    margin-left: 44px;
-}
 
 #top-nav-bar {
     float: right;
+    padding: 0px 10px 0px 0px;
+    margin: 20px 20px 0 0;
+    position: relative;
+    height: 70%;
+    background-color: #333333;
 }
 
 #search {
+/*    display: inline-block;*/
+/*    text-align:center;*/
+    vertical-align: middle;
     display: inline-block;
+    padding: 5px 60px 0px 10px;
+}
+
+#search-box, #search-location {
+    padding: 0px 0px 0px 10px;
+    height: 25px;
+    font-size: 18px;   
+}
+
+.placeholder {
+    color: #969696;
+}
+
+.not-placeholder {
+    color: #000000;
+}
+
+#searchbutton {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #FFFFFF;
+    font-size: 18px;
+    padding: 0px;
 }
 
 #current-pic {
     display: inline-block;
+    vertical-align: middle;
+    padding: 10px 0px 0px 0px;
 }
 
 /*logout*/
 #logout {
     display: inline-block;
+    vertical-align: middle;
     cursor: pointer;
+    padding: 5px 0px 0px 0px;
+    margin: 0px 0px 0px 5px;
+    color: #FFFFFF;
+    font-size: 18px;
 }
 
 /*#top-nav-bar {
@@ -157,26 +178,11 @@ a, a:visited, .link {
 
 }
 
-#current-pic {
-	position: absolute;
-	top: 5px;
-	right: 50px;
-}
-
-logout
-#logout {
-    z-index: 10;
-    cursor: pointer;
-    position: absolute;
-    right: 5px;
-    top: 21px;
-}
-
-main page below top bar
+/*main page below top bar*/
 #main {
     overflow-x: auto;
     position: relative;
-}*/
+}
 
 /*left-list-pane*/
 #left-list-pane {

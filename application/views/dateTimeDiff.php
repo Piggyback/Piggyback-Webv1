@@ -55,7 +55,7 @@ function dateTimeDiff($data_ref)
                 if($mDf<0) {
                     $mDf = 60 + $mDf;
                     $hDf = $hDf - 1;
-                    if ($hDf == 0){
+                    if ($hDf <= 0){
                         $dateOfRecord = $mDf . ' min ago';
                     } else {
                         $dateOfRecord = $hDf . ' hr ago'; // . $mDf . ' min ago';
@@ -68,7 +68,7 @@ function dateTimeDiff($data_ref)
                     if ($sDf < 0) {
                         $mDf = $mDf - 1;
                         $sDf = $sDf + 60;
-                        if ($mDf == 0) {
+                        if ($mDf <= 0) {
                             $dateOfRecord = $sDf . ' sec ago';
                         } else {
                             $dateOfRecord = $mDf . ' min ago';
@@ -88,7 +88,7 @@ function dateTimeDiff($data_ref)
                 if ($hDf < 0) {
                     $hDf = $hDf + 24;
                     $dDf = $dDf - 1;
-                    if ($dDf == 0) {
+                    if ($dDf <= 0) {
                         $dateOfRecord = $hDf . ' hr ago';
                     } else {
                         $dateOfRecord = $dDf . ' day ago';

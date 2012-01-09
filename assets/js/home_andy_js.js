@@ -9,32 +9,32 @@
    TO-DOs:
 */
 
-$(document).ready(function() {
-    bindAccordion();
-    overrideAccordionEvent();
-    initCommentInputDisplay();
-    initLike();
-    initComment();
-    initRemoveComment();
-    initLoadMoreComments();
-    initLoadMoreButton();
-    initDatePrototype();
-    initRemoveReferralButton();
+//$(document).ready(function() {
+//    bindAccordion();
+//    overrideAccordionEvent();
+//    initCommentInputDisplay();
+//    initLike();
+//    initComment();
+//    initRemoveComment();
+//    initLoadMoreComments();
+//    initLoadMoreButton();
+//    initDatePrototype();
+//    initRemoveReferralButton();
 
 //    initAddAndReferButtons();
 
     // initialize round elements
-    initRoundElements();
+//    initRoundElements();
     
-});
+//});
 
-function initAddAndReferButtons() {
+//function initAddAndReferButtons() {
 //    displayListDropDown();
 //    bindAddToListButton();
 //    bindAddToListDialog();
 //    bindReferDialog();
 //    bindReferDialogButton2(friendList);
-}
+//}
 
 /* functions for $(document).ready */
 //initialize the accordion features for inbox
@@ -85,9 +85,9 @@ function initAddAndReferButtons() {
 //    });
 //}
 
-function initRoundElements() {
-    $(".round-element").corner();
-}
+//function initRoundElements() {
+//    $(".round-element").corner();
+//}
 
 // init with comment input hidden; show upon click
 //function initCommentInputDisplay() {
@@ -219,31 +219,31 @@ function initRoundElements() {
 //    });
 //}
 
-function initLoadMoreButton() {
-    var inboxLoadStart = 3;
-    // call more data from mysql ('load more' button action)
-    $('#load-more-inbox-content-button').click(function(){
-        // jquery post to retrieve more rows
-        jQuery.post("http://192.168.11.28/referrals/get_more_inbox", {
-            rowStart: inboxLoadStart
-        }, function(data) {
-            var parsedJSON = jQuery.parseJSON(data);
-            displayMoreInbox(parsedJSON);
-            inboxLoadStart = inboxLoadStart+3;
-        });
-    });
-
-    var friendActivityLoadStart = 3;
-    $('#load-more-friend-activity-content-button').click(function(){
-        jQuery.post("http://192.168.11.28/referrals/get_more_friend_activity", {
-            rowStart: friendActivityLoadStart
-        }, function(data) {
-            var parsedJSON = jQuery.parseJSON(data);
-            displayMoreFriendActivity(parsedJSON);
-            friendActivityLoadStart = friendActivityLoadStart+3;
-        });
-    });
-}
+//function initLoadMoreButton() {
+//    var inboxLoadStart = 3;
+//    // call more data from mysql ('load more' button action)
+//    $('#load-more-inbox-content-button').click(function(){
+//        // jquery post to retrieve more rows
+//        jQuery.post("http://192.168.11.28/referrals/get_more_inbox", {
+//            rowStart: inboxLoadStart
+//        }, function(data) {
+//            var parsedJSON = jQuery.parseJSON(data);
+//            displayMoreInbox(parsedJSON);
+//            inboxLoadStart = inboxLoadStart+3;
+//        });
+//    });
+//
+//    var friendActivityLoadStart = 3;
+//    $('#load-more-friend-activity-content-button').click(function(){
+//        jQuery.post("http://192.168.11.28/referrals/get_more_friend_activity", {
+//            rowStart: friendActivityLoadStart
+//        }, function(data) {
+//            var parsedJSON = jQuery.parseJSON(data);
+//            displayMoreFriendActivity(parsedJSON);
+//            friendActivityLoadStart = friendActivityLoadStart+3;
+//        });
+//    });
+//}
 
 
 // private function
@@ -724,7 +724,7 @@ function initLoadMoreButton() {
 //
 //}
 
-function reInitReferralItems() {
+//function reInitReferralItems() {
     //$('.click-to-comment').unbind();
     //$('.click-to-like').unbind();
     //$('.submit-comment-button').unbind();
@@ -745,74 +745,74 @@ function reInitReferralItems() {
 //    $('#dialog').unbind();
 //
 //    initAddAndReferButtons();
-}
+//}
 
 
-function displayMoreInbox(moreRows) {
-    // moreRows is a parsedJSON object
-    // create a string that captures all HTML required to write the next referral
-    var displayReferralsHTMLString = "";
-
-    // destroy the accordion first
-    $('.accordion-object').accordionCustom('destroy');
-    $('.subaccordion-object').accordionCustom('destroy');
-
-    for(var i=0; i<moreRows.length; i++) {
-        var row = moreRows[i];
-
-        if (row.ReferralsComment == "") {
-            userReferralString = row.firstName + " " + row.lastName + " thinks you'll love this!";
-        } else {
-            userReferralString = row.firstName + " " + row.lastName + " says \"" + row.ReferralsComment + "\"";
-        }
-
-        displayReferralsHTMLString = createReferralsHTMLString(row, userReferralString);
-
-        // append to inbox wrapper
-        $(displayReferralsHTMLString).appendTo('#accordion-inbox');
-
-        reInitReferralItems();
-    }
-    bindAccordionInbox();
-    overrideAccordionEvent();
-}
-
-
-
-function displayMoreFriendActivity(moreRows) {
-    var displayReferralsHTMLString = "";
-
-    // destroy the accordion first
-    $('.accordion-object').accordionCustom('destroy');
-    $('.subaccordion-object').accordionCustom('destroy');
-
-    for(var i=0; i<moreRows.length; i++) {
-        var row = moreRows[i];
-        var RecipientDetails = row.RecipientDetails['RecipientDetails'][0];
-
-        userReferralString = row.firstName + " " + row.lastName + " recommended to " + RecipientDetails.firstName + " " + RecipientDetails.lastName;
-        if (row.ReferralsComment != "") {
-            userReferralString = userReferralString + ": \"" + row.ReferralsComment + "\"";
-        }
-
-        displayReferralsHTMLString = createReferralsHTMLString(row, userReferralString);
-        $(displayReferralsHTMLString).appendTo('#accordion-friend-activity');
-        reInitReferralItems();
-    }
-    bindAccordionInbox();
-    overrideAccordionEvent();
-}
-
-function getVendorDetails(id, callback) {
-    // ajax call to get array of details given only the id
-
-    jQuery.post("http://192.168.11.28/referrals/get_vendor_details", {
-        vendorID: id
-    }, function(data) {
-        var parsedJSON = jQuery.parseJSON(data);
-        return callback(parsedJSON);
-    });
-}
+//function displayMoreInbox(moreRows) {
+//    // moreRows is a parsedJSON object
+//    // create a string that captures all HTML required to write the next referral
+//    var displayReferralsHTMLString = "";
+//
+//    // destroy the accordion first
+//    $('.accordion-object').accordionCustom('destroy');
+//    $('.subaccordion-object').accordionCustom('destroy');
+//
+//    for(var i=0; i<moreRows.length; i++) {
+//        var row = moreRows[i];
+//
+//        if (row.ReferralsComment == "") {
+//            userReferralString = row.firstName + " " + row.lastName + " thinks you'll love this!";
+//        } else {
+//            userReferralString = row.firstName + " " + row.lastName + " says \"" + row.ReferralsComment + "\"";
+//        }
+//
+//        displayReferralsHTMLString = createReferralsHTMLString(row, userReferralString);
+//
+//        // append to inbox wrapper
+//        $(displayReferralsHTMLString).appendTo('#accordion-inbox');
+//
+//        reInitReferralItems();
+//    }
+//    bindAccordionInbox();
+//    overrideAccordionEvent();
+//}
+//
+//
+//
+//function displayMoreFriendActivity(moreRows) {
+//    var displayReferralsHTMLString = "";
+//
+//    // destroy the accordion first
+//    $('.accordion-object').accordionCustom('destroy');
+//    $('.subaccordion-object').accordionCustom('destroy');
+//
+//    for(var i=0; i<moreRows.length; i++) {
+//        var row = moreRows[i];
+//        var RecipientDetails = row.RecipientDetails['RecipientDetails'][0];
+//
+//        userReferralString = row.firstName + " " + row.lastName + " recommended to " + RecipientDetails.firstName + " " + RecipientDetails.lastName;
+//        if (row.ReferralsComment != "") {
+//            userReferralString = userReferralString + ": \"" + row.ReferralsComment + "\"";
+//        }
+//
+//        displayReferralsHTMLString = createReferralsHTMLString(row, userReferralString);
+//        $(displayReferralsHTMLString).appendTo('#accordion-friend-activity');
+//        reInitReferralItems();
+//    }
+//    bindAccordionInbox();
+//    overrideAccordionEvent();
+//}
+//
+//function getVendorDetails(id, callback) {
+//    // ajax call to get array of details given only the id
+//
+//    jQuery.post("http://192.168.11.28/referrals/get_vendor_details", {
+//        vendorID: id
+//    }, function(data) {
+//        var parsedJSON = jQuery.parseJSON(data);
+//        return callback(parsedJSON);
+//    });
+//}
 
 
 //function bindAddToListButton() {

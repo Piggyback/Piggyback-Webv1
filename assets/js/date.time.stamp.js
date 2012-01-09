@@ -158,11 +158,11 @@ function initDatePrototype () {
 
         var tempMaxDate = currentYear + currentMonth + currentDay;
         var tempDateRef = refYear + refMonth + refDay;
-        var diffInDays = parseInt(currentDay) - parseInt(refDay);
+//        var diffInDays = parseInt(currentDay) - parseInt(refDay);
 
-        var tempDifference = parseInt(tempMaxDate) - parseInt(tempDateRef);
+        var diffInDays = parseInt(tempMaxDate) - parseInt(tempDateRef);
 
-        if (tempDifference > 7) {
+        if (diffInDays > 7) {
             // display regular time stamp
             dateOfRecord = refDate.toFormattedString('h:ix, z, q ddX, yyyy');
         } else {
@@ -179,12 +179,12 @@ function initDatePrototype () {
             var diffInSec = currentSec - refSec;
 
             // show time difference
-            if (tempDifference < 1) {
+            if (diffInDays < 1) {   // if less than a day
                 if (diffInHours > 0) {
                     if (diffInMin < 0) {
                         diffInMin = 60 + diffInMin;
                         diffInHours = diffInHours - 1;
-                        if (diffInHours == 0 ) {
+                        if (diffInHours <= 0 ) {
                             dateOfRecord = String(diffInMin) + ' min ago';
                         } else {
                             dateOfRecord = String(diffInHours) + ' hr ago';// + String(diffInMin) + ' min ago';
@@ -197,7 +197,7 @@ function initDatePrototype () {
                         if (diffInSec < 0) {
                             diffInMin = diffInMin - 1;
                             diffInSec = diffInSec + 60;
-                            if (diffInMin == 0) {
+                            if (diffInMin <= 0) {
                                 dateOfRecord = String(diffInSec) + ' sec ago';
                             } else {
                                 dateOfRecord = String(diffInMin) + ' min ago'; // + String(diffInSec) + ' sec ago';
@@ -209,14 +209,14 @@ function initDatePrototype () {
                         dateOfRecord = String(diffInSec) + ' sec ago';
                     }
                 }
-            } else {
-                if (tempDifference > 1) {
+            } else {        // if more than a day
+                if (diffInDays > 1) {
                     dateOfRecord = String(diffInDays) + ' days ago';
-                } else {
+                } else {        // if equal to a day
                     if (diffInHours < 0) {
                         diffInHours = diffInHours + 24;
                         diffInDays = diffInDays - 1;
-                        if(diffInDays == 0) {
+                        if(diffInDays <= 0) {
                             dateOfRecord = String(diffInHours) + ' hr ago';
                         } else {
                             dateOfRecord = String(diffInDays) + ' day ago'; // + String(diffInHours) + ' hr ago';

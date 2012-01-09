@@ -11,6 +11,7 @@
  */
 
 $(document).ready(function() {
+    $('#searchform')[0].reset();
     // these functions are defined below
     initScrollHeight();
     initTabs();
@@ -26,7 +27,15 @@ $(document).ready(function() {
     bindEditCommentDialog();
     bindFuzzMike();
     initAddList();
-    initAddAndReferButtons();
+    
+    // accordion content initialization
+    initCommentInputDisplay();
+    initLike();
+    initComment();
+    initRemoveComment();
+    initLoadMoreComments();
+    initDatePrototype();
+    initRemoveReferralButton();
 });
 
 /**
@@ -81,14 +90,69 @@ function initEnterDialogForm() {
 /**
  *  @kimhsiao
  *  call perform_search when the search submit is pressed
+ *  TODO: Move to search.js
  */
 function initSearchAJAX() {
+    // initialize placeholder text for search input fields
+    var addEventItem = function(elem, type, fn) { // Simple utility for cross-browser event handling
+        if (elem.addEventListener) elem.addEventListener(type, fn, false);
+        else if (elem.attachEvent) elem.attachEvent('on' + type, fn);
+    },
+        textField = document.getElementById('search-box'),
+        placeholderItem = 'search for...'; // The placeholder text
+
+        addEventItem(textField, 'focus', function() {
+            if (this.value === placeholderItem) {
+                this.value = '';
+//                $(this).css('color', '#000000');
+                $(this).addClass('not-placeholder');
+                $(this).removeClass('placeholder');
+                
+            }
+        });
+        addEventItem(textField, 'blur', function() {
+            if (this.value === '') {
+                this.value = placeholderItem;
+//                $(this).css('color', '#969696');
+                $(this).addClass('placeholder');
+                $(this).removeClass('not-placeholder');
+            }
+    });
+    
+    var addEventLocation = function(elem, type, fn) { // Simple utility for cross-browser event handling
+        if (elem.addEventListener) elem.addEventListener(type, fn, false);
+        else if (elem.attachEvent) elem.attachEvent('on' + type, fn);
+    },
+        textField = document.getElementById('search-location'),
+        placeholderLocation = 'near...'; // The placeholder text
+
+        addEventLocation(textField, 'focus', function() {
+            if (this.value === placeholderLocation) {
+                this.value = '';
+//                $(this).css('color', '#000000');
+                $(this).addClass('not-placeholder');
+                $(this).removeClass('placeholder');
+            }
+        });
+        addEventLocation(textField, 'blur', function() {
+            if (this.value === '') {
+                this.value = placeholderLocation;
+//                $(this).css('color', '#969696');
+                $(this).addClass('placeholder');
+                $(this).removeClass('not-placeholder');
+            }
+    }); 
+    
     // merge kim's search with home shell
     $('#searchform').submit(function() {
         var $inputs = $('#searchform :input');
         var values = {};
         $inputs.each(function() {
-            values[this.name] = $(this).val();
+            if ($(this).hasClass('placeholder')) {
+                values[this.name] = '';
+            } else {
+                values[this.name] = $(this).val();
+            }
         });
 
         jQuery.post('searchvendors/perform_search', {

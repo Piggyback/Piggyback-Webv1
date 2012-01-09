@@ -52,7 +52,7 @@
                         if ($row->ReferralsComment == "") {
                             $recommendationComment = $row->firstName . " " . $row->lastName . " thinks you'll love this!";
                         } else {
-                            $recommendationComment = $row->firstName . " " . $row->lastName . " says \"" . $row->ReferralsComment . "\"";
+                            $recommendationComment = $row->firstName . " " . $row->lastName . " says \"<span class='referral-comment'>" . $row->ReferralsComment . "</span>\"";
                         }
                         
                         $data_ref = date('Y-m-d H:i:s', strtotime($row->refDate));

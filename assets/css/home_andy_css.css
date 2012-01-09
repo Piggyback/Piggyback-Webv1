@@ -11,7 +11,102 @@
    Syntax recommendation http://www.w3.org/TR/REC-CSS2/
 */
 
-/* Inbox */
+
+
+/*
+    Referral item header styling
+*/
+
+div.referral-item-wrapper {
+    background-color: blue;
+    margin-top:30px;
+    margin-bottom:30px;
+}
+
+div.single-wrapper {
+    position: relative;
+    height: 150px; /* or depending on how big its children are */
+    width: 100%;
+    overflow: auto;
+}
+
+div.referral-date {
+    position: absolute;
+    float: left;
+    left: 0;
+    width: 30%;
+    top: 0;
+    margin-top: 10px;
+    margin-left: 30px;
+}
+
+div.friend-pic {
+    position: absolute;
+    float: left;
+    height: 50%;
+    left: 0;
+    top: 0;
+    width: 30%;
+    margin-left: 30px;
+    margin-top: 40px;
+}
+
+div.friend-referral {
+    position: absolute;
+    height: 50%;
+    top: 0;
+    left: 100px;
+    width: 90%;
+    margin-top: 40px;
+    margin-right: 30px;
+    font-weight: normal;
+    
+}
+
+div.vendor-name, div.list-name {
+    font-weight: bold;
+}
+
+span.vendor-name, span.list-name {
+    font-weight: bold;
+}
+
+div.subaccordion-header {
+    position: relative;
+    height: 60px;
+    width: 100%;
+}
+
+div.button-row {
+    position: absolute;
+    float: right;
+    top: 0;
+    right: 0;
+    width: 70%;
+}
+
+button.referrals-remove-button {
+    float: right;
+    display: inline;
+}
+
+button.refer-popup-link, button.refer-list-popup-link {
+    float: right;
+    display: inline;
+}
+
+button.add-to-list-popup-link, button.add-list-to-list-popup-link {
+    float: right;
+    display: inline;
+}
+
+
+/*
+
+    Comments footer styling
+
+ */
+
 div.click-to-like {
     position: relative;
     display: inline;
@@ -36,37 +131,74 @@ div.number-of-likes {
     padding-bottom: 5px;
 }
 
+div.time-stamp {
+    color: #808080;
+    font-size: 80%;
+    font-weight: normal;
+}
+
 div.comments {
-    padding-bottom: 2px;
-}
-
-table.comments-table {
+    display: table;
+    width: 100%;
     padding-top: 5px;
     padding-bottom: 5px;
 }
 
-div table td.comments-name {
-    margin-left: 0px;
-    padding-bottom: 2px;
+div.show-all-comments-button {
+    
 }
 
-div table td.comments-content {
+div.single-comment {
+    position: relative;
+    display: table;
+    width:100%;
+}
+
+div.commenter-pic {
+    display: inline;
+    float: left;
+    top: 50%;
+    margin-left: 5%;
+}
+
+div.comment-wrapper-text {
+    display: inline-block;
+    position: relative;
+}
+
+span.name {
+    display: inline;
+    float: left;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+div.comments-content {
+    display: inline;
+    float: left;
     margin-left: 15px;
-    padding-bottom: 2px;
+    overflow:hidden;
+    word-wrap: break-word;
 }
 
-div.friend-referral-comment-wrapper {
-    font-size: 15px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+div.remove-comment-button-wrapper {
+    display: inline;
+    float:right;
+    margin-right: 25%;
 }
 
-div.inbox-friend-pic {
-	position: relative;
-	display: inline;
+div.comment-date {
+    float:left;
+    margin-left: 15px;
+    position: absolute;
+    bottom: -80%;
 }
 
-div.inbox-friend-referral {
-	position: relative;
-	display: inline
+div.comment-box {
+/*    float: left;*/
+    margin-left: 5%;
+}
+
+form.form-comment {
+    width: 100%;
 }

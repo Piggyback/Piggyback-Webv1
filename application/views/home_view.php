@@ -32,6 +32,7 @@
         <script type="text/javascript" src="../assets/js/dialogs.js"></script>
         <script type="text/javascript" src="../assets/js/lists.js"></script>
         <script type="text/javascript" src="../assets/js/accordions.js"></script>
+        <script type="text/javascript" src="../assets/js/search.js"></script>
         <script type="text/javascript" src="../assets/js/date.time.stamp.js"></script>
         <script type="text/javascript" src="../../assets/jquery-ui-1.8.16.custom/development-bundle/ui/jquery.ui.accordionCustom.js"></script>
         <?php include "dateTimeDiff.php" ?>
@@ -58,27 +59,26 @@
             loadFbApiForHome();
         </script>
         <div id="top-bar">
-            <a id="logo-container" href="home">
                 <h1 id="logo">
-<!--                    <span class="none">Piggyback</span>-->
-                    <span>Piggyback</span>
+                    <a id="logo-container" href="home">
+                        <img src="../assets/images/piggyback_logo175x75.gif" alt="Piggyback" />
+                    </a>
                 </h1>
-            </a>
-            <div id="top-nav-bar">
+            <div id="top-nav-bar" class='round-element'>
                 <div id="search">
                     <form id="searchform" action="#" method="post">
-                        <label for="search-box" id="search-box-label">Search for: </label>
-                        <input type="text" name="searchText" size="50" class="box" id="search-box"/>
-                        <label for="search-location" id="search-location-label">Near: </label>
-                        <input type="text" name ="searchLocation" size="35" class="box" id="search-location"/>
-                        <button id="searchbutton" name="submitSearch" class="btn" title="Submit Search">Search for Businesses!</button>
+<!--                        <label for="search-box" id="search-box-label" class='round-element'>Search for: </label>-->
+                        <input type="text" value="search for..." name="searchText" size="20" class="box round-element placeholder" id="search-box"/>
+<!--                        <label for="search-location" id="search-location-label">Near: </label>-->
+                        <input type="text" value="near..." name ="searchLocation" size="20" class="box round-element placeholder" id="search-location"/>
+                        <button id="searchbutton" name="submitSearch" class="btn" title="Submit Search">search</button>
                     </form>
                 </div>
                 <div id="current-pic">
-                    <?php echo '<img src="https://graph.facebook.com/' . $currentFBID . '/picture">' ?>
+                    <?php echo '<img src="https://graph.facebook.com/' . $currentFBID . '/picture" class="round-element">' ?>
                 </div>
                 <div id="logout">
-                    Logout
+                    logout
                 </div>
             </div>
         </div>
@@ -98,7 +98,7 @@
                                 // add each list as its own <li>
                                 foreach ($myLists as $list) {
                                   //  echo "<li id='my-list-lid--" . $list->lid . "'><span id='delete-my-list-lid--" . $list->lid . "' class='delete-my-list'>x</span>" . $list->name . "</li>";
-                                    echo "<li class='my-list-wrapper list-name-wrapper'><span id='delete-my-list-lid--" . $list->lid . "' class='delete-my-list'>x</span>";
+                                    echo "<li class='my-list-wrapper name-wrapper'><span id='delete-my-list-lid--" . $list->lid . "' class='delete-my-list'>x</span>";
                                     echo "<span id='my-list-lid--" . $list->lid . "' class='my-list list-name'>" . $list->name . "</span>";
                                     echo "<span id='refer-my-list-lid--" . $list->lid . "' class='refer-my-list refer-list-popup-link'>refer</span></li>";
                                 }
@@ -129,312 +129,253 @@
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="inbox-content">
                                                 <div id="accordion-inbox" class="accordion-object">
                                                     <?php foreach ($inboxItems as $row):?>
-                                                        <?php if ($row->isCorrupted == 0): ?>
-                                                            <?php
-                                                                // get some vital variables ready
-                                                                // the count of likes
-                                                                $tempArray = $row->LikesList;
-                                                                $likesArray = $tempArray['LikesList'];
-                                                                $tempArray = $row->CommentsList;
-                                                                $commentsArray = $tempArray['CommentsList'];
-
-                                                                $likesArrayCount = count($likesArray);
-                                                                $likeNumber = "";
-                                                                if ($likesArrayCount>0) {
-                                                                    $likeNumber = "$likesArrayCount";
-                                                                    if ($likesArrayCount == 1) {
-                                                                        $likeNumber = $likeNumber . " person likes this.";
-                                                                    } else {
-                                                                        $likeNumber = $likeNumber . " people like this.";
-                                                                    }
-                                                                }
-                                                                // if uid does not exist in the Likes rid list
-                                                                if ($row->alreadyLiked == 1) {
-                                                                    $likeStatus = "Unlike";
-                                                                } else {
-                                                                    $likeStatus = "Like";
-                                                                }
-
-                                                                $VendorDetails = $row->VendorList['VendorList'][0][0];
-
-                                                                if ($row->ReferralsComment == "") {
-                                                                    $recommendationComment = $row->firstName . " " . $row->lastName . " thinks you'll love this!";
-                                                                } else {
-                                                                    $recommendationComment = $row->firstName . " " . $row->lastName . " says \"" . $row->ReferralsComment . "\"";
-                                                                }
-
-                                                                $data_ref = date('Y-m-d H:i:s', strtotime($row->refDate));
-
-                                                                $dateOfRecord = dateTimeDiff($data_ref);
-
-                                                                if ($dateOfRecord == "") {
-                                                                    $dateOfRecord = date("g:ia, l, F dS, Y", strtotime($row->refDate));
-                                                                }
-                                                            ?>
-                                                            <!-- determine if $row is a list or single vendor -->
-                                                            <?php if ( $row->lid == 0 ):?>
-
-                                                            <!-- SINGLE VENDOR HERE -->
-
-                                                            <!-- BEGINNING OF HEADER HERE of the ACCORDION    -->
-                                                                <div class="single-wrapper accordion-header list-name-wrapper">
-                                                                    <a>
-                                                                        <table class='formatted-table'>
-                                                                            <tr>
-                                                                                <td>
-                                                                                    <div class='referral-date'>
-                                                                                        <?php echo $dateOfRecord; ?>
-                                                                                    </div>
-                                                                                </td>
-                                                                                <td>
-                                                                                    <button id='referrals-remove-button-id--<?php echo $row->rid; ?>' class='referrals-remove-button no-accordion' data-rid='<?php echo $row->rid; ?>'>
-                                                                                        x
-                                                                                    </button>
-                                                                                </td>
-                                                                            </tr>
-                                                                            <tr>
-                                                                                <td class="list-name">
-                                                                                    <?php echo $VendorDetails->name; ?>
-                                                                                </td>
-                                                                            </tr>
-                                                                            <tr>
-                                                                                <td>
-                                                                                    <div class='friend-referral-comment-wrapper'>
-                                                                                        <div class="friend-pic">
-                                                                                            <?php echo '<img class="round-element" src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
-                                                                                        </div>
-                                                                                        <div class="friend-referral">
-                                                                                            <?php echo $recommendationComment; ?>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </td>
-                                                                                <td>
-                                                                                    <p>
-                                                                                        <a href="#" id="referral-item-id--<?php echo $VendorDetails->id; ?>" class="refer-popup-link dialog_link ui-state-default ui-corner-all">
-                                                                                            <span class="ui-icon ui-icon-plus"></span>
-                                                                                            Refer to Friends
-                                                                                        </a>
-                                                                                    </p>
-                                                                                    <p>
-                                                                                        <a href="#" id="referral-item-id--<?php echo $VendorDetails->id; ?>" class="add-to-list-popup-link dialog_link ui-state-default ui-corner-all">
-                                                                                            <span class="ui-icon ui-icon-plus"></span>
-                                                                                            Add to List
-                                                                                        </a>
-                                                                                    </p>
-                                                                                </td>
-                                                                            </tr>
-                                                                        </table>
-                                                                    </a>
-                                                                </div>
-                                                                <!-- END HEADER OF ACCORDION HERE ENDS HERE -->
-                                                                <!-- vendor details here (among anything else)-->
-                                                                <div class="drop-down-details accordion-content">
-                                                                    <table class='formatted-table'>
-                                                                        <tr>
-                                                                            <td class='formatted-table-info'>
-                                                                                <?php echo $VendorDetails->addrNum . " " . $VendorDetails->addrStreet . "<br>"; // add all list detail here
-                                                                                echo $VendorDetails->addrCity . " " . $VendorDetails->addrState . " " . $VendorDetails->addrZip . "<br>";
-                                                                                echo $VendorDetails->phone . "<br>";
-                                                                                echo $VendorDetails->website; ?>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </table>
-                                                                </div>
-                                                            <?php else: ?>
-
-                                                                <!-- LIST HERE -->
-
+                                                        <div class="referral-item-wrapper">
+                                                            <?php if ($row->isCorrupted == 0): ?>
                                                                 <?php
-                                                                    $userListDetails = $row->UserList[0];
+                                                                    // get some vital variables ready
+                                                                    // the count of likes
+                                                                    $tempArray = $row->LikesList;
+                                                                    $likesArray = $tempArray['LikesList'];
+                                                                    $tempArray = $row->CommentsList;
+                                                                    $commentsArray = $tempArray['CommentsList'];
+
+                                                                    $likesArrayCount = count($likesArray);
+                                                                    $likeNumber = "";
+                                                                    if ($likesArrayCount>0) {
+                                                                        $likeNumber = "$likesArrayCount";
+                                                                        if ($likesArrayCount == 1) {
+                                                                            $likeNumber = $likeNumber . " person likes this.";
+                                                                        } else {
+                                                                            $likeNumber = $likeNumber . " people like this.";
+                                                                        }
+                                                                    }
+                                                                    // if uid does not exist in the Likes rid list
+                                                                    if ($row->alreadyLiked == 1) {
+                                                                        $likeStatus = "Unlike";
+                                                                    } else {
+                                                                        $likeStatus = "Like";
+                                                                    }
+
+                                                                    $VendorDetails = $row->VendorList['VendorList'][0][0];
+
+                                                                    if ( $row->lid == 0 ) {
+                                                                        $recommendationComment = "<span class='name'>" . $row->firstName . " " . $row->lastName . "</span> recommends you <span class='vendor-name list-name'>" . $VendorDetails->name . "</span>";
+                                                                    } else {
+                                                                        $recommendationComment = "<span class='name'>" . $row->firstName . " " . $row->lastName . "</span> recommends you <span class='vendor-name list-name'>" . $row->UserList[0]->name . "</span>";
+                                                                    }
+
+                                                                    $senderComment = "\"" . $row->ReferralsComment . "\"";
+
+                                                                    $data_ref = date('Y-m-d H:i:s', strtotime($row->refDate));
+
+                                                                    $dateOfRecord = dateTimeDiff($data_ref);
+
+                                                                    if ($dateOfRecord == "") {
+                                                                        $dateOfRecord = date("g:ia, l, F dS, Y", strtotime($row->refDate));
+                                                                    }
                                                                 ?>
-                                                                <div class="single-wrapper accordion-header list-name-wrapper">
-                                                                    <a>
-                                                                        <table class='formatted-table'>
-                                                                            <tr>
-                                                                                <td>
-                                                                                    <div class='referral-date'>
-                                                                                        <?php echo $dateOfRecord; ?>
-                                                                                    </div>
-                                                                                </td>
-                                                                                <td>
-                                                                                    <button id='referrals-remove-button-id--<?php echo $row->rid; ?>' class='referrals-remove-button no-accordion' data-rid='<?php echo $row->rid; ?>'>
-                                                                                        x
-                                                                                    </button>
-                                                                                </td>
-                                                                            </tr>
-                                                                            <tr>
-                                                                                <td class="list-name">
-                                                                                    <?php echo $userListDetails->name; ?>
-                                                                                </td>
-                                                                            </tr>
-                                                                            <tr>
-                                                                                <td>
-                                                                                    <div class='friend-referral-comment-wrapper'>
-                                                                                        <div class="friend-pic">
-                                                                                            <?php echo '<img class="round-element" src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
-                                                                                        </div>
-                                                                                        <div class="friend-referral">
-                                                                                            <?php echo $recommendationComment; ?>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </td>
-                                                                                <td>
-                                                                                    <p>
-                                                                                        <a href="#" id="referral-item-id--<?php echo $row->lid; ?>" class="refer-list-popup-link dialog_link ui-state-default ui-corner-all">
-                                                                                            <span class="ui-icon ui-icon-plus"></span>
-                                                                                            Refer to Friends
-                                                                                        </a>
-                                                                                    </p>
-                                                                                    <p>
-                                                                                        <a href="#" id="referral-item-id--<?php echo $row->lid; ?>" class="add-list-to-list-popup-link dialog_link ui-state-default ui-corner-all">
-                                                                                            <span class="ui-icon ui-icon-plus"></span>
-                                                                                            Add to List
-                                                                                        </a>
-                                                                                    </p>
-                                                                                </td>
-                                                                            </tr>
-                                                                        </table>
-                                                                    </a>
-                                                                </div>
-                                                                <!-- END HEADER OF ACCORDION HERE ENDS HERE -->
-                                                                <!-- vendor details here (among anything else)-->
-                                                                <div class="drop-down-details accordion-content">
-                                                                    <?php foreach($row->VendorList['VendorList'] as $vendorRow): ?>
+                                                                <!-- determine if $row is a list or single vendor -->
+                                                                <?php if ( $row->lid == 0 ):?>
 
-                                                                    <div class="subaccordion-object">
-                                                                        <div class="subaccordion-header">
-                                                                            <table class='formatted-table'>
-                                                                                <tr>
-                                                                                    <td>
-                                                                                        <!-- vendor name here -->
-                                                                                        <?php echo $vendorRow[0]->name; ?>
-                                                                                    </td>
-                                                                                    <td class="formatted-table-button" align="right">
-                                                                                        <p>
-                                                                                            <a href="#" id="referral-item-id--<?php echo $vendorRow[0]->id; ?>" class="refer-popup-link dialog_link ui-state-default ui-corner-all">
-                                                                                                <span class="ui-icon ui-icon-plus"></span>
-                                                                                                Refer to Friends
-                                                                                            </a>
-                                                                                        </p>
-                                                                                        <p>
-                                                                                            <a href="#" id="referral-item-id--<?php echo $vendorRow[0]->id; ?>" class="add-to-list-popup-link dialog_link ui-state-default ui-corner-all">
-                                                                                                <span class="ui-icon ui-icon-plus"></span>
-                                                                                                Add to List
-                                                                                            </a>
-                                                                                        </p>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            </table>
-                                                                        </div>
+                                                                <!-- SINGLE VENDOR HERE -->
 
-                                                                        <div class="subaccordion-content">
-                                                                            <table class="formatted-table-button">
-                                                                                <tr>
-                                                                                    <td>
-                                                                                        <!-- vendor details here -->
-                                                                                        <?php
-                                                                                            echo $vendorRow[0]->addrNum . " " . $vendorRow[0]->addrStreet . "<br>";
-                                                                                            echo $vendorRow[0]->addrCity . " " . $vendorRow[0]->addrState . " " . $vendorRow[0]->addrZip . "<br>";
-                                                                                            echo $vendorRow[0]->phone . "<br>";
-                                                                                            echo $vendorRow[0]->website;
-                                                                                        ?>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            </table>
-                                                                        </div>
+                                                                <!-- BEGINNING OF HEADER HERE of the ACCORDION    -->
+                                                                    <div class="single-wrapper accordion-header name-wrapper">
+                                                                        <a>
+                                                                            <div class='referral-date time-stamp'>
+                                                                                <?php echo $dateOfRecord; ?>
+                                                                            </div>
+                                                                            <div class="friend-pic">
+                                                                                <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
+                                                                            </div>
+                                                                            <div class="friend-referral">
+                                                                                <?php echo $recommendationComment; ?>
+                                                                                <br>
+                                                                                <?php echo $senderComment; ?>
+                                                                            </div>
+                                                                            <div class="button-row">
+                                                                                <button id='referrals-remove-button-id--<?php echo $row->rid; ?>' class='referrals-remove-button no-accordion' data-rid='<?php echo $row->rid; ?>'>
+                                                                                    x
+                                                                                </button>
+                                                                                <button id="referral-item-id--<?php echo $VendorDetails->id; ?>" class="refer-popup-link dialog_link ui-state-default ui-corner-all">
+                                                                                    <span class="ui-icon ui-icon-plus"></span>
+                                                                                    Refer
+                                                                                </button>
+                                                                                <button id="referral-item-id--<?php echo $VendorDetails->id; ?>" class="add-to-list-popup-link dialog_link ui-state-default ui-corner-all">
+                                                                                    <span class="ui-icon ui-icon-plus"></span>
+                                                                                    Add
+                                                                                </button>
+                                                                            </div>
+                                                                        </a>
                                                                     </div>
-                                                                    <?php endforeach; ?>
-                                                                </div>
-                                                            <?php endif; ?>
-                                                                <div class="accordion-footer">
-                                                                    <!-- new div for like/comment button, comment fields, etc like button here -->
-                                                                    <div id="row-rid--<?=$row->rid?>" class="row" data-rid=<?php echo $row->rid; ?>>
-                                                                        <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
-                                                                            <?php echo $likeStatus; ?>
+                                                                    <!-- END HEADER OF ACCORDION HERE ENDS HERE -->
+                                                                    <!-- vendor details here (among anything else)-->
+                                                                    <div class="drop-down-details accordion-content">
+                                                                        <?php echo $VendorDetails->addrNum . " " . $VendorDetails->addrStreet . "<br>"; // add all list detail here
+                                                                        echo $VendorDetails->addrCity . " " . $VendorDetails->addrState . " " . $VendorDetails->addrZip . "<br>";
+                                                                        echo $VendorDetails->phone . "<br>";
+                                                                        echo $VendorDetails->website; ?>
+                                                                    </div>
+                                                                <?php else: ?>
+
+                                                                    <!-- LIST HERE -->
+                                                                    <div class="single-wrapper accordion-header name-wrapper">
+                                                                        <a>
+                                                                            <div class='referral-date time-stamp'>
+                                                                                <?php echo $dateOfRecord; ?>
+                                                                            </div>
+                                                                            <div class="friend-pic">
+                                                                                <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
+                                                                            </div>
+                                                                            <div class="friend-referral">
+                                                                                <?php echo $recommendationComment; ?>
+                                                                                <br>
+                                                                                <?php echo $senderComment; ?>
+                                                                            </div>
+                                                                            <div class="button-row">
+                                                                                <button id='referrals-remove-button-id--<?php echo $row->rid; ?>' class='referrals-remove-button no-accordion' data-rid='<?php echo $row->rid; ?>'>
+                                                                                    x
+                                                                                </button>
+                                                                                <button id="referral-item-id--<?php echo $row->lid; ?>" class="refer-list-popup-link dialog_link ui-state-default ui-corner-all">
+                                                                                    <span class="ui-icon ui-icon-plus"></span>
+                                                                                    Refer
+                                                                                </button>
+                                                                                <button id="referral-item-id--<?php echo $row->lid; ?>" class="add-list-to-list-popup-link dialog_link ui-state-default ui-corner-all">
+                                                                                    <span class="ui-icon ui-icon-plus"></span>
+                                                                                    Add
+                                                                                </button>
+                                                                            </div>
+                                                                        </a>
+                                                                    </div>
+                                                                    <!-- END HEADER OF ACCORDION HERE ENDS HERE -->
+                                                                    <!-- vendor details here (among anything else)-->
+                                                                    <div class="drop-down-details accordion-content">
+                                                                        <?php foreach($row->VendorList['VendorList'] as $vendorRow): ?>
+
+                                                                        <div class="subaccordion-object name-wrapper">
+                                                                            <div class="subaccordion-header">
+                                                                                <span class="vendor-name">
+                                                                                    <!-- vendor name here -->
+                                                                                    <?php echo $vendorRow[0]->name; ?>
+                                                                                </span>
+                                                                                <button id="referral-item-id--<?php echo $vendorRow[0]->id; ?>" class="refer-popup-link dialog_link ui-state-default ui-corner-all">
+                                                                                    <span class="ui-icon ui-icon-plus"></span>
+                                                                                    Refer
+                                                                                </button>
+                                                                                <button id="referral-item-id--<?php echo $vendorRow[0]->id; ?>" class="add-to-list-popup-link dialog_link ui-state-default ui-corner-all">
+                                                                                    <span class="ui-icon ui-icon-plus"></span>
+                                                                                    Add
+                                                                                </button>
+                                                                            </div>
+                                                                            <div class="subaccordion-content">
+                                                                                <!-- vendor details here -->
+                                                                                <?php
+                                                                                    echo $vendorRow[0]->addrNum . " " . $vendorRow[0]->addrStreet . "<br>";
+                                                                                    echo $vendorRow[0]->addrCity . " " . $vendorRow[0]->addrState . " " . $vendorRow[0]->addrZip . "<br>";
+                                                                                    echo $vendorRow[0]->phone . "<br>";
+                                                                                    echo $vendorRow[0]->website;
+                                                                                ?>
+                                                                                <?php echo "<span class='referral-comment'>" . $vendorRow['senderComment'] . "</span>"; ?>
+                                                                            </div>
                                                                         </div>
-                                                                        <!--comment button here -->
-                                                                        <div class="click-to-comment no-accordion">
-                                                                            Comment
-                                                                        </div>
-                                                                        <div class="number-of-likes no-accordion">
-                                                                            <?php echo $likeNumber; ?>
-                                                                        </div>
-                                                                        <!-- create the divs to show other peoples comments-->
-                                                                        <div class="comments">
-                                                                            <table class="comments-table">
-                                                                                <tbody class="comments-table-tbody">
-                                                                                    <?php $commentsCountdown = count($commentsArray);
-                                                                                    // default is that we do not need to show all (0)
+                                                                        <?php endforeach; ?>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                                    <div class="accordion-footer">
+                                                                        <!-- new div for like/comment button, comment fields, etc like button here -->
+                                                                        <div id="row-rid--<?=$row->rid?>" class="row" data-rid=<?php echo $row->rid; ?>>
+                                                                            <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
+                                                                                <?php echo $likeStatus; ?>
+                                                                            </div>
+                                                                            <!--comment button here -->
+                                                                            <div class="click-to-comment no-accordion">
+                                                                                Comment
+                                                                            </div>
+                                                                            <div class="number-of-likes no-accordion">
+                                                                                <?php echo $likeNumber; ?>
+                                                                            </div>
+                                                                            <!-- create the divs to show other peoples comments-->
+                                                                            <div class="comments">
+                                                                                <?php $commentsCountdown = count($commentsArray);
+                                                                                // default is that we do not need to show all (0)
                                                                                     $needShowAllButton = "hide-load-comments-button"; ?>
                                                                                     <?php foreach($commentsArray as $line): ?>
-                                                                                        <?php
-                                                                                        if($commentsCountdown < 3) {
-                                                                                            $showStatus = 'show-comment';
-                                                                                        } else {
-                                                                                            // more than two comments, will hide them
-                                                                                            // also turn on the showAllButton flag
-                                                                                            $showStatus = 'hide-comment';
-                                                                                            $needShowAllButton = 'show-load-comments-button';
-                                                                                        }
-                                                                                        $commentsCountdown--;
+                                                                                    <?php
+                                                                                    if($commentsCountdown < 3) {
+                                                                                        $showStatus = 'show-comment';
+                                                                                    } else {
+                                                                                        // more than two comments, will hide them
+                                                                                        // also turn on the showAllButton flag
+                                                                                        $showStatus = 'hide-comment';
+                                                                                        $needShowAllButton = 'show-load-comments-button';
+                                                                                    }
+                                                                                    $commentsCountdown--;
 
-                                                                                        if($line->uid == $row->uid2) {
-                                                                                            $removeButtonHTML = "<button id='delete-comment-button-cid--" . $line->cid . " class='delete-comment' data-cid=" . $line->cid . ">x</button>";
-                                                                                        } else {
-                                                                                            $removeButtonHTML = "";
-                                                                                        }
+                                                                                    if($line->uid == $row->uid2) {
+                                                                                        $removeButtonHTML = "<button id='remove-comment-button-cid--" . $line->cid . "' class='remove-comment-button' data-cid=" . $line->cid . ">x</button>";
+                                                                                    } else {
+                                                                                        $removeButtonHTML = "";
+                                                                                    }
+                                                                                    $data_ref = date('Y-m-d H:i:s', strtotime($line->date));
 
-                                                                                        ?>
+                                                                                    $commentDate = dateTimeDiff($data_ref);
 
-                                                                                        <?php if($commentsCountdown==count($commentsArray)-1): ?>
-                                                                                        <tr>
-                                                                                            <td class="show-all-comments-button no-accordion <?php echo $needShowAllButton; ?>">
-                                                                                                View all <?php echo count($commentsArray);?> comments.
-                                                                                            </td>
-                                                                                            <td></td>
-                                                                                            <td></td>
-                                                                                        </tr>
-                                                                                        <?php endif; ?>
+                                                                                    if ($commentDate == "") {
+                                                                                        $commentDate = date("g:ia, l, F dS, Y", strtotime($line->date));
+                                                                                    }
+                                                                                    ?>
 
-                                                                                        <tr class='single-comment'>
-                                                                                            <td class="commenter-pic">
-                                                                                                <?php echo '<img src="https://graph.facebook.com/' . $line->fbid . '/picture">' ?>
-                                                                                            </td>
-                                                                                            <td class="comments-name">
-                                                                                                <?php echo $line->firstName . " " . $line->lastName . ": "; ?>
-                                                                                            </td>
-                                                                                            <td class="comments-content">
+                                                                                    <?php if($commentsCountdown==count($commentsArray)-1): ?>
+                                                                                    <div class="show-all-comments-button no-accordion <?php echo $needShowAllButton; ?>">
+                                                                                        View all <?php echo count($commentsArray);?> comments.
+                                                                                    </div>
+                                                                                    <?php endif; ?>
+
+                                                                                    <div class='single-comment'>
+                                                                                        <div class="commenter-pic">
+                                                                                            <?php echo '<img src="https://graph.facebook.com/' . $line->fbid . '/picture">' ?>
+                                                                                        </div>
+                                                                                        <div class="comment-wrapper-text">
+                                                                                            <div class="comments-content">
+                                                                                                <span class="name">
+                                                                                                    <?php echo $line->firstName . " " . $line->lastName . ": "; ?>
+                                                                                                </span>
                                                                                                 <?php echo $line->comment; ?>
-                                                                                            </td>
-                                                                                            <td>
-                                                                                                <?php echo $removeButtonHTML; ?>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                    <?php endforeach; ?>
-                                                                                </tbody>
-                                                                            </table>
-                                                                        </div>
-                                                                        <div class="comment-box no-accordion">
-                                                                            <form name="form-comment" class="form-comment" method="post">
-                                                                                <input type="text" class="comment-input"/>
-                                                                                <button type="submit" class="submit-comment-button">
-                                                                                    Submit
-                                                                                </button>
-                                                                            </form>
+                                                                                            </div>
+                                                                                            <div class="comment-date time-stamp">
+                                                                                                <?php echo $commentDate; ?>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="remove-comment-button-wrapper">
+                                                                                            <?php echo $removeButtonHTML; ?>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                <?php endforeach; ?>
+                                                                                <div class="comment-box no-accordion">
+                                                                                    <form name="form-comment" class="form-comment" method="post">
+                                                                                        <input type="text" class="comment-input"/>
+                                                                                        <button type="submit" class="submit-comment-button">
+                                                                                            Submit
+                                                                                        </button>
+                                                                                    </form>
+                                                                                </div>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                            <?php endif; ?>
+                                                                <?php endif; ?>
+                                                            </div>
                                                         <?php endforeach; ?>
                                                     </div>
-                                                <div id="load-more-inbox-content-button" class="load-more-button">
+<!--                                                <div id="load-more-inbox-content-button" class="load-more-button">
                                                     Load more..
-                                                </div>
+                                                </div>-->
                                             </div>
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="search-content">
                                                 <p> search </p>
                                             </div>
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="list-content">
+<!--                                                <div id='accordion-list' class='accordion-object'>
+                                                </div>-->
                                             </div>
                                             <div class='ui-tabs-panel ui-widget-content ui-corner-bottom' id='friend-activity-content'>
                                                 <div id='accordion-friend-activity' class='accordion-object'>
@@ -505,8 +446,8 @@
              <div id='add-to-new-list'>
              </div>
              <div id='add-to-list-comment'>
-                  <label for='add-to-list-comment-box'><B>Add a comment!</B></label>
-                  <textarea name='addToListComment' id='add-to-list-comment-box'></textarea>
+<!--                  <label for='add-to-list-comment-box'><B>Add a comment to remember what you like about this place!</B></label>
+                  <textarea name='addToListComment' id='add-to-list-comment-box'></textarea>-->
              </div>
         </div>
         <div id="footer">
