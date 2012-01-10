@@ -3,6 +3,7 @@
  * 01/04/2012
  * 
  * All functions dealing with the list feature:
+ *      initAddList
  *      initGetListContent
  *      initDeleteList
  *      bindDeleteVendorFromList
@@ -18,12 +19,27 @@
  * 
  */
 
+function initClickAddList() {
+    $('#add-list-button').click(function() {
+        $("#fuzz").fadeIn();
+        $('#add-list-dialog').dialog("option", "title", "Create new list!");
+        $('#add-list-dialog').dialog('open');
+    });
+}
+
 /**
  * when list is clicked for the first time, list contents are retrieved and stored in HTML.
  * further list clicks retrieve HTML vs. making calls to the database
  */
 function initGetListContent() {
     $(document).on("click", ".my-list", function() {
+        // remove .selected-list class from all other lists
+        $('#lists li').each(function() {
+            $(this).removeClass('selected-list');
+        });
+        
+        $(this).parent().addClass('selected-list');
+        
 	// parse lid from id
 	var lid_string = $(this).attr('id');
 	var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
@@ -439,10 +455,12 @@ function initAddList() {
 }
 
 // add list to list -- put lid1 into lid2
-function addListToList(lid2, lid1) {
+// use rid to get timestamp to add list as it was when referred
+function addListToList(lid2, lid1, rid) {
     // turn lid into an array, right now it is just an integer
-    jQuery.post('list_controller/get_list_content', {
-        lid: lid1
+    jQuery.post('list_controller/get_add_to_list_content', {
+        lid: lid1,
+        rid: rid
     }, function(data) {
         var parsedJSON = jQuery.parseJSON(data);
         for (var i = 0; i < parsedJSON.length; i++ ) {
@@ -475,7 +493,7 @@ function addVendorToList(lid, vid, comment) {
         }
         // if there was no error, then vendor was added to list. close the dialog
         else {
-            $('#addToListDialog').dialog("close");
+//            $('#addToListDialog').dialog("close");
 
             // if the div exists for the list, then add on to the stored data for displaying
             if ($('#list-content-lid--' + lid).length) {

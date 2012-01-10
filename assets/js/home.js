@@ -13,6 +13,15 @@
 $(document).ready(function() {
     $('#searchform')[0].reset();
     // these functions are defined below
+//    $('#loadingDiv')
+//    .hide()  // hide it initially
+//    .ajaxStart(function() {
+//        $(this).show();
+//    })
+//    .ajaxStop(function() {
+//        $(this).hide();
+//    });
+    
     initScrollHeight();
     initTabs();
     initEnterDialogForm();
@@ -21,6 +30,7 @@ $(document).ready(function() {
     // these functions are defined in other files
     bindAccordion();        //TODO: Merge with Andy
     overrideAccordionEvent();   //TODO: Merge with Andy
+    initClickAddList();
     initGetListContent();
     initDeleteList();
     bindAddListDialog();
@@ -59,6 +69,13 @@ function initScrollHeight() {
  */
 function initTabs() {
     $( "#tabs" ).tabs({
+        spinner: "<img src='../assets/images/ajax-loader.gif' />",
+        select: function(event, ui) {
+            // deselect all lists
+            $('#lists li').each(function() {
+                $(this).removeClass('selected-list');
+            });
+        },
         ajaxOptions: {
             error: function( xhr, status, index, anchor ) {
                 $( anchor.hash ).html(
@@ -145,6 +162,7 @@ function initSearchAJAX() {
     
     // merge kim's search with home shell
     $('#searchform').submit(function() {
+        $('#search-content').empty();
         var $inputs = $('#searchform :input');
         var values = {};
         $inputs.each(function() {
@@ -198,7 +216,7 @@ function initSearchAJAX() {
 
         $('#search-content').removeClass("ui-tabs-hide");
         $('#inbox-content, #friend-activity-content, #referral-tracking-content, #list-content').addClass("ui-tabs-hide")
-        $('#inbox-tab, #friend-activity-tab, #referral-tracking-tab').removeClass("ui-tabs-selected ui-state-active");
+        $('#inbox-tab, #friend-activity-tab, #referral-tracking-tab').removeClass("ui-tabs-selected ui-state-active-tab");
 
         return false;
     });
@@ -207,18 +225,18 @@ function initSearchAJAX() {
 // TODO: Merge with Andy
 // @kimhsiao
 // create accordion for search results -- can display many open rows at once
-function bindAccordion() {
-$("#accordion-search").addClass("ui-accordion ui-widget ui-helper-reset ui-accordion-icons")
-.find("h3")
-        .addClass("ui-accordion-header ui-helper-reset ui-corner-all ui-state-default")
-        .prepend('<span class="ui-icon ui-icon-triangle-1-e"/>')
-        .click(function() {
-            $(this).toggleClass("ui-accordion-header-active").toggleClass("ui-state-active")
-                        .toggleClass("ui-state-default").toggleClass("ui-corner-bottom")
-                .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e").toggleClass("ui-icon-triangle-1-s")
-                .end().next().toggle().toggleClass("ui-accordion-content-active");
-            return false;
-        })
-        .next().addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom").hide();
-}
-
+//function bindAccordion() {
+//$("#accordion-search").addClass("ui-accordion ui-widget ui-helper-reset ui-accordion-icons")
+//.find("h3")
+//        .addClass("ui-accordion-header ui-helper-reset ui-corner-all ui-state-default")
+//        .prepend('<span class="ui-icon ui-icon-triangle-1-e"/>')
+//        .click(function() {
+//            $(this).toggleClass("ui-accordion-header-active").toggleClass("ui-state-active")
+//                        .toggleClass("ui-state-default").toggleClass("ui-corner-bottom")
+//                .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e").toggleClass("ui-icon-triangle-1-s")
+//                .end().next().toggle().toggleClass("ui-accordion-content-active");
+//            return false;
+//        })
+//        .next().addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom").hide();
+//}
+//

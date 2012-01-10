@@ -49,36 +49,36 @@ $.widget( "ui.accordionCustom", {
 				.addClass( "ui-accordion-li-fix" );
 
 		self.headers = self.element.find( options.header )
-			.addClass( "ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" )
+			.addClass( "ui-accordion-header ui-helper-reset ui-state-default-accordion ui-corner-all" )
 			.bind( "mouseenter.accordion", function() {
 				if ( options.disabled ) {
 					return;
 				}
-				$( this ).addClass( "ui-state-hover" );
+				$( this ).addClass( "ui-state-hover-accordion" );
 			})
 			.bind( "mouseleave.accordion", function() {
 				if ( options.disabled ) {
 					return;
 				}
-				$( this ).removeClass( "ui-state-hover" );
+				$( this ).removeClass( "ui-state-hover-accordion" );
 			})
 			.bind( "focus.accordion", function() {
 				if ( options.disabled ) {
 					return;
 				}
-				$( this ).addClass( "ui-state-focus" );
+				$( this ).addClass( "ui-state-focus-accordion" );
 			})
 			.bind( "blur.accordion", function() {
 				if ( options.disabled ) {
 					return;
 				}
-				$( this ).removeClass( "ui-state-focus" );
+				$( this ).removeClass( "ui-state-focus-accordion" );
 			});
 
                 self.contents = self.element.find( options.content )
-                        .addClass( "ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom" );
+                        .addClass( "ui-accordion-content ui-helper-reset ui-widget-content-accordion ui-corner-bottom" );
  		self.footers = self.element.find( options.footer )
-                        .addClass( "ui-accordion-footer ui-helper-reset ui-widget-content");
+                        .addClass( "ui-accordion-footer ui-helper-reset ui-widget-content-accordion");
 
 
 		if ( options.navigation ) {
@@ -96,7 +96,7 @@ $.widget( "ui.accordionCustom", {
 		}
 
 		self.active = self._findActive( self.active || options.active )
-			.addClass( "ui-state-default ui-state-active" )
+			.addClass( "ui-state-default-accordion ui-state-active-accordion" )
 			.toggleClass( "ui-corner-all" )
 			.toggleClass( "ui-corner-top" );
                 
@@ -179,7 +179,7 @@ $.widget( "ui.accordionCustom", {
 
 		this.headers
 			.unbind( ".accordion" )
-			.removeClass( "ui-accordion-header ui-accordion-disabled ui-helper-reset ui-state-default ui-corner-all ui-state-active ui-state-disabled ui-corner-top" )
+			.removeClass( "ui-accordion-header ui-accordion-disabled ui-helper-reset ui-state-default-accordion ui-corner-all ui-state-active-accordion ui-state-disabled ui-corner-top" )
 			.removeAttr( "role" )
 			.removeAttr( "aria-expanded" )
 			.removeAttr( "aria-selected" )
@@ -191,7 +191,7 @@ $.widget( "ui.accordionCustom", {
 		var contents = this.headers.next()
 			.css( "display", "" )
 			.removeAttr( "role" )
-			.removeClass( "ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content ui-accordion-content-active ui-accordion-disabled ui-state-disabled" );
+			.removeClass( "ui-helper-reset ui-widget-content-accordion ui-corner-bottom ui-accordion-content ui-accordion-content-active ui-accordion-disabled ui-state-disabled" );
 		if ( options.autoHeight || options.fillHeight ) {
 			contents.css( "height", "" );
 		}
@@ -324,8 +324,8 @@ $.widget( "ui.accordionCustom", {
 				return;
 			}
 			this.active
-				.removeClass( "ui-state-active ui-corner-top" )
-				.addClass( "ui-state-default ui-corner-all" )
+				.removeClass( "ui-state-active-accordion ui-corner-top" )
+				.addClass( "ui-state-default-accordion ui-corner-all" )
 				.children( ".ui-icon" )
 					.removeClass( options.icons.headerSelected )
 					.addClass( options.icons.header );
@@ -378,15 +378,15 @@ $.widget( "ui.accordionCustom", {
 
 		// switch classes
 		active
-			.removeClass( "ui-state-active ui-corner-top" )
-			.addClass( "ui-state-default ui-corner-all" )
+			.removeClass( "ui-state-active-accordion ui-corner-top" )
+			.addClass( "ui-state-default-accordion ui-corner-all" )
 			.children( ".ui-icon" )
 				.removeClass( options.icons.headerSelected )
 				.addClass( options.icons.header );
 		if ( !clickedIsActive ) {
 			clicked
-				.removeClass( "ui-state-default ui-corner-all" )
-				.addClass( "ui-state-active ui-corner-top" )
+				.removeClass( "ui-state-default-accordion ui-corner-all" )
+				.addClass( "ui-state-active-accordion ui-corner-top" )
 				.children( ".ui-icon" )
 					.removeClass( options.icons.header )
 					.addClass( options.icons.headerSelected );

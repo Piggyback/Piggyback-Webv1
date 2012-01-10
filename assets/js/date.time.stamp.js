@@ -51,6 +51,15 @@ function initDatePrototype () {
 
         return f
     };
+    
+//    Date.prototype.getTrimmedDate = function () {
+//        alert(this.getDate());
+//        if(this.getDate().toString().substr(0,1)=="0") {
+//            return this.getDate().toString().substr(1);
+//        } else {
+//            return this.getDate();
+//        }
+//    }
 
     Date.prototype.getMonthName = function () {
         switch(this.getMonth())
@@ -158,13 +167,11 @@ function initDatePrototype () {
 
         var tempMaxDate = currentYear + currentMonth + currentDay;
         var tempDateRef = refYear + refMonth + refDay;
-//        var diffInDays = parseInt(currentDay) - parseInt(refDay);
-
         var diffInDays = parseInt(tempMaxDate) - parseInt(tempDateRef);
 
         if (diffInDays > 7) {
             // display regular time stamp
-            dateOfRecord = refDate.toFormattedString('h:ix, z, q ddX, yyyy');
+            dateOfRecord = refDate.toFormattedString('h:ix, z, q dX, yyyy');
         } else {
             var currentHour = currentDate.getHours();
             var currentMin = currentDate.getMinutes();
@@ -176,7 +183,7 @@ function initDatePrototype () {
 
             var diffInHours = currentHour - refHour;
             var diffInMin = currentMin - refMin;
-            var diffInSec = currentSec - refSec;
+            var diffInSec = (currentSec - refSec);
 
             // show time difference
             if (diffInDays < 1) {   // if less than a day

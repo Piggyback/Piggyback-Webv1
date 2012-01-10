@@ -73,7 +73,7 @@ function bindAccordion() {
         autoHeight: false,
         navigation: true,
         active: 'none'
-    })
+    });
 }
 
 // override accordion click handler when clicking Like, Comment, pressing enter or space
@@ -123,7 +123,7 @@ function initLoadMoreComments() {
     $('.show-comment').show();
 
     $(document).on("click", ".show-load-comments-button", function() {
-        $(this).closest('.comments-table').find('.hide-comment').show();
+        $(this).closest('.comments-body').find('.hide-comment').show();
         $(this).hide();
     });
 
@@ -135,7 +135,7 @@ function initLoadMoreComments() {
 
 function initCommentInputDisplay() {
     // hide all comment boxes
-    $('.comment-box').hide();
+//    $('.comment-box').hide();
 
     // show comment div upon click
     $(document).on("click", ".click-to-comment", function() {
@@ -188,52 +188,138 @@ function initLike() {
     });
 }
 
-/*
- *  NEED TO UPDATE TO MATCH HOMEVIEW
- */
+
 function initComment() {
-    $(document).on("click", ".submit-comment-button", function() {
-        var name = jQuery.trim($(this).closest('.row').find('.comment-input').val());
-        //var referId = $(this).closest('.row').data("rid");
+    $(document).on("focus", ".comment-input", function() {
+        if (this.value == this.title) {
+            $(this).val("");
+            $(this).addClass('not-placeholder');
+            $(this).removeClass('placeholder');
+        }
+    });
+    $(document).on("blur", ".comment-input", function() {
+        if (this.value == "") {
+            $(this).val(this.title);
+            $(this).addClass('placeholder');
+            $(this).removeClass('not-placeholder');
+        }
+    });
+    
+//    $('.comment-input').focus( function() {
+//        if (this.value == this.title) {
+//            $(this).val("");
+//            $(this).addClass('not-placeholder');
+//            $(this).removeClass('placeholder');
+//        }
+//    }).blur( function() {
+//        if (this.value == "") {
+//            $(this).val(this.title);
+//            $(this).addClass('placeholder');
+//            $(this).removeClass('not-placeholder');
+//        }
+//    });
+    
+    $(document).on("keypress", ".comment-input", function(e) {
+        if (e.which == 13) {
+            var name = jQuery.trim($(this).val());
+            var ridString = $(this).closest('.row').attr("id");
+            var referId = ridString.substring(ridString.indexOf('rid--') + 'rid--'.length);
 
-        var ridString = $(this).closest('.row').attr("id");
-        var referId = ridString.substring(ridString.indexOf('rid--') + 'rid--'.length);
+            // reset comment box
+            $(this).val("Write a comment...");
+            $(this).addClass('placeholder');
+            $(this).removeClass('not-placeholder');
+            $(this).blur();
+            
+            var lastRow = $(this).closest('.comments').find('.comments-body');
+            
 
-        // toggle comment box
-        $(this).closest('.row').find('.comment-box').toggle();
-        var lastRow = $(this).closest('.row').find('.comments-table-tbody');
-
-        // if the comment is not empty, then proceed with ajax
-        if(name) {
-            jQuery.post("http://192.168.11.28/referrals/add_new_comment", {
-                comment: name,
-                rid: referId
-            }, function(data){
-                // add comment to table using javascript
-                var currentUserName = jQuery.trim($("#currentUserName").text());
-                var currentFBID = jQuery.trim($("#current-fbid").text());
-                lastRow.append(
-                    '<tr class="single-comment">' +
-                        '<td class="commenter-pic">' +
-                            '<img src="https://graph.facebook.com/' + currentFBID + '/picture">' +
-                        '</td>' +
-                        '<td class="comments-name">' +
-                            currentUserName + ': ' +
-                        '</td>' +
-                        '<td class="comments-content">' +
-                            name +
-                        '</td>' +
-                        '<td>' +
+            // if the comment is not empty, then proceed with ajax
+            if(name) {
+                jQuery.post("http://192.168.11.28/referrals/add_new_comment", {
+                    comment: name,
+                    rid: referId
+                }, function(data){
+                    // add comment to table using javascript
+                    var currentUserName = jQuery.trim($("#currentUserName").text());
+                    var currentFBID = jQuery.trim($("#current-fbid").text());
+                    lastRow.append(
+                        '<div class="single-comment show-comment">' +
+                            '<div class="commenter-pic">' +
+                                '<img src="https://graph.facebook.com/' + currentFBID + '/picture">' +
+                            '</div>' +
+                            '<div class="comment-wrapper-text">' +
+                                '<div class="comments-content">' +
+                                    '<b>' +
+                                        currentUserName + ': ' +
+                                    '</b>' +
+                                    name +
+                                '</div>' +
+                                '<div class="comment-date time-stamp">' +
+                                    "Just now" +
+                                '</div>' +
+                            '</div>' +
                             '<button id="remove-comment-button-cid--' + data + '" class="remove-comment-button" data-cid=' + data + '>' +
                                 'x' +
-                            '</button>' +
-                        '</td>' +
-                '</tr>'
-                );
-            });
+                            '</button>' +   
+                        '</div>'
+                    );
+                });
+            }
+            
+            return false;
         }
-        return false;
     });
+    
+//    $(document).on("click", ".submit-comment-button", function() {
+//        var name = jQuery.trim($(this).closest('.row').find('.comment-input').val());
+//        //var referId = $(this).closest('.row').data("rid");
+//
+//        var ridString = $(this).closest('.row').attr("id");
+//        var referId = ridString.substring(ridString.indexOf('rid--') + 'rid--'.length);
+//
+//        // toggle comment box
+//        //$(this).closest('.row').find('.comment-box').toggle();
+//        
+//        // empty comment box
+//        $(this).closest('.form-comment').find('.comment-input').val("Write a comment...");
+//        var lastRow = $(this).closest('.row').find('.comments-body');
+//
+//        // if the comment is not empty, then proceed with ajax
+//        if(name) {
+//            jQuery.post("http://192.168.11.28/referrals/add_new_comment", {
+//                comment: name,
+//                rid: referId
+//            }, function(data){
+//                // add comment to table using javascript
+//                var currentUserName = jQuery.trim($("#currentUserName").text());
+//                var currentFBID = jQuery.trim($("#current-fbid").text());
+//                lastRow.append(
+//                    '<div class="single-comment show-comment">' +
+//                        '<div class="commenter-pic">' +
+//                            '<img src="https://graph.facebook.com/' + currentFBID + '/picture">' +
+//                        '</div>' +
+//                        '<div class="comment-wrapper-text">' +
+//                            '<div class="comments-content">' +
+//                                '<b>' +
+//                                    currentUserName + ': ' +
+//                                '</b>' +
+//                                name +
+//                            '</div>' +
+//                            '<div class="comment-date time-stamp">' +
+//                                "Just now" +
+//                            '</div>' +
+//                        '</div>' +
+//                        '<button id="remove-comment-button-cid--' + data + '" class="remove-comment-button" data-cid=' + data + '>' +
+//                            'x' +
+//                        '</button>' +   
+//                    '</div>' +
+//                '</div>'
+//                );
+//            });
+//        }
+//        return false;
+//    });
 }
 
 function initRemoveComment() {
@@ -271,7 +357,7 @@ function initRemoveReferralButton() {
 }
 
 function reInitCommentEvents() {
-    $('.comment-box').hide();
+    //$('.comment-box').hide();
     $('.hide-load-comments-button').hide();
     $('.show-load-comments-button').show();
     $('.hide-comment').hide();
@@ -382,16 +468,16 @@ function displayReferralItems(parsedJSON, itemType) {
  */
 function createReferralsHTMLString(row, itemType) {
     //TODO: Discuss global javascript variables with Andy -- variables without 'var' keyword are global (green colorcode)'
-    var displayReferralsHTMLString = "";
+    var displayReferralsHTMLString = "<div class='referral-item-wrapper'>";
     if ( row.lid == 0 ) {
-        displayReferralsHTMLString += createReferralsHeaderHTMLString(row, itemType, row.lid) +//createReferralsHeaderHTMLString(timeStamp, fbidPicture, userReferralString, VendorDetails.name, VendorDetails.id, refID, 0);
+        displayReferralsHTMLString += createReferralsHeaderHTMLString(row, itemType, row.lid) +
         // details of the row
            "<div class='drop-down-details accordion-content'>" +
                createReferralsDetailsHTMLString(row.VendorList['VendorList'][0][0]) +
            "</div>";
     } else {
         //var userListDetails = row.UserList[0];
-        displayReferralsHTMLString += createReferralsHeaderHTMLString(row, itemType, 1) +//createReferralsHeaderHTMLString(timeStamp, fbidPicture, userReferralString, userListDetails.name, row.lid, refID, 1);
+        displayReferralsHTMLString += createReferralsHeaderHTMLString(row, itemType, 1) +
             "<div class='drop-down-details accordion-content'>";
         
         for(var j = 0; j<row.VendorList['VendorList'].length; j++) {
@@ -399,28 +485,13 @@ function createReferralsHTMLString(row, itemType) {
             displayReferralsHTMLString +=
                 "<div class='subaccordion-object name-wrapper'>" +
                     "<div class='subaccordion-header'>" +
-                        "<table class='formatted-table'>" +
-                            "<tr>" +
-                                "<td class='vendor-name'>" +
-                                    SubVendorDetails.name +
-                                "</td>" +
-                                "<td>" +
-                                    createReferralsReferButtonsHTMLString(SubVendorDetails.id) +
-                                "</td>" +
-                            "</tr>" +
-                        "</table>" +
+                        "<span class='vendor-name'>" +
+                            SubVendorDetails.name +
+                        "</span>" +
+                        createReferralsReferButtonsHTMLString(SubVendorDetails.id) +
                     "</div>" +
                     "<div class='subaccordion-content'>" +
-                        "<table class='formatted-table'>" +
-                            "<tr>" +
-                                "<td>" +
-                                    createReferralsDetailsHTMLString(SubVendorDetails) +
-                                "</td>" +
-                                "<td>" +
-                                    "<span class='referral-comment'>" + row.VendorList['VendorList'][j].senderComment + "</span>" +
-                                "</td>" +
-                            "</tr>" +
-                        "</table>" +
+                        createReferralsDetailsHTMLString(SubVendorDetails) +
                     "</div>" +
                 "</div>";
         }
@@ -428,7 +499,8 @@ function createReferralsHTMLString(row, itemType) {
         displayReferralsHTMLString +=
             "</div>";
     }
-    displayReferralsHTMLString += createReferralsFooterHTMLString(row);
+    displayReferralsHTMLString += createReferralsFooterHTMLString(row) +
+        "</div>";
     return displayReferralsHTMLString;
 }
 
@@ -455,81 +527,63 @@ function createReferralsHeaderHTMLString(row, itemType, listOrSingle) {
     var timeStamp = row.refDate.toFuzzyElapsedTime();
     var referralID = row.rid;
     var fbidPicture = "";
-    var genName, genID;
+    var genName, genID, recipientName, senderName, senderComment;
     var userReferralString;
-    
-    // logic based on what tab, what default 'comment' to show as well as fb picture
-    if (itemType != 'inbox-tab') {
-        var RecipientDetails = row.RecipientDetails['RecipientDetails'][0];
-        if (itemType == 'friend-activity-tab') {
-            userReferralString = row.firstName + " " + row.lastName + " recommended to " + RecipientDetails.firstName + " " + RecipientDetails.lastName;
-            referralID = -1;
-            fbidPicture = row.fbid;
-        } else if (itemType == 'referral-tracking-tab') {
-            userReferralString = "You recommended to " + RecipientDetails.firstName + " " + RecipientDetails.lastName;
-            fbidPicture = RecipientDetails.fbid;
-        }
-        if (row.ReferralsComment != "") {
-//            userReferralString = userReferralString + ": \"" + row.ReferralsComment + "\"";
-            userReferralString = userReferralString + ": \"<span class='referral-comment'>" + row.ReferralsComment + "</span>\"";
-        }
-    } else {
-        if (row.ReferralsComment == "") {
-            userReferralString = row.firstName + " " + row.lastName + " thinks you'll love this!";
-        } else {
-            userReferralString = row.firstName + " " + row.lastName + " says \"" + row.ReferralsComment + "\"";
-        }
-        fbidPicture = row.fbid;
-    }
     
     // if list or single
     if (listOrSingle == 0) {
         // if single
         var VendorDetails = row.VendorList['VendorList'][0][0];
-        genName = VendorDetails.name;
+        genName = "<span class='vendor-name'>" + VendorDetails.name + "</span>";;
         genID = VendorDetails.id;
     } else {
         // if list
         var userListDetails = row.UserList[0];
-        genName = userListDetails.name;
-        genID = row.lid
+        genName = "the \"<span class='list-name'>" + userListDetails.name + "</span>\" list";
+        genID = row.lid;
+    }
+    
+    senderName = "<b>" + row.firstName + " " + row.lastName + "</b>";
+    senderComment = "";
+    if (row.ReferralsComment != "") {
+        senderComment = "\"<span class='referral-comment'>" + row.ReferralsComment + "</span>\"";
+    }
+    
+    // logic based on what tab, what default 'comment' to show as well as fb picture
+    if (itemType != 'inbox-tab') {
+        var RecipientDetails = row.RecipientDetails['RecipientDetails'][0];
+        recipientName = "<b>" + RecipientDetails.firstName + " " + RecipientDetails.lastName + "</b>";
+        if (itemType == 'friend-activity-tab') {
+            userReferralString = senderName + " recommended " + genName + " to " + recipientName;
+            referralID = -1;
+            fbidPicture = row.fbid;
+        } else if (itemType == 'referral-tracking-tab') {
+            userReferralString = "You recommended " + genName + " to " + recipientName;
+            fbidPicture = RecipientDetails.fbid;
+        }
+    } else {
+        userReferralString = senderName + " recommended you " + genName;
+        fbidPicture = row.fbid;
     }
     
     var referralsHeaderHTMLString =
         "<div class='single-wrapper accordion-header name-wrapper'>" +
             "<a>" +
-                "<table class='formatted-table'>" +
-                    "<tr>" +
-                        "<td>" +
-                            "<div class='referral-date'>" +
-                                timeStamp +
-                            "</div>" +
-                        "</td>" +
-                        "<td>" +
-                            createReferralsRemoveButtonHTMLString(referralID) +
-                        "</td>" +
-                    "</tr>" +
-                    "<tr>" +
-                        "<td class='list-name vendor-name'>" +
-                            genName +
-                        "</td>" +
-                    "</tr>" +
-                    "<tr>" +
-                        "<td>" +
-                            "<div class='friend-referral-comment-wrapper'>" +
-                                "<div class='friend-pic'>" +
-                                    "<img src='https://graph.facebook.com/" + fbidPicture + "/picture'>" +
-                                "</div>" +
-                                "<div class='friend-referral'>" +
-                                    userReferralString +
-                                "</div>" +
-                            "</div>" +
-                        "</td>" +
-                        "<td>" +
-                            createReferralsReferButtonsHTMLString(genID, listOrSingle) +
-                        "</td>" +
-                    "</tr>" +
-                "</table>" +
+                "<div class='referral-date time-stamp'>" +
+                    timeStamp +
+                "</div>" +
+                "<div class='friend-pic'>" +
+                    "<img src='https://graph.facebook.com/" + fbidPicture + "/picture'>" +
+                "</div>" +
+                "<div class='friend-referral'>" +
+                    userReferralString +
+                    "<br>" +
+                    senderComment +
+                "</div>" +
+                "<div class='button-row'>" +
+                    createReferralsRemoveButtonHTMLString(referralID) +
+                    createReferralsReferButtonsHTMLString(genID, listOrSingle) +
+                "</div>" +
             "</a>" +
         "</div>";
     return referralsHeaderHTMLString;
@@ -567,7 +621,7 @@ function createReferralsFooterHTMLString(row) {
     }
     
     // footer comments
-    referralsFooterHTMLString = 
+    var referralsFooterHTMLString = 
         "<div class='accordion-footer'>" +
             "<div id='row-rid--" + row.rid + "' class='row' data-rid=" + row.rid + ">" +
                 "<div class='click-to-like no-accordion' data-likeCounts=" + likeNumber + ">" +
@@ -580,20 +634,15 @@ function createReferralsFooterHTMLString(row) {
                     likeNumber +
                 "</div>" +
                 "<div class='comments'>" +
-                    "<table class='comments-table'>" +
-                        "<tbody class='comments-table-tbody'>" +
-                            // loop comments for the 'view all comments'
-                            createCommentsHTMLString(row.CommentsList['CommentsList']) +
-                        "</tbody>" +
-                   "</table>" +
-               "</div>" +
-               "<div class='comment-box no-accordion'>" +
-                    "<form name='form-comment' class='form-comment' method='post'>" +
-                        "<input type='text' class='comment-input'/>" +
-                        "<button type='submit' class='submit-comment-button'>" +
-                            "Submit" +
-                        "</button>" +
-                    "</form>" +
+                    "<div class='comments-body'>" +
+                        // loop comments for the 'view all comments'
+                        createCommentsHTMLString(row.CommentsList['CommentsList']) +
+                    "</div>" +
+                    "<div class='comment-box no-accordion'>" +
+                        "<form name='form-comment' class='form-comment' method='post'>" +
+                            "<input type='text' value='Write a comment...' title='Write a comment...' class='comment-input placeholder'/>" +
+                        "</form>" +
+                    "</div>" +
                "</div>" +
             "</div>" +
         "</div>";
@@ -617,24 +666,19 @@ function createReferralsFooterHTMLString(row) {
 function createReferralsReferButtonsHTMLString(genID, listOrSingle) {
     var referClassName = "refer-popup-link";
     var addClassName = "add-to-list-popup-link";
+    var idName = "single-referral-id--";
     if (listOrSingle == 1) {
+        // if list,
         referClassName = "refer-list-popup-link";
         addClassName = "add-list-to-list-popup-link";
+        idName = "list-referral-id--";
     }
-    //TODO: Talk to Andy -- elements can't have the same IDs
+    //TODO: Talk to Andy -- elements can't have the same IDs // fixed
     var referralsReferButtonsHTMLString =
-            "<p>" +
-                "<a href='#' id='referral-item-id--" + genID + "' class='" + referClassName + " dialog_link ui-state-default ui-corner-all no-accordion'>" +
-                    "<span class='ui-icon ui-icon-plus'></span>" +
-                        "Refer to Friends" +
-                "</a>" +
-            "</p>" +
-            "<p>" +
-                "<a href='#' id='referral-item-id--" + genID + "' class='" + addClassName + " dialog_link ui-state-default ui-corner-all no-accordion'>" +
-                    "<span class='ui-icon ui-icon-plus'></span>" +
-                        "Add to List" +
-                "</a>" +
-            "</p>";
+        "<img alt='refer' src='../assets/images/piggyback_button_refer_f1.png' id='refer-to-friends-" + idName + genID + "' class='" + referClassName + " dialog_link ui-state-default ui-corner-all no-accordion'>" +
+        "</img>" +
+        "<img alt='+' src='../assets/images/piggyback_button_like_f1.png' id='add-to-list-" + idName + genID + "' class='" + addClassName + " dialog_link ui-state-default ui-corner-all no-accordion'>" +
+        "</img>";
     return referralsReferButtonsHTMLString;
 }
 
@@ -699,8 +743,11 @@ function createCommentsHTMLString(commentList) {
     var needShowAllButton = "hide-load-comments-button";
     var showStatus = "show-comment";
     var commentsHTMLString = "";
+    var commentTimeStamp;
     
     for(var j=0; j<commentList.length; j++) {
+        commentTimeStamp = commentList[j].date.toFuzzyElapsedTime();
+        
         if(commentsCountdown < 3) {
             showStatus = "show-comment";
         } else {
@@ -710,38 +757,39 @@ function createCommentsHTMLString(commentList) {
         commentsCountdown--;
 
         if(commentsCountdown == commentList.length-1) {
-            commentsHTMLString = commentsHTMLString +
-                "<tr>" +
-                    "<td class='show-all-comments-button no-accordion " + needShowAllButton + "'>" +
-                        "View all " + commentList.length + " comments." +
-                    "</td>" +
-                "</tr>";
+            commentsHTMLString +=
+            "<div class='show-all-comments-button no-accordion " + needShowAllButton + "'>" +
+                "View all " + commentList.length + " comments." +
+            "</div>";
         }
 
         // comments here
-        commentsHTMLString = commentsHTMLString +
-           "<tr class='single-comment " + showStatus + "'>" +
-                "<td class='commenter-pic'>" +
+        commentsHTMLString +=
+           "<div class='single-comment " + showStatus + "'>" +
+                "<div class='commenter-pic'>" +
                     "<img src='https://graph.facebook.com/" + commentList[j].fbid + "/picture'>" +
-                "</td>" +
-                "<td class='comments-name'>" +
-                    commentList[j].firstName + " " + commentList[j].lastName + ": " +
-                "</td>" +
-                "<td class='comments-content'>" +
-                    commentList[j].comment +
-                "</td>";
-            
+                "</div>" +
+                "<div class='comment-wrapper-text'>" +
+                    "<div class='comments-content'>" +
+                        "<b>" +
+                            commentList[j].firstName + " " + commentList[j].lastName + ": " +
+                        "</b>" +
+                        commentList[j].comment +
+                    "</div>" +
+                    "<div class='comment-date time-stamp'>" +
+                        commentTimeStamp +
+                    "</div>" +
+                "</div>";
+                    
         if (myUID == commentList[j].uid) {
-            commentsHTMLString = commentsHTMLString +
-                "<td>" +
-                  "<button id='remove-comment-button-cid--" + commentList[j].cid + "' class='remove-comment-button' data-cid=" +
-                     commentList[j].cid +
-                       ">x</button>" +
-                "</td>";
+            commentsHTMLString +=
+                "<button id='remove-comment-button-cid--" + commentList[j].cid + 
+                "' class='remove-comment-button' data-cid=" + commentList[j].cid +
+                       ">x</button>";
         }
         
         commentsHTMLString = commentsHTMLString +
-           "</tr>";
+           "</div>";
     }
     return commentsHTMLString;
 }

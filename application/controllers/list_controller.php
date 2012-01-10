@@ -24,6 +24,11 @@ class List_controller extends CI_Controller {
     {
         $this->list_model->get_list_content();
     }
+    
+    public function get_add_to_list_content()
+    {
+        $this->list_model->get_add_to_list_content();
+    }
 
     public function add_list()
     {

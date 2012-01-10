@@ -23,10 +23,18 @@ class List_model extends CI_Model {
     public function get_list_content()
     {
         $lid = $this->input->post('lid');
-        // and deleted != 1?
         $query = $this->db->query("SELECT *, Lists.date AS listsDate FROM Lists INNER JOIN Vendors ON Lists.vid = Vendors.id WHERE Lists.lid = $lid AND deleted != 1;");
         echo json_encode($query->result());
     }
+    
+    public function get_add_to_list_content() {
+        $lid = $this->input->post('lid');
+        $rid = $this->input->post('rid');
+        // and deleted != 1?
+        $query = $this->db->query("SELECT vid, comment FROM Lists WHERE lid = $lid and date < (SELECT date FROM Referrals WHERE rid = $rid)");
+        echo json_encode($query->result());
+    }
+
 
     public function add_list()
     {

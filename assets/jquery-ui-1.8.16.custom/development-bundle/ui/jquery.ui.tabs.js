@@ -157,9 +157,9 @@ $.widget( "ui.tabs", {
 		// initialization from scratch
 		if ( init ) {
 			// attach necessary classes for styling
-			this.element.addClass( "ui-tabs ui-widget ui-widget-content ui-corner-all" );
-			this.list.addClass( "ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" );
-			this.lis.addClass( "ui-state-default ui-corner-top" );
+			this.element.addClass( "ui-tabs ui-widget ui-widget-content ui-corner-top" );
+			this.list.addClass( "ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-top" );
+			this.lis.addClass( "ui-state-default-tab ui-corner-top" );
 			this.panels.addClass( "ui-tabs-panel ui-widget-content ui-corner-bottom" );
 
 			// Selected tab
@@ -207,11 +207,11 @@ $.widget( "ui.tabs", {
 
 			// highlight selected tab
 			this.panels.addClass( "ui-tabs-hide" );
-			this.lis.removeClass( "ui-tabs-selected ui-state-active" );
+			this.lis.removeClass( "ui-tabs-selected ui-state-active-tab" );
 			// check for length avoids error when initializing empty list
 			if ( o.selected >= 0 && this.anchors.length ) {
 				self.element.find( self._sanitizeSelector( self.anchors[ o.selected ].hash ) ).removeClass( "ui-tabs-hide" );
-				this.lis.eq( o.selected ).addClass( "ui-tabs-selected ui-state-active" );
+				this.lis.eq( o.selected ).addClass( "ui-tabs-selected ui-state-active-tab" );
 
 				// seems to be expected behavior that the show callback is fired
 				self.element.queue( "tabs", function() {
@@ -303,7 +303,7 @@ $.widget( "ui.tabs", {
 		// Show a tab...
 		var showTab = showFx
 			? function( clicked, $show ) {
-				$( clicked ).closest( "li" ).addClass( "ui-tabs-selected ui-state-active" );
+				$( clicked ).closest( "li" ).addClass( "ui-tabs-selected ui-state-active-tab" );
 				$show.hide().removeClass( "ui-tabs-hide" ) // avoid flicker that way
 					.animate( showFx, showFx.duration || "normal", function() {
 						resetStyle( $show, showFx );
@@ -311,7 +311,7 @@ $.widget( "ui.tabs", {
 					});
 			}
 			: function( clicked, $show ) {
-				$( clicked ).closest( "li" ).addClass( "ui-tabs-selected ui-state-active" );
+				$( clicked ).closest( "li" ).addClass( "ui-tabs-selected ui-state-active-tab" );
 				$show.removeClass( "ui-tabs-hide" );
 				self._trigger( "show", null, self._ui( clicked, $show[ 0 ] ) );
 			};
@@ -320,14 +320,14 @@ $.widget( "ui.tabs", {
 		var hideTab = hideFx
 			? function( clicked, $hide ) {
 				$hide.animate( hideFx, hideFx.duration || "normal", function() {
-					self.lis.removeClass( "ui-tabs-selected ui-state-active" );
+					self.lis.removeClass( "ui-tabs-selected ui-state-active-tab" );
 					$hide.addClass( "ui-tabs-hide" );
 					resetStyle( $hide, hideFx );
 					self.element.dequeue( "tabs" );
 				});
 			}
 			: function( clicked, $hide, $show ) {
-				self.lis.removeClass( "ui-tabs-selected ui-state-active" );
+				self.lis.removeClass( "ui-tabs-selected ui-state-active-tab" );
 				$hide.addClass( "ui-tabs-hide" );
 				self.element.dequeue( "tabs" );
 			};
@@ -461,10 +461,10 @@ $.widget( "ui.tabs", {
 				$( this ).remove();
 			} else {
 				$( this ).removeClass([
-					"ui-state-default",
+					"ui-state-default-tab",
 					"ui-corner-top",
 					"ui-tabs-selected",
-					"ui-state-active",
+					"ui-state-active-tab",
 					"ui-state-hover",
 					"ui-state-focus",
 					"ui-state-disabled",
@@ -520,7 +520,7 @@ $.widget( "ui.tabs", {
 
 		if ( this.anchors.length == 1 ) {
 			o.selected = 0;
-			$li.addClass( "ui-tabs-selected ui-state-active" );
+			$li.addClass( "ui-tabs-selected ui-state-active-tab" );
 			$panel.removeClass( "ui-tabs-hide" );
 			this.element.queue( "tabs", function() {
 				self._trigger( "show", null, self._ui( self.anchors[ 0 ], self.panels[ 0 ] ) );

@@ -18,9 +18,10 @@
 */
 
 div.referral-item-wrapper {
-    background-color: blue;
     margin-top:30px;
     margin-bottom:30px;
+    border: 1px solid #ffffff;
+    background-color: #f2f2f2;
 }
 
 div.single-wrapper {
@@ -56,11 +57,9 @@ div.friend-referral {
     height: 50%;
     top: 0;
     left: 100px;
-    width: 90%;
     margin-top: 40px;
     margin-right: 30px;
     font-weight: normal;
-    
 }
 
 div.vendor-name, div.list-name {
@@ -85,18 +84,24 @@ div.button-row {
     width: 70%;
 }
 
+.refer-popup-link, .refer-list-popup-link {
+    position: absolute;
+    right: 0px;
+    display: inline;
+    border: none;
+    padding: none;
+    margin: none;
+}
+
+.add-to-list-popup-link, .add-list-to-list-popup-link {
+    position: absolute;
+    right: 50px;
+    display: inline;
+}
+
 button.referrals-remove-button {
-    float: right;
-    display: inline;
-}
-
-button.refer-popup-link, button.refer-list-popup-link {
-    float: right;
-    display: inline;
-}
-
-button.add-to-list-popup-link, button.add-list-to-list-popup-link {
-    float: right;
+    position: absolute;
+    right: 120px;
     display: inline;
 }
 
@@ -131,6 +136,9 @@ div.number-of-likes {
     padding-bottom: 5px;
 }
 
+div.show-all-comments-button {
+}
+
 div.time-stamp {
     color: #808080;
     font-size: 80%;
@@ -144,21 +152,32 @@ div.comments {
     padding-bottom: 5px;
 }
 
-div.show-all-comments-button {
-    
+span.referral-comment {
+    font-weight: normal;
+}
+
+.comment-input {
+    width: 75%;
+    padding: 2px;
+}
+
+div.comments-body {
+    margin-right: 20%;
+    margin-left: 5%;
 }
 
 div.single-comment {
     position: relative;
     display: table;
     width:100%;
+    border-top-style: dotted;
+    border-top-width: 1px;
 }
 
 div.commenter-pic {
     display: inline;
     float: left;
-    top: 50%;
-    margin-left: 5%;
+    margin: 10px;
 }
 
 div.comment-wrapper-text {
@@ -166,37 +185,32 @@ div.comment-wrapper-text {
     position: relative;
 }
 
-span.name {
-    display: inline;
-    float: left;
-    margin-right: 10px;
-    font-weight: bold;
-}
-
 div.comments-content {
     display: inline;
     float: left;
     margin-left: 15px;
+    margin-top: 10px;
     overflow:hidden;
     word-wrap: break-word;
 }
 
-div.remove-comment-button-wrapper {
+button.remove-comment-button {
     display: inline;
     float:right;
-    margin-right: 25%;
 }
 
 div.comment-date {
     float:left;
     margin-left: 15px;
     position: absolute;
-    bottom: -80%;
+    bottom: -60%;
+    width: 100%;
+    clear: both;
 }
 
 div.comment-box {
-/*    float: left;*/
-    margin-left: 5%;
+    margin-left: 6%;
+    margin-bottom: 15px;
 }
 
 form.form-comment {
