@@ -147,34 +147,43 @@ function initCommentInputDisplay() {
 
 function initLike() {
     $(document).on("click", ".click-to-like", function () {
-        var ridString = $(this).closest('.row').attr("id");
+        var ridString = $(this).closest('.single-wrapper').next().next().find('.row').attr("id");
         var referId = ridString.substring(ridString.indexOf('rid--') + 'rid--'.length);
-        var likes = $(this).closest('.row').find('.number-of-likes');
-        var likeStatus = $(this);
+        
+        var likes = $(this).closest('.single-wrapper').next().next().find('.number-of-likes');
+        var likeElem = this;
+//        var ridString = $(this).closest('.row').attr("id");
+//        var referId = ridString.substring(ridString.indexOf('rid--') + 'rid--'.length);
+//        var likes = $(this).closest('.row').find('.number-of-likes');
+//        var likeStatus = $(this);
 
         jQuery.post("http://192.168.11.28/referrals/perform_like_action", {
             rid: referId
-        }, function(likeCount){
+        }, function(){
             // parse the existing number of likes from the front end html div
-            likeNumber = likes.text().trim();
+            var likeNumber = likes.text().trim();
             likeNumber = likeNumber.substring(0, likeNumber.indexOf(' ')).trim();
             var a = parseInt(likeNumber) || 0;
             
+            var likeStatus = likeElem.src;
+            likeStatus = likeStatus.substring(likeStatus.indexOf('like_') + 'like_'.length, likeStatus.indexOf('.png'));
+            var likedImg = "";
+            
             // toggle Like and Unlike
-            if(jQuery.trim(likeStatus.text())=="Like")
-            {
+            if( likeStatus == "f1" ){
+                likedImg = "../assets/images/piggyback_button_like_f2.png";
                 // user has liked
                 // like count++
                 // change text to 'unlike'
                 a = a + 1;
-                likeStatus.text("Unlike");
             } else {
+                likedImg = "../assets/images/piggyback_button_like_f1.png";
                 // user has unliked
                 // like count--
                 // change text to 'like'
                 a = a - 1;
-                likeStatus.text("Like");
             }
+            $(likeElem).attr("src", likedImg);
             if ( a > 0 ) {
                 if(a == 1) {
                     likes.text(a.toString() + " person likes this.");
@@ -204,20 +213,6 @@ function initComment() {
             $(this).removeClass('not-placeholder');
         }
     });
-    
-//    $('.comment-input').focus( function() {
-//        if (this.value == this.title) {
-//            $(this).val("");
-//            $(this).addClass('not-placeholder');
-//            $(this).removeClass('placeholder');
-//        }
-//    }).blur( function() {
-//        if (this.value == "") {
-//            $(this).val(this.title);
-//            $(this).addClass('placeholder');
-//            $(this).removeClass('not-placeholder');
-//        }
-//    });
     
     $(document).on("keypress", ".comment-input", function(e) {
         if (e.which == 13) {
@@ -266,60 +261,9 @@ function initComment() {
                     );
                 });
             }
-            
-            return false;
+            return false; // prevents page from refreshing
         }
     });
-    
-//    $(document).on("click", ".submit-comment-button", function() {
-//        var name = jQuery.trim($(this).closest('.row').find('.comment-input').val());
-//        //var referId = $(this).closest('.row').data("rid");
-//
-//        var ridString = $(this).closest('.row').attr("id");
-//        var referId = ridString.substring(ridString.indexOf('rid--') + 'rid--'.length);
-//
-//        // toggle comment box
-//        //$(this).closest('.row').find('.comment-box').toggle();
-//        
-//        // empty comment box
-//        $(this).closest('.form-comment').find('.comment-input').val("Write a comment...");
-//        var lastRow = $(this).closest('.row').find('.comments-body');
-//
-//        // if the comment is not empty, then proceed with ajax
-//        if(name) {
-//            jQuery.post("http://192.168.11.28/referrals/add_new_comment", {
-//                comment: name,
-//                rid: referId
-//            }, function(data){
-//                // add comment to table using javascript
-//                var currentUserName = jQuery.trim($("#currentUserName").text());
-//                var currentFBID = jQuery.trim($("#current-fbid").text());
-//                lastRow.append(
-//                    '<div class="single-comment show-comment">' +
-//                        '<div class="commenter-pic">' +
-//                            '<img src="https://graph.facebook.com/' + currentFBID + '/picture">' +
-//                        '</div>' +
-//                        '<div class="comment-wrapper-text">' +
-//                            '<div class="comments-content">' +
-//                                '<b>' +
-//                                    currentUserName + ': ' +
-//                                '</b>' +
-//                                name +
-//                            '</div>' +
-//                            '<div class="comment-date time-stamp">' +
-//                                "Just now" +
-//                            '</div>' +
-//                        '</div>' +
-//                        '<button id="remove-comment-button-cid--' + data + '" class="remove-comment-button" data-cid=' + data + '>' +
-//                            'x' +
-//                        '</button>' +   
-//                    '</div>' +
-//                '</div>'
-//                );
-//            });
-//        }
-//        return false;
-//    });
 }
 
 function initRemoveComment() {
@@ -349,9 +293,8 @@ function initRemoveReferralButton() {
         }, function(data) {
             // remove referral from html
             //TODO: Talk to Andy -- make this its own function so i can use it for my accordion
-            refElem.next().next().remove();
-            refElem.next().remove();
-            refElem.remove();
+            removeReferral(refElem);
+            // see below 'removeReferral'
         });
     });
 }
@@ -362,6 +305,12 @@ function reInitCommentEvents() {
     $('.show-load-comments-button').show();
     $('.hide-comment').hide();
     $('.show-comment').show();
+}
+
+function removeReferral(elem) {
+    elem.next().next().remove();
+    elem.next().remove();
+    elem.remove();
 }
 
 /*
@@ -583,10 +532,23 @@ function createReferralsHeaderHTMLString(row, itemType, listOrSingle) {
                 "<div class='button-row'>" +
                     createReferralsRemoveButtonHTMLString(referralID) +
                     createReferralsReferButtonsHTMLString(genID, listOrSingle) +
+                    createLikeButtonHTMLString(row) +
                 "</div>" +
             "</a>" +
         "</div>";
     return referralsHeaderHTMLString;
+}
+
+function createLikeButtonHTMLString(row) {
+    var imgsrc = "";
+    if (row.alreadyLiked==1) {
+        imgsrc = "../assets/images/piggyback_button_like_f2.png";
+    } else {
+        imgsrc = "../assets/images/piggyback_button_like_f1.png";
+    }
+    var likeButtonHTMLString =
+        "<img src='" + imgsrc + "' alt='like' class='click-to-like no-accordion'></img>";
+    return likeButtonHTMLString;
 }
 
 /*
@@ -613,23 +575,11 @@ function createReferralsFooterHTMLString(row) {
     else {
         likeNumber = "";
     }
-
-    if (row.alreadyLiked==1) {
-        likeStatus = "Unlike";
-    } else {
-        likeStatus = "Like";
-    }
     
     // footer comments
     var referralsFooterHTMLString = 
         "<div class='accordion-footer'>" +
             "<div id='row-rid--" + row.rid + "' class='row' data-rid=" + row.rid + ">" +
-                "<div class='click-to-like no-accordion' data-likeCounts=" + likeNumber + ">" +
-                    likeStatus +
-                "</div>" +
-                "<div class='click-to-comment no-accordion'>" +
-                    "Comment" +
-                "</div>" +
                 "<div class='number-of-likes no-accordion'>" +
                     likeNumber +
                 "</div>" +
@@ -675,9 +625,9 @@ function createReferralsReferButtonsHTMLString(genID, listOrSingle) {
     }
     //TODO: Talk to Andy -- elements can't have the same IDs // fixed
     var referralsReferButtonsHTMLString =
-        "<img alt='refer' src='../assets/images/piggyback_button_refer_f1.png' id='refer-to-friends-" + idName + genID + "' class='" + referClassName + " dialog_link ui-state-default ui-corner-all no-accordion'>" +
+        "<img alt='refer' src='../assets/images/piggyback_button_refer_f1.png' id='refer-to-friends-" + idName + genID + "' class='" + referClassName + " dialog_link no-accordion'>" +
         "</img>" +
-        "<img alt='+' src='../assets/images/piggyback_button_like_f1.png' id='add-to-list-" + idName + genID + "' class='" + addClassName + " dialog_link ui-state-default ui-corner-all no-accordion'>" +
+        "<img alt='+' src='../assets/images/piggyback_button_add_f1.png' id='add-to-list-" + idName + genID + "' class='" + addClassName + " dialog_link no-accordion'>" +
         "</img>";
     return referralsReferButtonsHTMLString;
 }

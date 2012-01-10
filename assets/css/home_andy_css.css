@@ -82,29 +82,36 @@ div.button-row {
     top: 0;
     right: 0;
     width: 70%;
+    margin: 15px;
+}
+
+/* button rows */
+
+img.click-to-like {
+    position: absolute;
+    right: 0px;
+    display: inline;
 }
 
 .refer-popup-link, .refer-list-popup-link {
     position: absolute;
-    right: 0px;
+    right: 36px;
     display: inline;
-    border: none;
-    padding: none;
-    margin: none;
+    padding: 0;
 }
 
 .add-to-list-popup-link, .add-list-to-list-popup-link {
     position: absolute;
-    right: 50px;
+    right: 115px;
     display: inline;
+    padding: 0;
 }
 
-button.referrals-remove-button {
+.referrals-remove-button {
     position: absolute;
-    right: 120px;
+    right: 151px;
     display: inline;
 }
-
 
 /*
 
@@ -112,28 +119,13 @@ button.referrals-remove-button {
 
  */
 
-div.click-to-like {
-    position: relative;
-    display: inline;
-    padding-right: 20px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-
-}
-
-div.click-to-comment {
-    position: relative;
-    display: inline;
-    padding-right: 20px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-}
 
 div.number-of-likes {
     position: relative;
     display: inline;
     padding-top: 5px;
     padding-bottom: 5px;
+    margin-left: 5%;
 }
 
 div.show-all-comments-button {

@@ -156,9 +156,12 @@
                                                                     }
                                                                     // if uid does not exist in the Likes rid list
                                                                     if ($row->alreadyLiked == 1) {
-                                                                        $likeStatus = "Unlike";
+//                                                                        $likeStatus = "Unlike";
+                                                                        $likeStatus = "../assets/images/piggyback_button_like_f2.png";
                                                                     } else {
-                                                                        $likeStatus = "Like";
+//                                                                        $likeStatus = "Like";
+                                                                        $likeStatus = "../assets/images/piggyback_button_like_f1.png";
+                                                                        
                                                                     }
 
                                                                     $VendorDetails = $row->VendorList['VendorList'][0][0];
@@ -206,7 +209,7 @@
                                                                                 </img>
                                                                                 <img id="add-to-list-single-referral-id--<?php echo $VendorDetails->id; ?>" alt="+" src="../assets/images/piggyback_button_add_f1.png" class="add-to-list-popup-link dialog_link">
                                                                                 </img>
-                                                                                <img src="../assets/images/piggyback_button_like_f1.png" alt="like" id="click-to-like no-accordion">
+                                                                                <img src=<?php echo $likeStatus; ?> alt="like" class="click-to-like no-accordion">
                                                                                 </img>
                                                                             </div>
                                                                         </a>
@@ -242,6 +245,8 @@
                                                                                 <img alt="refer" src="../assets/images/piggyback_button_refer_f1.png" id="refer-to-friends-list-referral-id--<?php echo $row->lid; ?>" class="refer-list-popup-link dialog_link">
                                                                                 </img>
                                                                                 <img id="add-to-list-list-referral-id--<?php echo $row->lid; ?>" alt="+" src="../assets/images/piggyback_button_add_f1.png" class="add-list-to-list-popup-link dialog_link">
+                                                                                </img>
+                                                                                <img src=<?php echo $likeStatus; ?> alt="like" class="click-to-like no-accordion">
                                                                                 </img>
                                                                             </div>
                                                                         </a>
@@ -282,12 +287,8 @@
                                                                     <div class="accordion-footer">
                                                                         <!-- new div for like/comment button, comment fields, etc like button here -->
                                                                         <div id="row-rid--<?=$row->rid?>" class="row" data-rid=<?php echo $row->rid; ?>>
-                                                                            <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
-                                                                                <?php echo $likeStatus; ?>
-                                                                            </div>
-                                                                            <!--comment button here -->
-<!--                                                                            <div class="click-to-comment no-accordion">
-                                                                                Comment
+<!--                                                                            <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
+                                                                                <?php //echo $likeStatus; ?>
                                                                             </div>-->
                                                                             <div class="number-of-likes no-accordion">
                                                                                 <?php echo $likeNumber; ?>
@@ -351,8 +352,6 @@
                                                                                 <div class="comment-box no-accordion">
                                                                                     <form name="form-comment" class="form-comment" method="post">
                                                                                         <input type="text" value="Write a comment..." title="Write a comment..." class="comment-input placeholder"/>
-<!--                                                                                        <img alt="submit-comment" src="../assets/images/piggyback_button_submit_f1.png" type="submit" class="submit-comment-button">
-                                                                                        </img>-->
                                                                                     </form>
                                                                                 </div>
                                                                             </div>

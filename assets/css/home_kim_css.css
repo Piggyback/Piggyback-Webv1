@@ -278,3 +278,29 @@ img.delete {
     -khtml-border-bottom-right-radius: 9px; 
     border-bottom-right-radius: 9px;
 }
+
+.ui-dialog-titlebar a.ui-dialog-titlebar-close:hover {
+    border:0px;
+    background: url('../images/piggyback_button_close_f2.png') 50% 50%;
+    width:20px;
+    height:20px;
+    padding:0px;
+    background-color:#F6D53A;
+}
+/*
+*/.ui-dialog-titlebar a.ui-dialog-titlebar-close {
+    border:0px;
+    width:20px;
+    height:20px;
+    padding:0px;
+    background: url('../images/piggyback_button_close_f1.png') 50% 50%;
+    background-color:#F6D53A;
+}
+
+/*.close-button {
+    display: inline-block;
+    width:30px;
+    height:30px;
+    align:right;
+    background-image: url('../images/piggyback_button_close_f1.png');
+}*/

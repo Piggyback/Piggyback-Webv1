@@ -261,11 +261,19 @@ function bindReferDialog() {
             closeOnEscape: true,
             show: 'drop',
             hide: 'drop',
-            resizable: false,
+            resizable: true,
+            closeText: '',
             open: function() {
+                // change refer button appearance
                 $('.ui-dialog-buttonpane').find('button:contains("Refer!")').removeClass('ui-button ui-widget ui-state-default ui-button-text-only ui-corner-all');
                 $('.ui-dialog-buttonpane').find('button:contains("Refer!")').text('');
                 $('.ui-dialog-buttonpane').addClass('refer-button button-corner');
+                
+                // change close button appearance
+//                $('.ui-dialog-titlebar-close').removeClass('ui-dialog-titlebar-close ui-corner-all').addClass('dialog-close');
+                $('.ui-dialog-titlebar-close').removeClass('ui-corner-all');
+                $('.ui-dialog-titlebar').find('.ui-icon').removeClass('ui-icon ui-icon-closethick');
+//                $('.ui-dialog-titlebar').find('.ui-icon').removeClass('ui-icon ui-icon-closethick').addClass('close-button');
             }
     });
 }
@@ -562,11 +570,14 @@ function bindAddToListDialog() {
             show: 'drop',
             hide: 'drop',
             resizable: false,
+            closeText: '',
             open: function() {
+                // change add button appearance
                 $('.ui-dialog-buttonpane').find('button:contains("Add!")').removeClass('ui-button ui-widget ui-state-default ui-button-text-only ui-corner-all');
                 $('.ui-dialog-buttonpane').find('button:contains("Add!")').text('');
                 $('.ui-dialog-buttonpane').addClass('add-button button-corner');
 
+                // change close button appearance
             }
     });
     
