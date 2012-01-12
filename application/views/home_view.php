@@ -207,13 +207,13 @@
                                                                                 <?php echo $senderComment; ?>
                                                                             </div>
                                                                             <div class="button-row no-accordion">
+                                                                                <img src="../assets/images/piggyback_button_close_big_f1.png" alt="refer" id="referrals-remove-button-id--<?php echo $row->rid; ?>" class='referrals-remove-button' data-rid='<?php echo $row->rid; ?>' onmouseover="this.src='../assets/images/piggyback_button_close_big_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_close_big_f1.png'">
+                                                                                </img>
                                                                                 <img src="../assets/images/piggyback_button_refer_f1.png" alt="refer" id="refer-to-friends-single-referral-id--<?php echo $VendorDetails->id; ?>" class="refer-popup-link dialog_link" onmouseover="this.src='../assets/images/piggyback_button_refer_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_refer_f1.png'">
                                                                                 </img>
                                                                                 <img id="add-to-list-single-referral-id--<?php echo $VendorDetails->id; ?>" alt="+" src="../assets/images/piggyback_button_add_f1.png" class="add-to-list-popup-link dialog_link" onmouseover="this.src='../assets/images/piggyback_button_add_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_add_f1.png'">
                                                                                 </img>
                                                                                 <img src=<?php echo $likeStatus; ?> alt="like" class="click-to-like">
-                                                                                </img>
-                                                                                <img src="../assets/images/piggyback_button_close_big_f1.png" alt="refer" id="referrals-remove-button-id--<?php echo $row->rid; ?>" class='referrals-remove-button' data-rid='<?php echo $row->rid; ?>' onmouseover="this.src='../assets/images/piggyback_button_close_big_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_close_big_f1.png'">
                                                                                 </img>
                                                                             </div>
                                                                         </a>
@@ -246,13 +246,13 @@
                                                                                 <?php echo $senderComment; ?>
                                                                             </div>
                                                                             <div class="button-row no-accordion">
+                                                                                <img src="../assets/images/piggyback_button_close_big_f1.png" alt="refer" id='referrals-remove-button-id--<?php echo $row->rid; ?>' class='referrals-remove-button' data-rid='<?php echo $row->rid; ?>' onmouseover="this.src='../assets/images/piggyback_button_close_big_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_close_big_f1.png'">
+                                                                                </img>
                                                                                 <img alt="refer" src="../assets/images/piggyback_button_refer_f1.png" id="refer-to-friends-list-referral-id--<?php echo $row->lid; ?>" class="refer-list-popup-link dialog_link" onmouseover="this.src='../assets/images/piggyback_button_refer_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_refer_f1.png'">
                                                                                 </img>
                                                                                 <img id="add-to-list-list-referral-id--<?php echo $row->lid; ?>" alt="+" src="../assets/images/piggyback_button_add_f1.png" class="add-list-to-list-popup-link dialog_link" onmouseover="this.src='../assets/images/piggyback_button_add_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_add_f1.png'">
                                                                                 </img>
                                                                                 <img src=<?php echo $likeStatus; ?> alt="like" class="click-to-like">
-                                                                                </img>
-                                                                                <img src="../assets/images/piggyback_button_close_big_f1.png" alt="refer" id='referrals-remove-button-id--<?php echo $row->rid; ?>' class='referrals-remove-button' data-rid='<?php echo $row->rid; ?>' onmouseover="this.src='../assets/images/piggyback_button_close_big_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_close_big_f1.png'">
                                                                                 </img>
                                                                             </div>
                                                                         </a>

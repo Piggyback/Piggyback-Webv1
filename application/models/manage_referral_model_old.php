@@ -769,7 +769,7 @@ class Manage_Referral_Model extends CI_Model {
             }
             
         }
-
+//        echo $result;
         return $result;
     }
     

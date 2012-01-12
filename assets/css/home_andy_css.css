@@ -104,46 +104,53 @@ div.button-row {
     float: right;
     top: 0;
     right: 0;
-    width: 100%;
+    width: 190px;
     margin: 15px;
 }
 
 /* button rows */
 
 img.click-to-like {
-    position: absolute;
-    right: 151px;
+/*    position: absolute;*/
+/*    right: 151px;*/
     display: inline;
+    float:right;
+    padding:2px;
 }
 
 
 img.click-to-like img:hover {
-    position: absolute;
-    right: 0px;
+/*    position: absolute;*/
+/*    right: 0px;*/
     display: inline;
     background: url('../images/piggyback_button_submit_f2.png');
     background-size: 100%;
+    float:right;
+    padding:2px;
 }
 
 .refer-popup-link, .refer-list-popup-link {
-    position: absolute;
-    right: 36px;
+/*    position: absolute;*/
+/*    right: 36px;*/
     display: inline;
-    padding: 0;
+    padding: 2px;
+    float:right;
 }
 
 .add-to-list-popup-link, .add-list-to-list-popup-link {
-    position: absolute;
-    right: 115px;
+/*    position: absolute;*/
+/*    right: 115px;*/
     display: inline;
-    padding: 0;
+    padding: 2px;
+    float:right;
 }
 
 .referrals-remove-button {
-    position: absolute;
-    right: 0px;
+/*    position: absolute;*/
+/*    right: 0px;*/
     display: inline;
-    padding:0;
+    padding:2px;
+    float:right;
 }
 
 /*

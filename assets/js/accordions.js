@@ -551,7 +551,6 @@ function createReferralsHeaderHTMLString(row, itemType, listOrSingle) {
     
     // from search
     
-    
     // if list or single
     if (listOrSingle == 0) {
         // if single
