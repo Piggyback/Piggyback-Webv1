@@ -89,7 +89,8 @@
             <div id="left-list-pane">
                 <div id="left-list-pane-header" class='top-rounded-corners'>
                     My Lists
-                    <img id="add-list-button" src="../assets/images/piggyback_button_add_f1.png" alt="+" />
+<!--                    <img id="add-list-button" src="../assets/images/piggyback_button_add_f1.png" alt="+" />-->
+                    <a id="add-list-button" alt="+" role="button" href="#"><span>   </span></a>
                 </div>
                 <div id="scrollable-sections-holder">
                     <div id="scrollable-sections">
@@ -99,13 +100,16 @@
                                 // add each list as its own <li>
                                 foreach ($myLists as $list) {
                                   //  echo "<li id='my-list-lid--" . $list->lid . "'><span id='delete-my-list-lid--" . $list->lid . "' class='delete-my-list'>x</span>" . $list->name . "</li>";
-                                    echo "<li class='my-list-wrapper name-wrapper'><span id='delete-my-list-lid--" . $list->lid . "' class='delete-my-list'>x</span>";
+                                    echo "<li class='my-list-wrapper name-wrapper'><img src='../assets/images/piggyback_button_close_f1.png' onmouseover=\"this.src='../assets/images/piggyback_button_close_f2.png'\" onmouseout=\"this.src='../assets/images/piggyback_button_close_f1.png'\" id='delete-my-list-lid--" . $list->lid . "' class='delete-my-list'></img>";
+
+//                                    echo "<li class='my-list-wrapper name-wrapper'><span id='delete-my-list-lid--" . $list->lid . "' class='delete-my-list'>x</span>";
                                     $modifiedName = htmlspecialchars($list->name, ENT_QUOTES);
 //                                    if (strlen($modifiedName) > 17) {
 //                                        $modifiedName = substr($modifiedName, 0, 17) . '...';
 //                                    }
                                     echo "<span id='my-list-lid--" . $list->lid . "' class='my-list list-name' title='" . $modifiedName . "'>" . $modifiedName . "</span>";
-                                    echo "<span id='refer-my-list-lid--" . $list->lid . "' class='refer-my-list refer-list-popup-link'>refer</span></li>";
+                                    echo "<span class='refer-my-list-wrapper'><img src='../assets/images/piggyback_button_refer_small_f1.png' onmouseover=\"this.src='../assets/images/piggyback_button_refer_small_f2.png'\" onmouseout=\"this.src='../assets/images/piggyback_button_refer_small_f1.png'\" id='refer-my-list-lid--" . $list->lid . "' class='refer-my-list refer-list-popup-link'></img></span></li>";
+//                                    echo "<span id='refer-my-list-lid--" . $list->lid . "' class='refer-my-list refer-list-popup-link'>refer</span></li>";
                                 }
                                 ?>
                            </ul>
@@ -125,12 +129,13 @@
                                     <div id="content">
                                         <div class="ui-tabs ui-widget ui-widget-content ui-corner-top" id="tabs">
                                             <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-top">
-                                                <li id="inbox-tab" class="ui-state-default-tab ui-corner-top ui-tabs-selected ui-state-active-tab"><a href="#inbox-content" onClick=loadReferralItems(this);>Inbox<span>&nbsp;</span></a></li>
-                                                <li id="friend-activity-tab" class="ui-state-default-tab ui-corner-top"><a href="#friend-activity-content" onClick=loadReferralItems(this);>Friend Activity<span>&nbsp;</span></a></li>
-                                                <li id="referral-tracking-tab" class="ui-state-default-tab ui-corner-top"><a href="#referral-tracking-content" onClick=loadReferralItems(this);>Referral Tracking<span>&nbsp;</span></a></li>
-                                                <li id="search-tab" class="ui-state-default-tab ui-corner-top none"><a href="#search-content"></a></li>
-                                                <li id="list-tab" class="ui-state-default-tab ui-corner-top none"><a href="#list-content"></a></li>
+                                                <li id="inbox-tab" class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#inbox-content" onClick=loadReferralItems(this);><span>&nbsp;</span></a></li>
+                                                <li id="friend-activity-tab" class="ui-state-default ui-corner-top"><a href="#friend-activity-content" onClick=loadReferralItems(this);><span>&nbsp;</span></a></li>
+                                                <li id="referral-tracking-tab" class="ui-state-default ui-corner-top"><a href="#referral-tracking-content" onClick=loadReferralItems(this);><span>&nbsp;</span></a></li>
+                                                <li id="search-tab" class="ui-state-default ui-corner-top none"><a href="#search-content"></a></li>
+                                                <li id="list-tab" class="ui-state-default ui-corner-top none"><a href="#list-content"></a></li>
                                             </ul>
+<!--                                            <div id='content'>-->
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="inbox-content">
                                                 <div id="accordion-inbox" class="accordion-object">
                                                     <?php foreach ($inboxItems as $row):?>
@@ -172,14 +177,14 @@
                                                                         $recommendationComment = "<b>" . $row->firstName . " " . $row->lastName . "</b> recommended you the \"<span class='list-name'>" . $row->UserList[0]->name . "</span>\" list";
                                                                     }
 
-                                                                    $senderComment = "\"<span class='referral-comment'>" . $row->ReferralsComment . "</span>\"";
+                                                                    $senderComment = "<i><span class='referral-comment'>\"" . $row->ReferralsComment . "\"</span></i>";
 
                                                                     $data_ref = date('Y-m-d H:i:s', strtotime($row->refDate));
 
                                                                     $dateOfRecord = dateTimeDiff($data_ref);
 
                                                                     if ($dateOfRecord == "") {
-                                                                        $dateOfRecord = date("g:ia, l, F dS, Y", strtotime($row->refDate));
+                                                                        $dateOfRecord = date("g:ia, l, F jS, Y", strtotime($row->refDate));
                                                                     }
                                                                 ?>
                                                                 <!-- determine if $row is a list or single vendor -->
@@ -194,22 +199,21 @@
                                                                                 <?php echo $dateOfRecord; ?>
                                                                             </div>
                                                                             <div class="friend-pic">
-                                                                                <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
+                                                                                <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture" class="ui-corner-all">' ?>
                                                                             </div>
                                                                             <div class="friend-referral">
                                                                                 <?php echo $recommendationComment; ?>
                                                                                 <br>
                                                                                 <?php echo $senderComment; ?>
                                                                             </div>
-                                                                            <div class="button-row">
-                                                                                <button id='referrals-remove-button-id--<?php echo $row->rid; ?>' class='referrals-remove-button no-accordion' data-rid='<?php echo $row->rid; ?>'>
-                                                                                    x
-                                                                                </button>
-                                                                                <img src="../assets/images/piggyback_button_refer_f1.png" alt="refer" id="refer-to-friends-single-referral-id--<?php echo $VendorDetails->id; ?>" class="refer-popup-link dialog_link">
+                                                                            <div class="button-row no-accordion">
+                                                                                <img src="../assets/images/piggyback_button_refer_f1.png" alt="refer" id="refer-to-friends-single-referral-id--<?php echo $VendorDetails->id; ?>" class="refer-popup-link dialog_link" onmouseover="this.src='../assets/images/piggyback_button_refer_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_refer_f1.png'">
                                                                                 </img>
-                                                                                <img id="add-to-list-single-referral-id--<?php echo $VendorDetails->id; ?>" alt="+" src="../assets/images/piggyback_button_add_f1.png" class="add-to-list-popup-link dialog_link">
+                                                                                <img id="add-to-list-single-referral-id--<?php echo $VendorDetails->id; ?>" alt="+" src="../assets/images/piggyback_button_add_f1.png" class="add-to-list-popup-link dialog_link" onmouseover="this.src='../assets/images/piggyback_button_add_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_add_f1.png'">
                                                                                 </img>
-                                                                                <img src=<?php echo $likeStatus; ?> alt="like" class="click-to-like no-accordion">
+                                                                                <img src=<?php echo $likeStatus; ?> alt="like" class="click-to-like">
+                                                                                </img>
+                                                                                <img src="../assets/images/piggyback_button_close_big_f1.png" alt="refer" id="referrals-remove-button-id--<?php echo $row->rid; ?>" class='referrals-remove-button' data-rid='<?php echo $row->rid; ?>' onmouseover="this.src='../assets/images/piggyback_button_close_big_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_close_big_f1.png'">
                                                                                 </img>
                                                                             </div>
                                                                         </a>
@@ -219,8 +223,11 @@
                                                                     <div class="drop-down-details accordion-content">
                                                                         <?php echo $VendorDetails->addrNum . " " . $VendorDetails->addrStreet . "<br>"; // add all list detail here
                                                                         echo $VendorDetails->addrCity . " " . $VendorDetails->addrState . " " . $VendorDetails->addrZip . "<br>";
-                                                                        echo $VendorDetails->phone . "<br>";
-                                                                        echo $VendorDetails->website; ?>
+                                                                        echo $VendorDetails->phone;
+                                                                        if ($VendorDetails->website != '') {
+                                                                            echo "<BR><a href='" . $VendorDetails->website . "' class ='website-link' target='_blank'>" . $VendorDetails->website . "</a>";
+                                                                        }
+                                                                        ?>
                                                                     </div>
                                                                 <?php else: ?>
 
@@ -231,22 +238,21 @@
                                                                                 <?php echo $dateOfRecord; ?>
                                                                             </div>
                                                                             <div class="friend-pic">
-                                                                                <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture">' ?>
+                                                                                <?php echo '<img src="https://graph.facebook.com/' . $row->fbid . '/picture" class="ui-corner-all">' ?>
                                                                             </div>
                                                                             <div class="friend-referral">
                                                                                 <?php echo $recommendationComment; ?>
                                                                                 <br>
                                                                                 <?php echo $senderComment; ?>
                                                                             </div>
-                                                                            <div class="button-row">
-                                                                                <button id='referrals-remove-button-id--<?php echo $row->rid; ?>' class='referrals-remove-button no-accordion' data-rid='<?php echo $row->rid; ?>'>
-                                                                                    x
-                                                                                </button>
-                                                                                <img alt="refer" src="../assets/images/piggyback_button_refer_f1.png" id="refer-to-friends-list-referral-id--<?php echo $row->lid; ?>" class="refer-list-popup-link dialog_link">
+                                                                            <div class="button-row no-accordion">
+                                                                                <img alt="refer" src="../assets/images/piggyback_button_refer_f1.png" id="refer-to-friends-list-referral-id--<?php echo $row->lid; ?>" class="refer-list-popup-link dialog_link" onmouseover="this.src='../assets/images/piggyback_button_refer_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_refer_f1.png'">
                                                                                 </img>
-                                                                                <img id="add-to-list-list-referral-id--<?php echo $row->lid; ?>" alt="+" src="../assets/images/piggyback_button_add_f1.png" class="add-list-to-list-popup-link dialog_link">
+                                                                                <img id="add-to-list-list-referral-id--<?php echo $row->lid; ?>" alt="+" src="../assets/images/piggyback_button_add_f1.png" class="add-list-to-list-popup-link dialog_link" onmouseover="this.src='../assets/images/piggyback_button_add_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_add_f1.png'">
                                                                                 </img>
-                                                                                <img src=<?php echo $likeStatus; ?> alt="like" class="click-to-like no-accordion">
+                                                                                <img src=<?php echo $likeStatus; ?> alt="like" class="click-to-like">
+                                                                                </img>
+                                                                                <img src="../assets/images/piggyback_button_close_big_f1.png" alt="refer" id='referrals-remove-button-id--<?php echo $row->rid; ?>' class='referrals-remove-button' data-rid='<?php echo $row->rid; ?>' onmouseover="this.src='../assets/images/piggyback_button_close_big_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_close_big_f1.png'">
                                                                                 </img>
                                                                             </div>
                                                                         </a>
@@ -258,17 +264,17 @@
                                                                         <?php
                                                                             $singleComment = "<span class='referral-comment'></span>";
                                                                             if ($vendorRow['senderComment'] != "") {
-                                                                                $singleComment = "\"<span class='referral-comment'>" . $vendorRow['senderComment'] . "</span>\"";
+                                                                                $singleComment = "<i><span class='referral-comment'>\"" . $vendorRow['senderComment'] . "\"</span></i>";
                                                                             }
                                                                         ?>
 
                                                                         <div class="subaccordion-object name-wrapper">
                                                                             <div class="subaccordion-header">
-                                                                                <span class="vendor-name"><?php echo $vendorRow[0]->name; ?></span>
+                                                                                <span class="vendor-name referral-list-vendor-name"><?php echo $vendorRow[0]->name; ?></span><br>
                                                                                 <?php echo $singleComment; ?>
-                                                                                <img alt="refer" src="../assets/images/piggyback_button_refer_f1.png" id="refer-to-friends-single-referral-id--<?php echo $vendorRow[0]->id; ?>" class="refer-popup-link dialog_link">
+                                                                                <img alt="refer" src="../assets/images/piggyback_button_refer_f1.png" id="refer-to-friends-single-referral-id--<?php echo $vendorRow[0]->id; ?>" class="refer-popup-link dialog_link referral-list-vendor-refer" onmouseover="this.src='../assets/images/piggyback_button_refer_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_refer_f1.png'">
                                                                                 </img>
-                                                                                <img id="add-to-list-single-referral-id--<?php echo $vendorRow[0]->id; ?>" alt="+" src="../assets/images/piggyback_button_add_f1.png" class="add-to-list-popup-link dialog_link">
+                                                                                <img id="add-to-list-single-referral-id--<?php echo $vendorRow[0]->id; ?>" alt="+" src="../assets/images/piggyback_button_add_f1.png" class="add-to-list-popup-link dialog_link referral-list-vendor-add-to-list" onmouseover="this.src='../assets/images/piggyback_button_add_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_add_f1.png'">
                                                                                 </img>
                                                                             </div>
                                                                             <div class="subaccordion-content">
@@ -276,8 +282,10 @@
                                                                                 <?php
                                                                                     echo $vendorRow[0]->addrNum . " " . $vendorRow[0]->addrStreet . "<br>";
                                                                                     echo $vendorRow[0]->addrCity . " " . $vendorRow[0]->addrState . " " . $vendorRow[0]->addrZip . "<br>";
-                                                                                    echo $vendorRow[0]->phone . "<br>";
-                                                                                    echo $vendorRow[0]->website;
+                                                                                    echo $vendorRow[0]->phone;
+                                                                                    if ($vendorRow[0]->website != '') {
+                                                                                        echo "<BR><a href='" . $vendorRow[0]->website . "' class ='website-link' target='_blank'>" . $vendorRow[0]->website . "</a>";
+                                                                                    }
                                                                                 ?>
                                                                             </div>
                                                                         </div>
@@ -290,7 +298,7 @@
 <!--                                                                            <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
                                                                                 <?php //echo $likeStatus; ?>
                                                                             </div>-->
-                                                                            <div class="number-of-likes no-accordion">
+                                                                            <div class="number-of-likes">
                                                                                 <?php echo $likeNumber; ?>
                                                                             </div>
                                                                             <!-- create the divs to show other peoples comments-->
@@ -312,7 +320,7 @@
                                                                                         $commentsCountdown--;
 
                                                                                         if($line->uid == $row->uid2) {
-                                                                                            $removeButtonHTML = "<button id='remove-comment-button-cid--" . $line->cid . "' class='remove-comment-button' data-cid=" . $line->cid . ">x</button>";
+                                                                                            $removeButtonHTML = "<button id='remove-comment-button-cid--" . $line->cid . "' class='remove-comment-button' data-cid=" . $line->cid . "></button>";
                                                                                         } else {
                                                                                             $removeButtonHTML = "";
                                                                                         }
@@ -321,24 +329,24 @@
                                                                                         $commentDate = dateTimeDiff($data_ref);
 
                                                                                         if ($commentDate == "") {
-                                                                                            $commentDate = date("g:ia, l, F dS, Y", strtotime($line->date));
+                                                                                            $commentDate = date("g:ia, l, F jS, Y", strtotime($line->date));
                                                                                         }
                                                                                         ?>
 
                                                                                         <?php if($commentsCountdown==count($commentsArray)-1): ?>
-                                                                                        <div class="show-all-comments-button no-accordion <?php echo $needShowAllButton; ?>">
+                                                                                        <div class="show-all-comments-button <?php echo $needShowAllButton; ?>">
                                                                                             View all <?php echo count($commentsArray);?> comments.
                                                                                         </div>
                                                                                         <?php endif; ?>
                                                                                         <div class='single-comment <?php echo $showStatus; ?>'>
                                                                                             <div class="commenter-pic">
-                                                                                                <?php echo '<img src="https://graph.facebook.com/' . $line->fbid . '/picture">' ?>
+                                                                                                <?php echo '<img src="https://graph.facebook.com/' . $line->fbid . '/picture" class="ui-corner-all">' ?>
                                                                                             </div>
                                                                                             <div class="comment-wrapper-text">
                                                                                                 <div class="comments-content">
                                                                                                     <b>
-                                                                                                        <?php echo $line->firstName . " " . $line->lastName . ": "; ?>
-                                                                                                    </b>
+                                                                                                        <?php echo $line->firstName . " " . $line->lastName; ?>
+                                                                                                    </b><br>
                                                                                                     <?php echo $line->comment; ?>
                                                                                                 </div>
                                                                                                 <div class="comment-date time-stamp">
@@ -349,8 +357,11 @@
                                                                                         </div>
                                                                                     <?php endforeach; ?>
                                                                                 </div>
-                                                                                <div class="comment-box no-accordion">
+                                                                                <div class="comment-box">
                                                                                     <form name="form-comment" class="form-comment" method="post">
+                                                                                        <div class="commenter-pic">
+                                                                                            <?php echo '<img src="https://graph.facebook.com/' . $currentFBID . '/picture" class="ui-corner-all commenter-pic"></img>'; ?>
+                                                                                        </div>
                                                                                         <input type="text" value="Write a comment..." title="Write a comment..." class="comment-input placeholder"/>
                                                                                     </form>
                                                                                 </div>
@@ -365,6 +376,7 @@
                                                     Load more..
                                                 </div>-->
                                             </div>
+                                               
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="search-content">
                                             </div>
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="list-content">
@@ -382,6 +394,7 @@
                                             <div class="hidden-list-content none" id="empty-list-content">
                                                 <p> List is empty! </p>
                                             </div>
+<!--                                            </div>-->
                                         </div>
                                     </div>
                                 </div>
@@ -393,12 +406,14 @@
         </div>
         <div id='add-list-dialog' class='none'>
             <form id='add-list-form' method='post' onsubmit='return false;'>
-                <label for='add-list-name'>Name: </label>
+                <label for='add-list-name'>Name your new list: </label>
                 <br>
                 <input type='text' id='add-list-name' name='add-list-name'>
                 <br>
                 <br>
-                <input type='submit' id='add-list-submit' value='Create new list!'>
+                <div id='add-list-button-wrapper'>
+                    <input type='submit' id='add-list-submit' value=''>
+                </div>
             </form>
         </div>
         <div id='edit-list-comment-dialog' class='none'>

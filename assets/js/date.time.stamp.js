@@ -41,7 +41,7 @@ function initDatePrototype () {
         f = f.replace(/Ddd/g, nd.substr(0,3));
         f = f.replace(/DD\*/g, nd.toUpperCase());
         f = f.replace(/Dd\*/g, nd);
-        f = f.replace(/dd/g, String(this.getDate()).padLeft('0', 2));
+        f = f.replace(/dd/g, String(this.getTrimmedDate()));
         f = f.replace(/d\*/g, this.getDate());
         f = f.replace(/h/g, this.getHours() % 12);
         f = f.replace(/i/g, String(this.getMinutes()).padLeft('0', 2));
@@ -52,14 +52,13 @@ function initDatePrototype () {
         return f
     };
     
-//    Date.prototype.getTrimmedDate = function () {
-//        alert(this.getDate());
-//        if(this.getDate().toString().substr(0,1)=="0") {
-//            return this.getDate().toString().substr(1);
-//        } else {
-//            return this.getDate();
-//        }
-//    }
+    Date.prototype.getTrimmedDate = function () {
+        if(this.getDate().toString().substr(0,1)=="0") {
+            return this.getDate().toString().substr(1);
+        } else {
+            return this.getDate();
+        }
+    }
 
     Date.prototype.getMonthName = function () {
         switch(this.getMonth())
@@ -171,7 +170,7 @@ function initDatePrototype () {
 
         if (diffInDays > 7) {
             // display regular time stamp
-            dateOfRecord = refDate.toFormattedString('h:ix, z, q dX, yyyy');
+            dateOfRecord = refDate.toFormattedString('h:ix, z, q ddX, yyyy');
         } else {
             var currentHour = currentDate.getHours();
             var currentMin = currentDate.getMinutes();
@@ -182,8 +181,10 @@ function initDatePrototype () {
             var refSec = refDate.getSeconds();
 
             var diffInHours = currentHour - refHour;
-            var diffInMin = currentMin - refMin;
-            var diffInSec = (currentSec - refSec);
+            var diffInMin = currentMin - refMin +1;
+            var diffInSec = (currentSec - refSec) -17;
+            
+            //alert("1: " +diffInDays + "days " + diffInHours + "hr " + diffInMin + "min " + diffInSec + "sec");
             
             if (diffInSec<0) {
                 diffInSec += 60;
@@ -198,54 +199,25 @@ function initDatePrototype () {
                 diffInDays --;
             }
             
-            //alert(diffInDays + "days " + diffInHours + "hr " + diffInMin + "min " + diffInSec + "sec");
+            //alert("2: "+diffInDays + "days " + diffInHours + "hr " + diffInMin + "min " + diffInSec + "sec");
 
             // show time difference
             if (diffInDays < 1) {   // if less than a day
                 if (diffInHours > 0) {
-                    if (diffInMin < 0) {
-                        diffInMin = 60 + diffInMin;
-                        diffInHours = diffInHours - 1;
-                        if (diffInHours <= 0 ) {
-                            dateOfRecord = String(diffInMin) + ' min ago 1';
-                        } else {
-                            dateOfRecord = String(diffInHours) + ' hr ago2';// + String(diffInMin) + ' min ago';
-                        }
-                    } else {
-                        dateOfRecord = String(diffInHours) + ' hr ago3';// + String(diffInMin) + ' min ago';
-                    }
+                    dateOfRecord = String(diffInHours) + ' hr ago';// + String(diffInMin) + ' min ago';
                 } else {
-                    if (diffInMin > 0) {
-                        if (diffInSec < 0) {
-                            diffInMin = diffInMin - 1;
-                            diffInSec = diffInSec + 60;
-                            if (diffInMin <= 0) {
-                                dateOfRecord = String(diffInSec) + ' sec ago4';
-                            } else {
-                                dateOfRecord = String(diffInMin) + ' min ago5'; // + String(diffInSec) + ' sec ago';
-                            }
-                        } else {
-                            dateOfRecord = String(diffInMin) + ' min ago6'; // + String(diffInSec) + ' sec ago';
-                        }
+                    // if less than an hour
+                    if (diffInMin == 0) {
+                        dateOfRecord = String(diffInSec) + ' sec ago';
                     } else {
-                        dateOfRecord = String(diffInSec) + ' sec ago7';
+                        dateOfRecord = String(diffInMin) + ' min ago';
                     }
                 }
             } else {        // if more than a day
                 if (diffInDays > 1) {
-                    dateOfRecord = String(diffInDays) + ' days ago8';
+                    dateOfRecord = String(diffInDays) + ' days ago';
                 } else {        // if equal to a day
-                    if (diffInHours < 0) {
-                        diffInHours = diffInHours + 24;
-                        diffInDays = diffInDays - 1;
-                        if(diffInDays <= 0) {
-                            dateOfRecord = String(diffInHours) + ' hr ago9';
-                        } else {
-                            dateOfRecord = String(diffInDays) + ' day ago10'; // + String(diffInHours) + ' hr ago';
-                        }
-                    } else {
-                        dateOfRecord = String(diffInDays) + ' day ago11'; // + String(diffInHours) + ' hr ago';
-                    }
+                    dateOfRecord = String(diffInDays) + ' day ago'; // + String(diffInHours) + ' hr ago';
                 }
             }
         }

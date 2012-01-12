@@ -28,9 +28,11 @@ function dateTimeDiff($data_ref)
     $tempDataRef = $ref_year . $ref_month . $ref_day;
 
     $tempDifference = $tempMaxDate-$tempDataRef;
+    
+    $dateOfRecord = "";
 
     // If the difference is less than 7 days
-    if($tempDifference < 7) {
+    if($tempDifference <= 7) {
 
         // Extract $current_date H:m:ss
         $current_day = substr($current_date, 8, 2);
@@ -49,59 +51,38 @@ function dateTimeDiff($data_ref)
         $mDf = $current_min-$ref_min;
         $sDf = $current_seconds-$ref_seconds;
 
-        // Show time difference ex: 2 min 54 sec ago.
-        if($dDf<1) {
-            if($hDf>0) {
-                if($mDf<0) {
-                    $mDf = 60 + $mDf;
-                    $hDf = $hDf - 1;
-                    if ($hDf <= 0){
-                        $dateOfRecord = $mDf . ' min ago';
-                    } else {
-                        $dateOfRecord = $hDf . ' hr ago'; // . $mDf . ' min ago';
-                    }
-                } else {
-                    $dateOfRecord = $hDf. ' hr ago'; // . $mDf . ' min ago';
-                }
+        if ($sDf < 0) {
+            $sDf += 60;
+            $mDf --;
+        }
+        if ($mDf < 0) {
+            $mDf += 60;
+            $hDf --;
+        }
+        if ($hDf < 0) {
+            $hDf += 24;
+            $dDf --;
+        }
+        
+        if ($dDf < 1) {
+            if ($hDf > 0) {
+                $dateOfRecord = $hDf . " hr ago";
             } else {
-                if($mDf>0){
-                    if ($sDf < 0) {
-                        $mDf = $mDf - 1;
-                        $sDf = $sDf + 60;
-                        if ($mDf <= 0) {
-                            $dateOfRecord = $sDf . ' sec ago';
-                        } else {
-                            $dateOfRecord = $mDf . ' min ago';
-                        }
-                    } else {
-                        $dateOfRecord = $mDf . ' min ago';
-                    }
+                if ( $mDf == 0 ) {
+                    $dateOfRecord = $sDf . " sec ago";
                 } else {
-                    $dateOfRecord = $sDf . ' sec ago';
+                    $dateOfRecord = $mDf . " min ago";
                 }
             }
         } else {
             if ($dDf > 1) {
-                $dateOfRecord = $dDf . ' days ago';
+                $dateOfRecord = $dDf . " days ago";
             } else {
-                // if dDf == 1
-                if ($hDf < 0) {
-                    $hDf = $hDf + 24;
-                    $dDf = $dDf - 1;
-                    if ($dDf <= 0) {
-                        $dateOfRecord = $hDf . ' hr ago';
-                    } else {
-                        $dateOfRecord = $dDf . ' day ago';
-                    }
-                } else {
-                    $dateOfRecord = $dDf . ' day ago'; // and ' . $hDf . ' hr ago';
-                }
+                $dateOfRecord = $dDf . " day ago";
             }
         }
-    } else {
-        $dateOfRecord = "";
     }
-    
+        
     return $dateOfRecord;
 }
 

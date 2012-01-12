@@ -117,10 +117,11 @@ root {
     width:50%;
     float:right;
 }
-    
+
 .friendTable tr:hover {
     background-color:white;
     cursor:pointer;
+    border:0px;
 }
 
 .friendTable td.friendName {
@@ -132,13 +133,18 @@ root {
     valign:middle;
 }
 
+.added-friends tr:hover {
+    background-color:white;
+
+}
+
 img.delete {
     cursor:pointer;
 }
 
 /* add to list dialog box */
 #add-to-existing-list {
-    height:45px;
+/*    height:45px;*/
     padding: 1px 10px 0px 12px;
 
 }
@@ -181,11 +187,11 @@ img.delete {
     background-image: url(../../../images/piggyback_button_submit_f1.png);
 }*/
 
-.add-to-list-button {
+/*.add-to-list-button {
     background-image: url(../../../images/piggyback_button_submit_f1.png);
-}
+}*/
 
-.add-button button {
+.add-button button, #add-list-submit {
     background-color:white;
     border:0px;
     background-image: url('../images/piggyback_button_submit_f1.png');
@@ -196,7 +202,7 @@ img.delete {
     padding:0px;
 }
 
-.add-button button:hover {
+.add-button button:hover, #add-list-submit:hover {
     background-color:white;
     border:0px;
     background-image: url('../images/piggyback_button_submit_f2.png');
@@ -282,16 +288,16 @@ img.delete {
 .ui-dialog-titlebar a.ui-dialog-titlebar-close:hover {
     border:0px;
     background: url('../images/piggyback_button_close_f2.png') 50% 50%;
-    width:20px;
-    height:20px;
+    width:16px;
+    height:16px;
     padding:0px;
     background-color:#F6D53A;
 }
 /*
 */.ui-dialog-titlebar a.ui-dialog-titlebar-close {
     border:0px;
-    width:20px;
-    height:20px;
+    width:16px;
+    height:16px;
     padding:0px;
     background: url('../images/piggyback_button_close_f1.png') 50% 50%;
     background-color:#F6D53A;
@@ -304,3 +310,79 @@ img.delete {
     align:right;
     background-image: url('../images/piggyback_button_close_f1.png');
 }*/
+
+.website-link:active, .website-link:link, .website-link:visited {
+    color:blue;
+}
+
+.website-link:hover {
+    color:#686868;
+}
+
+.referral-comment {
+    display:inline-block;
+    margin-left:30px;
+    padding-right:140px;
+}
+
+.accordion-footer {
+    font-size:13px;
+}
+
+.commenter-pic img {
+    height:35px;
+    width:35px;
+}
+
+.single-comment, .form-comment {
+    width:400px;
+    height:50px;
+    background-color:white;
+}
+
+input.comment-input {
+    width:300px;
+}
+
+.comments-content {
+    width:300px;
+}
+
+.remove-comment-button {
+    background-image: url('../images/piggyback_button_close_f1.png');
+    width:16px;
+    height:16px;
+    background-color:white;
+    border:0px;
+    margin-right: 5px;
+    margin-top: 5px;
+}
+
+.remove-comment-button:hover {
+    background-image: url('../images/piggyback_button_close_f2.png');
+    width:16px;
+    height:16px;
+    background-color:white;
+    border:0px;
+    margin-right: 5px;
+    margin-top: 5px;    
+}
+
+#add-list-form {
+    padding: 5px 10px 0px 12px;
+}
+
+#add-list-name {
+    width:90%;
+}
+
+#add-list-button-wrapper {
+    text-align:right;
+    margin-bottom:5px;
+}
+
+.drop-down-details {
+    max-height: 250px;
+    font-size:13px;
+/*background-color:rgba(0,0,255,0.2);*/
+}

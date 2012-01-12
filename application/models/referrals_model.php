@@ -151,7 +151,7 @@ class Referrals_Model extends CI_Model {
                                 $VendorList[] = $vendorDetails;
                             }
                         } else {
-                            $isCorrupted = 1;
+                            $isCorrupted = 2;
                             //unset($result[$key]);
                         }
                     }
@@ -174,13 +174,13 @@ class Referrals_Model extends CI_Model {
                         $row->UserList[0] = $x;
                     }
                 } else {
-                    $isCorrupted = 1;
+                    $isCorrupted = 3;
                     //unset ($result[$key]);
                 }
 
             } else {
                 // if the referral is single vendor, then
-                $this->db->select('*');
+                $this->db->select('vid');
                 $this->db->from('ReferralDetails');
                 $this->db->where('ReferralDetails.rid', $rid);
 
@@ -198,23 +198,23 @@ class Referrals_Model extends CI_Model {
 
                     if(array_filter($vendorDetails)) {
                         if($vendorDetails[0] === NULL ) {
-                            $isCorrupted = 1;
+                            $isCorrupted = 4;
                         } else {
                             $VendorList[0] = $vendorDetails;
                         }
                     } else {
                         // unset
-                        $isCorrupted = 1;
+                        $isCorrupted = 5;
                     }
                 } else {
                     // if no corresponding record in referralDetails
                     // remove self from array
                     //unset($result[$key]);
-                    $isCorrupted = 1;
+                    $isCorrupted = 6;
                 }
             }
             
-            //echo $iisCorruptedsCorrupted;
+            //echo $isCorrupted;
             $row->isCorrupted = $isCorrupted;
             $row->VendorList = array("VendorList" => $VendorList);
 

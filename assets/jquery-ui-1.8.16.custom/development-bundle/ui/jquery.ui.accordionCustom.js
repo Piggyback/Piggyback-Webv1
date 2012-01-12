@@ -49,7 +49,7 @@ $.widget( "ui.accordionCustom", {
 				.addClass( "ui-accordion-li-fix" );
 
 		self.headers = self.element.find( options.header )
-			.addClass( "ui-accordion-header ui-helper-reset ui-state-default-accordion ui-corner-all" )
+			.addClass( "ui-accordion-header ui-helper-reset ui-state-default-accordion ui-corner-top" )
 			.bind( "mouseenter.accordion", function() {
 				if ( options.disabled ) {
 					return;
@@ -80,7 +80,6 @@ $.widget( "ui.accordionCustom", {
  		self.footers = self.element.find( options.footer )
                         .addClass( "ui-accordion-footer ui-helper-reset ui-widget-content-accordion");
 
-
 		if ( options.navigation ) {
 			var current = self.element.find( "a" ).filter( options.navigationFilter ).eq( 0 );
 			if ( current.length ) {
@@ -97,7 +96,7 @@ $.widget( "ui.accordionCustom", {
 
 		self.active = self._findActive( self.active || options.active )
 			.addClass( "ui-state-default-accordion ui-state-active-accordion" )
-			.toggleClass( "ui-corner-all" )
+			//.toggleClass( "ui-corner-all" )
 			.toggleClass( "ui-corner-top" );
                 
                 // add active only to the accordion-content class
@@ -111,9 +110,9 @@ $.widget( "ui.accordionCustom", {
 
 		self.headers
 			.attr( "role", "tab" )
-			.bind( "keydown.accordion", function( event ) {
-				return self._keydown( event );
-			})
+//			.bind( "keydown.accordion", function( event ) {
+//				return self._keydown( event );
+//			})
 			.next()
 				.attr( "role", "tabpanel" );
 
@@ -313,7 +312,7 @@ $.widget( "ui.accordionCustom", {
 
 	// TODO isn't event.target enough? why the separate target argument?
 	_clickHandler: function( event, target ) {
-		var options = this.options;
+            	var options = this.options;
 		if ( options.disabled ) {
 			return;
 		}
@@ -379,13 +378,13 @@ $.widget( "ui.accordionCustom", {
 		// switch classes
 		active
 			.removeClass( "ui-state-active-accordion ui-corner-top" )
-			.addClass( "ui-state-default-accordion ui-corner-all" )
+			.addClass( "ui-state-default-accordion ui-corner-top" )
 			.children( ".ui-icon" )
 				.removeClass( options.icons.headerSelected )
 				.addClass( options.icons.header );
 		if ( !clickedIsActive ) {
 			clicked
-				.removeClass( "ui-state-default-accordion ui-corner-all" )
+				.removeClass( "ui-state-default-accordion ui-corner-top" )
 				.addClass( "ui-state-active-accordion ui-corner-top" )
 				.children( ".ui-icon" )
 					.removeClass( options.icons.header )

@@ -21,15 +21,31 @@ $(document).ready(function() {
 //    .ajaxStop(function() {
 //        $(this).hide();
 //    });
+    // general 
+    var myUID;
+    var allFriends;
+    getFriends();
     
     initScrollHeight();
     initTabs();
     initEnterDialogForm();
     initSearchAJAX();
     
+    // initialize and bind 'refer' dialog
+    bindFuzz();
+    friendList = [];
+    bindAddFriend();
+    bindAutoComplete();
+    bindReferDialog();
+    bindReferDialogButton();
+    
+    // initialize and bind 'add to list' dialog
+    bindAddToListDialog();
+    bindAddToListButton();
+        
     // these functions are defined in other files
-    bindAccordion();        //TODO: Merge with Andy
     overrideAccordionEvent();   //TODO: Merge with Andy
+    bindAccordion();        //TODO: Merge with Andy
     initClickAddList();
     initGetListContent();
     initDeleteList();
@@ -75,12 +91,32 @@ function initTabs() {
             $('#lists li').each(function() {
                 $(this).removeClass('selected-list');
             });
+            
+            resetTabsStates();
+            var id = $(ui.tab).closest('li').attr("id").toString();
+            $(ui.tab).closest('li').attr("id", id + "-selected");
+            
+//            id = "#" + id.substring(0, id.indexOf("-tab")) + "-content";
+//            alert(id);
         },
         ajaxOptions: {
             error: function( xhr, status, index, anchor ) {
                 $( anchor.hash ).html(
                     "Couldn't load this tab. We'll try to fix this as soon as possible.");
             }
+        }
+    });
+    
+    $( '#inbox-tab' ).attr("id", "inbox-tab-selected");     // initial state of home view
+    $( "ul.ui-tabs-nav" ).removeClass( "ui-corner-all" ); // gets rid of the round bottom for ui nav bar
+    
+}
+
+function resetTabsStates() {
+    $('#tabs li').each(function() {
+        var id = $(this).attr("id").toString();
+        if (id.indexOf("-selected") >= 0) {
+            $(this).attr("id", id.substring(0, id.indexOf("-selected")));   // remove -selected from id
         }
     });
 }
@@ -220,6 +256,26 @@ function initSearchAJAX() {
 
         return false;
     });
+}
+
+// store all friends upon log on
+function getFriends() {
+    jQuery.post('searchvendors/get_friends', function(data) {
+          var parsedJSON = jQuery.parseJSON(data);
+          myUID = parsedJSON.myUID;
+          friends = parsedJSON.allFriendsArray;
+          allFriends = new Array();
+          for (var i = 0; i < friends.length; i++) {
+              var oneFriend = new Array();
+              oneFriend['uid'] = friends[i][0];
+              oneFriend['fbid'] = friends[i][1];
+              oneFriend['email'] = friends[i][2];
+              oneFriend['firstName'] = friends[i][3];
+              oneFriend['lastName'] = friends[i][4];
+              allFriends.push(oneFriend);
+          }
+          displayAutoCompleteResults(allFriends);
+     });
 }
 
 // TODO: Merge with Andy

@@ -18,47 +18,57 @@
 */
 
 div.referral-item-wrapper {
-    margin-top:30px;
-    margin-bottom:30px;
+    margin-top:15px;
+    margin-bottom:20px;
     border: 1px solid #ffffff;
     background-color: #f2f2f2;
+/*    position: relative;*/
 }
 
-div.single-wrapper {
+/*div.single-wrapper {
     position: relative;
-    height: 150px; /* or depending on how big its children are */
+    height: 150px;  or depending on how big its children are 
     width: 100%;
     overflow: auto;
-}
+}*/
 
 div.referral-date {
-    position: absolute;
+/*    position: absolute;*/
     float: left;
     left: 0;
-    width: 30%;
+/*    clear:both;*/
+/*    width: 30%;*/
     top: 0;
-    margin-top: 10px;
-    margin-left: 30px;
+/*    margin-top: 10px;*/
+/*    margin-left: 30px;*/
+/*    display: inline;*/
 }
 
 div.friend-pic {
-    position: absolute;
+/*    position: absolute;*/
+/*    display: block;*/
     float: left;
-    height: 50%;
+    clear: both;
+/*    height: 50%;*/
     left: 0;
-    top: 0;
-    width: 30%;
-    margin-left: 30px;
-    margin-top: 40px;
+    margin: 4px 0 10px 0;
+    line-height: 0;
+/*    top: 0;*/
+/*    width: 30%;*/
+/*    margin-left: 30px;*/
+/*    margin-top: 40px;*/
+/*    display: inline;*/
 }
 
 div.friend-referral {
-    position: absolute;
-    height: 50%;
+/*    position: absolute;*/
+/*    height: 50%;*/
+/*    display: inline;*/
     top: 0;
     left: 100px;
-    margin-top: 40px;
-    margin-right: 30px;
+/*    margin-top: 40px;
+    margin-right: 30px;*/
+    margin: 20px 200px 0 60px;
     font-weight: normal;
 }
 
@@ -72,8 +82,21 @@ span.vendor-name, span.list-name {
 
 div.subaccordion-header {
     position: relative;
-    height: 60px;
+/*    height: 60px;*/
+    height: 100%;
     width: 100%;
+    padding: 10px 0 0 0;
+/*    margin: 5px 0 0 0;*/
+}
+
+.subaccordion-object {
+/*    margin: 10px 0 0 0;*/
+    margin:0;
+    position: relative;
+}
+
+span.referral-list-vendor-name {
+    margin: 0 0 0 30px;
 }
 
 div.button-row {
@@ -81,7 +104,7 @@ div.button-row {
     float: right;
     top: 0;
     right: 0;
-    width: 70%;
+    width: 100%;
     margin: 15px;
 }
 
@@ -89,8 +112,17 @@ div.button-row {
 
 img.click-to-like {
     position: absolute;
+    right: 151px;
+    display: inline;
+}
+
+
+img.click-to-like img:hover {
+    position: absolute;
     right: 0px;
     display: inline;
+    background: url('../images/piggyback_button_submit_f2.png');
+    background-size: 100%;
 }
 
 .refer-popup-link, .refer-list-popup-link {
@@ -109,8 +141,9 @@ img.click-to-like {
 
 .referrals-remove-button {
     position: absolute;
-    right: 151px;
+    right: 0px;
     display: inline;
+    padding:0;
 }
 
 /*
@@ -146,14 +179,16 @@ div.comments {
 
 span.referral-comment {
     font-weight: normal;
+    margin: 10px 0 10px 30px;
 }
 
 .comment-input {
-    width: 75%;
+    width: 70%;
     padding: 2px;
+    margin-left: 10px;
 }
 
-div.comments-body {
+div.comments-body, div.comment-box {
     margin-right: 20%;
     margin-left: 5%;
 }
@@ -161,15 +196,23 @@ div.comments-body {
 div.single-comment {
     position: relative;
     display: table;
-    width:100%;
-    border-top-style: dotted;
-    border-top-width: 1px;
+/*    width:100%;*/
+/*    border-top-style: dotted;
+    border-top-width: 1px;*/
+    border-bottom-style: dotted;
+    border-bottom-width: 1px;
 }
 
 div.commenter-pic {
     display: inline;
     float: left;
     margin: 10px;
+}
+
+input.comment-input {
+/*    width: 80%;*/
+    margin-top: 15px;
+    margin-left: 15px;
 }
 
 div.comment-wrapper-text {
@@ -194,17 +237,102 @@ button.remove-comment-button {
 div.comment-date {
     float:left;
     margin-left: 15px;
-    position: absolute;
-    bottom: -60%;
+/*    position: absolute;*/
+/*    bottom: -60%;*/
     width: 100%;
     clear: both;
 }
 
-div.comment-box {
-    margin-left: 6%;
-    margin-bottom: 15px;
-}
 
 form.form-comment {
-    width: 100%;
+/*    width: 100%;*/
+}
+
+
+/* TABS */
+
+/*.ui-tabs .ui-tabs.nav li.tab-selected a {
+    background-color: blue;
+}
+*/
+
+
+#tabs .ui-helper-clearfix {
+    border-bottom-color: #333333;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    width: 99%;
+    margin-top: 14px;
+}
+
+#inbox-tab a {
+    background: url(../images/piggyback_tab_inbox_f1.jpg) repeat scroll 50% 50%;
+    border: none;
+    width: 60px;
+    height: 18px;
+    color: #ffffff;
+}
+
+#inbox-tab a:active {
+    background: url(../images/piggyback_tab_inbox_f2.jpg) repeat scroll 50% 50%;
+    border: none;
+    width: 60px;
+    height: 18px;
+    color: #ffffff;
+}
+
+#inbox-tab-selected a {
+    background: url(../images/piggyback_tab_inbox_f2.jpg) repeat scroll 50% 50%;
+    border: none;
+    width: 60px;
+    height: 18px;
+    color: #ffffff;
+}
+
+#friend-activity-tab a {
+    background: url(../images/piggyback_tab_friendactivity_f1.jpg) repeat scroll 50% 50%;
+    border: none;
+    width: 130px;
+    height: 18px;
+    color: #ffffff;
+}
+
+#friend-activity-tab a:active {
+    background: url(../images/piggyback_tab_friendactivity_f2.jpg) repeat scroll 50% 50%;
+    border: none;
+    width: 130px;
+    height: 18px;
+    color: #ffffff;
+}
+
+#friend-activity-tab-selected a {
+    background: url(../images/piggyback_tab_friendactivity_f2.jpg) repeat scroll 50% 50%;
+    border: none;
+    width: 130px;
+    height: 18px;
+    color: #ffffff;
+}
+
+#referral-tracking-tab a {
+    background: url(../images/piggyback_tab_referraltracking_f1.jpg) repeat scroll 50% 50%;
+    border: none;
+    width: 140px;
+    height: 18px;
+    color: #ffffff;
+}
+
+#referral-tracking-tab a:active {
+    background: url(../images/piggyback_tab_referraltracking_f2.jpg) repeat scroll 50% 50%;
+    border: none;
+    width: 140px;
+    height: 18px;
+    color: #ffffff;
+}
+
+#referral-tracking-tab-selected a {
+    background: url(../images/piggyback_tab_referraltracking_f2.jpg) repeat scroll 50% 50%;
+    border: none;
+    width: 140px;
+    height: 18px;
+    color: #ffffff;
 }

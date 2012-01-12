@@ -126,6 +126,7 @@ function initGetListContent() {
         }
 
         // ensure only the list content is showing and all other tabs are hidden
+        resetTabsStates();
 	$('#list-content').removeClass("ui-tabs-hide");
 	$('#inbox-content, #friend-activity-content, #referral-tracking-content, #search-content').addClass("ui-tabs-hide")
     	$('#inbox-tab, #friend-activity-tab, #referral-tracking-tab').removeClass("ui-tabs-selected ui-state-active");
@@ -233,7 +234,7 @@ function bindDeleteVendorFromList() {
                         newComment: newComment
                     }, function() {
                         // change comment in HTML
-                        editCommentObj.prev('.vendor-list-comment').html(newComment);
+                        editCommentObj.prev('.vendor-list-comment').html('<q>' + newComment + '</q>');
                         var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
                         var parsedJSON = jQuery.parseJSON(htmlString);
                         for (var i=0; i<parsedJSON.length; i++) {
@@ -369,18 +370,29 @@ function bindAddListDialog() {
     // Dialog
     $('#add-list-dialog').dialog({
             autoOpen: false,
-            width: 400,
-            height: 200,
+            width: 350,
+            height: 145,
             closeOnEscape: true,
             show: 'drop',
             hide: 'drop',
-            resizable: true,
+            resizable: false,
+            closeText: '',
             beforeClose: function() {
               	// reset all values in pop up to blank
 				$('#add-list-name').val('');
 
                 // fade out dark background
                 $("#fuzz").fadeOut();
+            },
+            open: function() {
+                // change refer button appearance
+                $('.ui-dialog-buttonpane').find('button:contains("Refer!")').removeClass('ui-button ui-widget ui-state-default ui-button-text-only ui-corner-all');
+                $('.ui-dialog-buttonpane').find('button:contains("Refer!")').text('');
+                $('.ui-dialog-buttonpane').addClass('refer-button button-corner');
+                
+                // change close button
+                $('.ui-dialog-titlebar').find('.ui-icon').removeClass('ui-icon ui-icon-closethick');
+
             }
     });
 }
@@ -428,7 +440,7 @@ function initAddList() {
             // retrieve current uid
             var uid = jQuery.trim($('#current-uid').html());
             // add list to DB
-            $('#add-list-dialog').dialog("close");
+//            $('#add-list-dialog').dialog("close");
             jQuery.post("list_controller/add_list", {
                 newListName: newListName,
 		uid: uid
@@ -441,11 +453,13 @@ function initAddList() {
                     alert("Multiple lists were returned");
 		} else {
 //                  alert("lid: " + newListData[0].lid + "and name: " + newListData[0].name);
-                    var htmlString = "<li class='my-list-wrapper'><span id='delete-my-list-lid--" + newListData[0].lid + "' class='delete-my-list'>x</span>";
-                    htmlString = htmlString + "<span id='my-list-lid--" + newListData[0].lid + "' class='my-list'>" + newListData[0].name + "</span></li>";
-		//			var htmlString = "<li id='my-list-lid--" + newListData[0].lid + "'>" + newListData[0].name + "</li>";
+                    var htmlString = "<li class='my-list-wrapper'><img src='../assets/images/piggyback_button_close_f1.png' onmouseover=\"this.src='../assets/images/piggyback_button_close_f2.png'\" onmouseout=\"this.src='../assets/images/piggyback_button_close_f1.png'\" id='delete-my-list-lid--" + newListData[0].lid + "' class='delete-my-list'></img>";
+                    htmlString = htmlString + "<span id='my-list-lid--" + newListData[0].lid + "' class='my-list'>" + newListData[0].name + "</span>";
+                    htmlString = htmlString + "<span class='refer-my-list-wrapper'><img src='../assets/images/piggyback_button_refer_small_f1.png' onmouseover=\"this.src='../assets/images/piggyback_button_refer_small_f2.png'\" onmouseout=\"this.src='../assets/images/piggyback_button_refer_small_f1.png'\" id='refer-my-list-lid--" + newListData[0].lid + "' class='refer-my-list refer-list-popup-link'></img></span></li>";
                     $('#lists').append(htmlString);
                     $('#add-list-dialog').dialog("close");
+                    
+                    bindReferDialogButton();
 		}
             });
         }
@@ -472,7 +486,6 @@ function addListToList(lid2, lid1, rid) {
 
 // update database and update mylists sidebar to reflect new vendor/list
 function addVendorToList(lid, vid, comment) {
-
     //get date
     var now = new Date();
     now = now.format("yyyy-mm-dd HH:MM:ss");
@@ -480,13 +493,14 @@ function addVendorToList(lid, vid, comment) {
     // get comment
 //    var comment = $('#add-to-list-comment-box').val();
 //    comment = "";
+    var strippedComment = comment.substring(1,comment.length-1);
 
     // add vendor to list (new or old) and make it so that list div is updated to show new vendor
     jQuery.post('list_controller/add_vendor_to_list', {
         lid: lid,
         vid: vid,
         date: now,
-        comment: comment
+        comment: strippedComment
     }, function(data) {
         if (data == "Could not add to list") {
             alert("Could not add to list");

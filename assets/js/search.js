@@ -118,72 +118,84 @@ function getVendorData(parsedJSON) {
 
 // display vendor search results in accordion
 function displaySearchResults(vendorData) {
+    // mike's code
+    resetTabsStates();  // reset tabs to default setting
+    displaySearchItems(vendorData, 'search-tab', 0);
+    
+    $('#search-content').removeClass("ui-tabs-hide");
+    $('#inbox-content, #friend-activity-content, #referral-tracking-content, #list-content').addClass("ui-tabs-hide")
+    $('#inbox-tab, #friend-activity-tab, #referral-tracking-tab').removeClass("ui-tabs-selected ui-state-active");
+    
+//    bindReferDialogButtonFromSearch(friendList,vendorData);
+//    bindAddToListButtonFromSearch();
+    
+    // kim's code
     // add search result rows to accordion
-    var htmlString = "<div id='accordion-search'>";
-
-    var displayAddr;
-    for (var i=0; i<vendorData.length; i++) {
-        // use formatted address if available
-        if (vendorData[i].addr != "") {
-            var addr = vendorData[i].addr.split(",");
-            displayAddr = addr[0];
-            if (addr[1] != undefined) {
-                displayAddr = displayAddr + "<br>" + addr[1];
-                if (addr[2] != undefined) {
-                    displayAddr = displayAddr + ", " + addr[2];
-                }
-            }
-        }
-        // otherwise, use vicinity if available
-        else {
-            if (vendorData[i].vicinity != "") {
-                var addr = vendorData[i].vicinity.split(",");
-                if (addr[1] != undefined) {
-                    displayAddr = addr[0] + "<BR>" + addr[1] + " " + vendorData[i].addrState + " " + vendorData[i].addrZip;
-                }
-                else {
-                    displayAddr = addr[0] + "<BR>" + vendorData[i].addrCity + " " + vendorData[i].addrState + " " + vendorData[i].addrZip;
-                }
-            }
-            // otherwise, use individual address components
-            else {
-                displayAddr =  vendorData[i].addrNum + " " + vendorData[i].addrStreet + "<BR>" + 
-                                vendorData[i].addrCity + " " + vendorData[i].addrState + " " + vendorData[i].addrZip;
-            }
-        }
-
-        htmlString = htmlString +
-            "<div>" +
-                "<h3><a href='#'><div class='vendor-name'>" + vendorData[i].name + "</div></a></h3>" +
-                "<div class='name-wrapper'> <table class='formatted-table'>" +
-                    "<tr>" +
-                        "<td class='formatted-table-info'>" +
-                            displayAddr + 
-                        "</td>" +
-                        "<td class='formatted-table-button' align='right'>" +
-                            "<p><a href='#' id=search-refer-vid--" + vendorData[i].id + " class='refer-popup-link dialog_link ui-state-default ui-corner-all'>" +
-                            "<span class='ui-icon ui-icon-plus'></span>Refer to Friends</a></p>" +
-                            "<p><a href='#' id=search-add-vid--" + vendorData[i].id + " class='add-to-list-popup-link dialog_link ui-state-default ui-corner-all'>" +
-                            "<span class='ui-icon ui-icon-plus'></span>Add to List</a></p>" +
-                        "</td>" +
-                    "</tr>" +
-                "</table></div>" +
-            "</div>";
-    }
-
-    // close accordion div
-    htmlString = htmlString + "</div>";
-
-    // fill in content div with search results
-    $('#search-content').html(htmlString);
-
-    // initialize popup box for referring friends to a vendor
-    bindReferDialogButtonFromSearch(friendList, vendorData);
-    bindSearchAccordion();
-
-    // initialize pop up box for adding vendor to list
-    bindAddToListButtonFromSearch(vendorData);
-    displayListDropDown();
+//    var htmlString = "<div id='accordion-search'>";
+//
+//    var displayAddr;
+//    for (var i=0; i<vendorData.length; i++) {
+//        // use formatted address if available
+//        if (vendorData[i].addr != "") {
+//            var addr = vendorData[i].addr.split(",");
+//            displayAddr = addr[0];
+//            if (addr[1] != undefined) {
+//                displayAddr = displayAddr + "<br>" + addr[1];
+//                if (addr[2] != undefined) {
+//                    displayAddr = displayAddr + ", " + addr[2];
+//                }
+//            }
+//        }
+//        // otherwise, use vicinity if available
+//        else {
+//            if (vendorData[i].vicinity != "") {
+//                var addr = vendorData[i].vicinity.split(",");
+//                if (addr[1] != undefined) {
+//                    displayAddr = addr[0] + "<BR>" + addr[1] + " " + vendorData[i].addrState + " " + vendorData[i].addrZip;
+//                }
+//                else {
+//                    displayAddr = addr[0] + "<BR>" + vendorData[i].addrCity + " " + vendorData[i].addrState + " " + vendorData[i].addrZip;
+//                }
+//            }
+//            // otherwise, use individual address components
+//            else {
+//                displayAddr =  vendorData[i].addrNum + " " + vendorData[i].addrStreet + "<BR>" + 
+//                                vendorData[i].addrCity + " " + vendorData[i].addrState + " " + vendorData[i].addrZip;
+//            }
+//        }
+//
+//        htmlString = htmlString +
+//            "<div>" +
+//                "<h3><a href='#'><div class='vendor-name'>" + vendorData[i].name + "</div></a></h3>" +
+//                "<div class='name-wrapper'> <table class='formatted-table'>" +
+//                    "<tr>" +
+//                        "<td class='formatted-table-info'>" +
+//                            displayAddr + 
+//                        "</td>" +
+//                        "<td class='formatted-table-button' align='right'>" +
+//                            "<p><a href='#' id=search-refer-vid--" + vendorData[i].id + " class='refer-popup-link dialog_link ui-state-default ui-corner-all'>" +
+//                            "<span class='ui-icon ui-icon-plus'></span>Refer to Friends</a></p>" +
+//                            "<p><a href='#' id=search-add-vid--" + vendorData[i].id + " class='add-to-list-popup-link dialog_link ui-state-default ui-corner-all'>" +
+//                            "<span class='ui-icon ui-icon-plus'></span>Add to List</a></p>" +
+//                        "</td>" +
+//                    "</tr>" +
+//                "</table></div>" +
+//            "</div>";
+//    }
+//
+//    // close accordion div
+//    htmlString = htmlString + "</div>";
+//
+//    // fill in content div with search results
+//    $('#search-content').html(htmlString);
+//
+//    // initialize popup box for referring friends to a vendor
+//    bindReferDialogButtonFromSearch(friendList, vendorData);
+//    bindSearchAccordion();
+//
+//    // initialize pop up box for adding vendor to list
+//    bindAddToListButtonFromSearch(vendorData);
+//    displayListDropDown();
 }
 
 function bindSearchAccordion() {

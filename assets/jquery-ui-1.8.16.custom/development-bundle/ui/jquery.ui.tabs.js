@@ -465,7 +465,7 @@ $.widget( "ui.tabs", {
 					"ui-corner-top",
 					"ui-tabs-selected",
 					"ui-state-active-tab",
-					"ui-state-hover",
+					"ui-state-hover-tab",
 					"ui-state-focus",
 					"ui-state-disabled",
 					"ui-tabs-panel",
