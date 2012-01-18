@@ -183,7 +183,7 @@ class Referrals_Model extends CI_Model {
                 $this->db->select('vid');
                 $this->db->from('ReferralDetails');
                 $this->db->where('ReferralDetails.rid', $rid);
-
+                                
                 // ReferralDetails is an associative array that holds the vendor information
                 $ReferralDetails = $this->db->get()->result();
 

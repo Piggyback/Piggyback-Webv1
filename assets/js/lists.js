@@ -216,14 +216,17 @@ function bindDeleteVendorFromList() {
 //        var lid_string = $(this).closest(".accordion-list").attr("id");
 //        var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
         var lid = $(this).closest('#accordion-list').find('#accordion-list-lid').html();
-        var vendorName = jQuery.trim($(this).prev().prev().prev(".vendor-name").html());
+        var vendorName = jQuery.trim($(this).closest('.name-wrapper').find('.vendor-name').html());
+        if (vendorName.length > 16) {
+            vendorName = vendorName.substr(0,14) + "...";
+        }
 
         $('#fuzz').fadeIn();
         $('#edit-list-comment-dialog').dialog('option', 'title', 'Edit comment for ' + vendorName);
 
         $('#edit-list-comment-dialog').dialog('option', 'buttons', {
             "Submit": {
-                text: "Submit",
+                text: "",
                 id: 'edit-comment-submit',
                 click: function() {
                     var newComment = jQuery.trim($('.edit-list-comment-value').val());
@@ -403,15 +406,23 @@ function bindEditCommentDialog() {
 
     $('#edit-list-comment-dialog').dialog({
         autoOpen: false,
-        width: 400,
-        height: 200,
+        width: 350,
+        height: 120,
         closeOnEscape: true,
         show: 'drop',
         hide: 'drop',
-        resizable: true,
+        resizable: false,
+        closeText: '',
+        open: function() {
+            // change add button appearance
+            $('.ui-dialog-buttonpane').find('button:first').removeClass('ui-button ui-widget ui-state-default ui-button-text-only ui-corner-all');
+            $('.ui-dialog-buttonpane').addClass('add-button button-corner');
+
+            // change close button appearance
+            $('.ui-dialog-titlebar').find('.ui-icon').removeClass('ui-icon ui-icon-closethick');
+        },
         beforeClose: function() {
             $('.edit-list-comment-value').val('');
-
             $('#fuzz').fadeOut();
         }
     });
@@ -437,24 +448,23 @@ function initAddList() {
 	if (newListName == "") {
             alert('List name cannot be empty!');
         } else {
-            // retrieve current uid
             var uid = jQuery.trim($('#current-uid').html());
             // add list to DB
-//            $('#add-list-dialog').dialog("close");
             jQuery.post("list_controller/add_list", {
                 newListName: newListName,
 		uid: uid
             }, function(data) {
-                // add list to HTML
                 var newListData = jQuery.parseJSON(data);
 		if (newListData.length == 0) {
                     alert("List was not added successfully");
-		} else if (newListData.length > 1) {
-                    alert("Multiple lists were returned");
-		} else {
-//                  alert("lid: " + newListData[0].lid + "and name: " + newListData[0].name);
-                    var htmlString = "<li class='my-list-wrapper'><img src='../assets/images/piggyback_button_close_f1.png' onmouseover=\"this.src='../assets/images/piggyback_button_close_f2.png'\" onmouseout=\"this.src='../assets/images/piggyback_button_close_f1.png'\" id='delete-my-list-lid--" + newListData[0].lid + "' class='delete-my-list'></img>";
-                    htmlString = htmlString + "<span id='my-list-lid--" + newListData[0].lid + "' class='my-list'>" + newListData[0].name + "</span>";
+		} else if (newListData == "List already exists!") {
+                    alert("List already exists!");
+                } else if (newListData == "Could not add list") {
+                    alert("Could not add list");
+                } else {
+                    // add list to sidebar HTML
+                    var htmlString = "<li class='my-list-wrapper name-wrapper'><img src='../assets/images/piggyback_button_close_f1.png' onmouseover=\"this.src='../assets/images/piggyback_button_close_f2.png'\" onmouseout=\"this.src='../assets/images/piggyback_button_close_f1.png'\" id='delete-my-list-lid--" + newListData[0].lid + "' class='delete-my-list'></img>";
+                    htmlString = htmlString + "<span id='my-list-lid--" + newListData[0].lid + "' class='my-list list-name'>" + newListData[0].name + "</span>";
                     htmlString = htmlString + "<span class='refer-my-list-wrapper'><img src='../assets/images/piggyback_button_refer_small_f1.png' onmouseover=\"this.src='../assets/images/piggyback_button_refer_small_f2.png'\" onmouseout=\"this.src='../assets/images/piggyback_button_refer_small_f1.png'\" id='refer-my-list-lid--" + newListData[0].lid + "' class='refer-my-list refer-list-popup-link'></img></span></li>";
                     $('#lists').append(htmlString);
                     $('#add-list-dialog').dialog("close");
@@ -493,14 +503,13 @@ function addVendorToList(lid, vid, comment) {
     // get comment
 //    var comment = $('#add-to-list-comment-box').val();
 //    comment = "";
-    var strippedComment = comment.substring(1,comment.length-1);
 
     // add vendor to list (new or old) and make it so that list div is updated to show new vendor
     jQuery.post('list_controller/add_vendor_to_list', {
         lid: lid,
         vid: vid,
         date: now,
-        comment: strippedComment
+        comment: comment
     }, function(data) {
         if (data == "Could not add to list") {
             alert("Could not add to list");

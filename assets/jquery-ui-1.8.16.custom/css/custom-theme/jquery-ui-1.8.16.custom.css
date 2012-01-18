@@ -74,9 +74,10 @@
 
 .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default { border: 1px solid #cccccc; background: #eeeeee url(images/ui-bg_glass_100_eeeeee_1x400.png) 50% 50% repeat-x; font-weight: bold; color: #6f6d6d; }
 .ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited { color: #6f6d6d; text-decoration: none; }
-.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { border: 1px solid #eed1fa; background: #eeeeee url(images/ui-bg_glass_100_eeeeee_1x400.png) 50% 50% repeat-x; font-weight: bold; color: #a241b9; }
+/*.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { border: 1px solid #eed1fa; background: #eeeeee url(images/ui-bg_glass_100_eeeeee_1x400.png) 50% 50% repeat-x; font-weight: bold; color: #a241b9; }*/
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { font-weight: bold; color: #a241b9; }
 .ui-state-hover a, .ui-state-hover a:hover { color: #a241b9; text-decoration: none; }
-.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active { border: 1px solid #eed1fa; background: #eeeeee url(images/ui-bg_glass_65_eeeeee_1x400.png) 50% 50% repeat-x; font-weight: bold; color: #a241b9; }
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active { background: #eeeeee url(images/ui-bg_glass_65_eeeeee_1x400.png) 50% 50% repeat-x; font-weight: bold; color: #a241b9; }
 .ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited { color: #a241b9; text-decoration: none; }
 .ui-widget :active { outline: none; }
 
@@ -448,7 +449,7 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 .ui-dialog .ui-dialog-titlebar-close span { display: block; margin: 1px; }
 .ui-dialog .ui-dialog-titlebar-close:hover, .ui-dialog .ui-dialog-titlebar-close:focus { padding: 0; }
 .ui-dialog .ui-dialog-content { position: relative; border: 0; padding: 0em 0em; background: none; overflow: auto; zoom: 1; }
-.ui-dialog .ui-dialog-buttonpane { text-align: left; border-width: 0px 0 0 0; background-image: none; margin: 0 0 0 0; padding: 0 0 0 0; background-color:white;}
+.ui-dialog .ui-dialog-buttonpane { text-align: left; border-width: 0px 0 0 0; background-image: none; margin: 0 0 0 0; padding: 3px 0 0 0; background-color:white;}
 .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset { float: right; padding: 0px 0px;}
 .ui-dialog .ui-dialog-buttonpane button { margin: 0em 0em .2em 0; cursor: pointer; }
 .ui-dialog .ui-resizable-se { width: 14px; height: 14px; right: 3px; bottom: 3px; }

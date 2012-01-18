@@ -42,6 +42,9 @@ $(document).ready(function() {
     // initialize and bind 'add to list' dialog
     bindAddToListDialog();
     bindAddToListButton();
+    
+    // initialize delete dialog
+    bindDeleteDialog();
         
     // these functions are defined in other files
     overrideAccordionEvent();   //TODO: Merge with Andy
@@ -125,6 +128,9 @@ function resetTabsStates() {
  * @mikegao
  * only applies to 'edit comment' in lists right now. 
  * prevents enter from linking to the form input. instead clicks dialog's submit button
+ * @kimhsiao
+ * submits dialogs on enter
+ * prevent newline for textareas (comments)
  */
 function initEnterDialogForm() {
     $('.no-enter-submit').keypress(function(e){
@@ -136,6 +142,20 @@ function initEnterDialogForm() {
      $('#edit-list-comment-dialog').keyup(function(e) {
         if (e.keyCode == 13) {
             $('#edit-comment-submit').trigger('click');
+        }
+    });
+    
+    $('#dialog').keydown(function(e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            $('#refer-button-submit').trigger('click');
+        }
+    });
+    
+    $('#addToListDialog').keydown(function(e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            $('#add-button-submit').trigger('click');
         }
     });
 }

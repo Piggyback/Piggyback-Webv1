@@ -11,7 +11,7 @@
         <script type="text/javascript" src="../assets/js/date.format.js"></script>
         <script type="text/javascript" src="../assets/js/home_mike_js.js"></script>
         <script type="text/javascript" src="../assets/js/home_andy_js.js"></script>
-        <script type="text/javascript" src="../assets/js/home_kim_js.js"></script>
+<!--        <script type="text/javascript" src="../assets/js/home_kim_js.js"></script>-->
         <script type="text/javascript" src="../../assets/jquery-ui-1.8.16.custom/development-bundle/ui/jquery.ui.accordionCustom.js"></script>
         <?php include "dateTimeDiff.php"; ?>
         

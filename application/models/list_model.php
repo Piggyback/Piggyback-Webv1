@@ -48,11 +48,26 @@ class List_model extends CI_Model {
             'date' => $dateTime
         );
 
-        $this->db->insert('UserLists', $data);
+        // check if a list with that name exists already
+        $existsQuery = "SELECT lid FROM UserLists WHERE uid = $uid AND name = \"$newListName\" AND deleted != 1";
+        $result = mysql_query($existsQuery);
+        if (!$result) {
+            echo json_encode("Could not add list");
+            return;
+        }
+         
+        else if (mysql_num_rows($result) > 0) {
+            echo json_encode("List already exists!");
+            return;
+        }
+        
+        else {
+            $this->db->insert('UserLists', $data);
 
-        // return new lid
-        $query = $this->db->get_where('UserLists', array('uid' => $uid, 'name' => $newListName, 'date' => $dateTime));
-        echo json_encode($query->result());
+            // return new lid
+            $query = $this->db->get_where('UserLists', array('uid' => $uid, 'name' => $newListName, 'date' => $dateTime));
+            echo json_encode($query->result());
+        }
     }
 
     // add vendor to existing list -- pass lid that you want to add to, vid to add, date, and comment for vendor

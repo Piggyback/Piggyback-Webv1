@@ -26,8 +26,8 @@
         <script type="text/javascript" src="../assets/js/date.format.js"></script>
 <!--        <script type="text/javascript" src="../assets/js/home_mike_js.js"></script>-->
 <!--        <script type="text/javascript" src="../assets/js/home_andy_js.js"></script>-->
-        <script type="text/javascript" src="../assets/js/home_kim_js.js"></script>
-        <script type="text/javascript" src="../assets/js/fixedSplit.js"></script>
+<!--        <script type="text/javascript" src="../assets/js/home_kim_js.js"></script>-->
+<!--        <script type="text/javascript" src="../assets/js/fixedSplit.js"></script>-->
         <script type="text/javascript" src="../assets/js/dialogs.js"></script>
         <script type="text/javascript" src="../assets/js/lists.js"></script>
         <script type="text/javascript" src="../assets/js/accordions.js"></script>
@@ -150,23 +150,28 @@
                                                                     $commentsArray = $tempArray['CommentsList'];
 
                                                                     $likesArrayCount = count($likesArray);
-                                                                    $likeNumber = "";
+                                                                    $likeNumber = "0";
                                                                     if ($likesArrayCount>0) {
                                                                         $likeNumber = "$likesArrayCount";
-                                                                        if ($likesArrayCount == 1) {
-                                                                            $likeNumber = $likeNumber . " person likes this.";
-                                                                        } else {
-                                                                            $likeNumber = $likeNumber . " people like this.";
-                                                                        }
+//                                                                        if ($likesArrayCount == 1) {
+//                                                                            $likeNumber = $likeNumber . " person likes this.";
+//                                                                        } else {
+//                                                                            $likeNumber = $likeNumber . " people like this.";
+//                                                                        }
                                                                     }
                                                                     // if uid does not exist in the Likes rid list
                                                                     if ($row->alreadyLiked == 1) {
 //                                                                        $likeStatus = "Unlike";
-                                                                        $likeStatus = "../assets/images/piggyback_button_like_f2.png";
+//                                                                        $likeClass = " is-liked";
+                                                                        $likeStatus = "../assets/images/piggyback_button_like_counter_red_f1.png";
+//                                                                        $otherLikeStatus = "../assets/images/piggyback_button_like_counter_red_f1.png";
+//                                                                        $otherLikeStatus = "../assets/images/piggyback_button_like_counter_f1.png";
                                                                     } else {
 //                                                                        $likeStatus = "Like";
-                                                                        $likeStatus = "../assets/images/piggyback_button_like_f1.png";
-                                                                        
+//                                                                        $likeClass = "";
+                                                                        $likeStatus = "../assets/images/piggyback_button_like_counter_f1.png";
+//                                                                        $likeStatus = "../assets/images/piggyback_button_like_counter_f1.png";
+//                                                                        $otherLikeStatus = "../assets/images/piggyback_button_like_counter_f1.png";
                                                                     }
 
                                                                     $VendorDetails = $row->VendorList['VendorList'][0][0];
@@ -213,7 +218,11 @@
                                                                                 </img>
                                                                                 <img id="add-to-list-single-referral-id--<?php echo $VendorDetails->id; ?>" alt="+" src="../assets/images/piggyback_button_add_f1.png" class="add-to-list-popup-link dialog_link" onmouseover="this.src='../assets/images/piggyback_button_add_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_add_f1.png'">
                                                                                 </img>
-                                                                                <img src=<?php echo $likeStatus; ?> alt="like" class="click-to-like">
+                                                                                <div class="number-of-likes">
+                                                                                    <div class='number-of-likes-inner'><?php echo $likeNumber; ?></div>
+                                                                                </div>
+                                                                                <img src='<?php echo $likeStatus; ?>' alt="like" class="click-to-like">
+<!--                                                                                <img src='<?php echo $likeStatus; ?>' onmouseover="this.src='<?php echo $otherLikeStatus; ?>'" onmouseout="this.src='<?php echo $likeStatus; ?>'" alt="like" class="click-to-like <?php echo $likeClass; ?>" >-->
                                                                                 </img>
                                                                             </div>
                                                                         </a>
@@ -252,7 +261,11 @@
                                                                                 </img>
                                                                                 <img id="add-to-list-list-referral-id--<?php echo $row->lid; ?>" alt="+" src="../assets/images/piggyback_button_add_f1.png" class="add-list-to-list-popup-link dialog_link" onmouseover="this.src='../assets/images/piggyback_button_add_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_add_f1.png'">
                                                                                 </img>
-                                                                                <img src=<?php echo $likeStatus; ?> alt="like" class="click-to-like">
+                                                                                <div class="number-of-likes">
+                                                                                    <div class='number-of-likes-inner'><?php echo $likeNumber; ?></div>
+                                                                                </div>
+                                                                                <img src='<?php echo $likeStatus; ?>' alt="like" class="click-to-like">
+<!--                                                                                <img src='<?php echo $likeStatus; ?>' onmouseover="this.src='<?php echo $otherLikeStatus; ?>'" onmouseout="this.src='<?php echo $likeStatus; ?>'" alt="like" class="click-to-like <?php echo $likeClass; ?>">-->
                                                                                 </img>
                                                                             </div>
                                                                         </a>
@@ -298,9 +311,9 @@
 <!--                                                                            <div class="click-to-like no-accordion" data-likeCounts=<?php echo $likeNumber; ?>>
                                                                                 <?php //echo $likeStatus; ?>
                                                                             </div>-->
-                                                                            <div class="number-of-likes">
-                                                                                <?php echo $likeNumber; ?>
-                                                                            </div>
+<!--                                                                            <div class="number-of-likes">
+                                                                                //<?php echo $likeNumber; ?>
+                                                                            </div>-->
                                                                             <!-- create the divs to show other peoples comments-->
                                                                             <div class="comments">
                                                                                 <div class="comments-body">
@@ -429,7 +442,7 @@
                     <div id='friends-refer-search' class='search-corner'>
                         <form id='addFriend' method='post' onsubmit='return false;'>
                             <label id='referLabel' for='tags'></label>
-                            <input type='text' id='tags' autocomplete='off' name='friend'>
+                            <input type='text' id='tags' autocomplete='off' name='friend'><img src='../assets/images/piggyback_button_close_f1.png' onmouseover="this.src='../assets/images/piggyback_button_close_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_close_f1.png'" class='clear-friend-name'></img>
                             <input type='submit' id='searchFriendsButton' value='Add to List'/>
                         </form>
                     </div>
@@ -456,6 +469,11 @@
              </div>
              <div id='add-to-list-comment'>
              </div>
+        </div>
+        <div id='confirmDeleteDialog' class='none'>
+            <div id='confirm-delete-msg'>
+                Are you sure you want to delete this?
+            </div>
         </div>
         <div id="footer">
             <div id="tempfooter">Piggyback</div>
