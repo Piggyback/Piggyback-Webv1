@@ -103,9 +103,11 @@ class search_vendors_model extends CI_Model {
         $uid = $_POST["myUID"];
         $numFriends = $_POST["numFriends"];
         $uidFriends = json_decode($_POST["uidFriends"]);
-        $date = $_POST["date"];
+//        $date = $_POST["date"];
         $comment = $_POST["comment"];
         
+        $date = date('Y-m-d H:i:s');
+
         // add referrals to Referral table: one for each friend in uidFriends
         if ($numFriends > 0) {
             $q = "INSERT INTO Referrals VALUES ";

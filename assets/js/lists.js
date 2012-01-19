@@ -138,28 +138,73 @@ function initGetListContent() {
 
 function initDeleteList() {
     $(document).on("click", ".delete-my-list", function() {
+        
+        $("#fuzz").fadeIn();
+        $('#confirmDeleteDialog').dialog('open');
+
 	var lid_string = $(this).attr('id');
 	var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
+        
+        // to delete list from HTML
+        var list_wrapper = $(this).parent();
+ 
+        $('#confirmDeleteDialog').dialog('option','buttons', {
+            "Delete": {
+                text: '',
+                id: 'delete-button',
+                click: function() {
+                    $( this ).dialog( "close" );
+                    jQuery.post('list_controller/delete_list', {
+                        lid: lid
+                    });
+
+                    list_wrapper.remove();
+
+                    // if current content is specified list content, then replace with inbox content
+                    if (!($('#list-content').hasClass('ui-tabs-hide'))) {
+                        //bug if list is empty
+                        var current_lid_string = $('#list-content div:first-child').attr('id');
+                        var current_lid = current_lid_string.substring(current_lid_string.indexOf('lid--') + 'lid--'.length);
+                        if (current_lid == lid) {
+                            $('#inbox-content').removeClass("ui-tabs-hide");
+                            $('#list-content, #friend-activity-content, #referral-tracking-content, #search-content').addClass("ui-tabs-hide")
+                            $("#inbox-tab").addClass("ui-tabs-selected ui-state-active");
+                        }
+                    }
+                }
+            },
+            "Cancel": {
+                text: '',
+                id: 'cancel-delete-button',
+                click: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+        
+//        
+//	var lid_string = $(this).attr('id');
+//	var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
 
 	// delete list from database
-	jQuery.post('list_controller/delete_list', {
-            lid: lid
-	});
-
-	// delete list from HTML
-	$(this).parent().remove();
-
-	// if current content is specified list content, then replace with inbox content
-        if (!($('#list-content').hasClass('ui-tabs-hide'))) {
-            //bug if list is empty
-            var current_lid_string = $('#list-content div:first-child').attr('id');
-            var current_lid = current_lid_string.substring(current_lid_string.indexOf('lid--') + 'lid--'.length);
-            if (current_lid == lid) {
-                $('#inbox-content').removeClass("ui-tabs-hide");
-                $('#list-content, #friend-activity-content, #referral-tracking-content, #search-content').addClass("ui-tabs-hide")
-                $("#inbox-tab").addClass("ui-tabs-selected ui-state-active");
-            }
-        }
+//	jQuery.post('list_controller/delete_list', {
+//            lid: lid
+//	});
+//
+//	// delete list from HTML
+//	$(this).parent().remove();
+//
+//	// if current content is specified list content, then replace with inbox content
+//        if (!($('#list-content').hasClass('ui-tabs-hide'))) {
+//            //bug if list is empty
+//            var current_lid_string = $('#list-content div:first-child').attr('id');
+//            var current_lid = current_lid_string.substring(current_lid_string.indexOf('lid--') + 'lid--'.length);
+//            if (current_lid == lid) {
+//                $('#inbox-content').removeClass("ui-tabs-hide");
+//                $('#list-content, #friend-activity-content, #referral-tracking-content, #search-content').addClass("ui-tabs-hide")
+//                $("#inbox-tab").addClass("ui-tabs-selected ui-state-active");
+//            }
+//        }
 
         // why do i return false here? am i preventing any 'default aciton' to occur from the click? what other bindings am i affecting? think about it conceptually
 //	return false;
@@ -175,11 +220,14 @@ function bindDeleteVendorFromList() {
 //        var lid_string = $(this).closest(".accordion-list").attr("id");
 //        var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
         var lid = $(this).closest("#accordion-list").find("#accordion-list-lid").html();
-
+//        var now = new Date();
+//        now = now.format("yyyy-mm-dd HH:MM:ss");
+        
         // delete vendor from database
         jQuery.post('list_controller/delete_vendor_from_list', {
             lid: lid,
             vid: vid
+//            now: now
         });
 
         // delete vendor from HTML
@@ -237,7 +285,7 @@ function bindDeleteVendorFromList() {
                         newComment: newComment
                     }, function() {
                         // change comment in HTML
-                        editCommentObj.prev('.vendor-list-comment').html('<q>' + newComment + '</q>');
+                        editCommentObj.prev('.vendor-list-comment').html("<q class='comment-wrapper'>" + newComment + "</q>");
                         var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
                         var parsedJSON = jQuery.parseJSON(htmlString);
                         for (var i=0; i<parsedJSON.length; i++) {

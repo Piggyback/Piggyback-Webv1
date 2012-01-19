@@ -182,7 +182,7 @@
                                                                         $recommendationComment = "<b>" . $row->firstName . " " . $row->lastName . "</b> recommended you the \"<span class='list-name'>" . $row->UserList[0]->name . "</span>\" list";
                                                                     }
 
-                                                                    $senderComment = "<i><span class='referral-comment'>\"" . $row->ReferralsComment . "\"</span></i>";
+                                                                    $senderComment = "<i><span class='referral-comment'><q class='comment-wrapper'>" . $row->ReferralsComment . "</q></span></i>";
 
                                                                     $data_ref = date('Y-m-d H:i:s', strtotime($row->refDate));
 
@@ -275,9 +275,9 @@
                                                                     <div class="drop-down-details accordion-content">
                                                                         <?php foreach($row->VendorList['VendorList'] as $vendorRow): ?>
                                                                         <?php
-                                                                            $singleComment = "<span class='referral-comment'></span>";
+                                                                            $singleComment = "<span class='referral-comment'><q class='comment-wrapper'></q></span>";
                                                                             if ($vendorRow['senderComment'] != "") {
-                                                                                $singleComment = "<i><span class='referral-comment'>\"" . $vendorRow['senderComment'] . "\"</span></i>";
+                                                                                $singleComment = "<i><span class='referral-comment'><q class='comment-wrapper'>" . $vendorRow['senderComment'] . "</q></span></i>";
                                                                             }
                                                                         ?>
 

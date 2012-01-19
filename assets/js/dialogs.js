@@ -29,23 +29,6 @@
  * 
  */
 
-$(document).ready(function() {
-//    var myUID;
-//    var allFriends;
-//    getFriends();
-//    bindFuzz();
-
-//    // initialize and bind 'refer' dialog
-//    friendList = [];
-//    bindAddFriend();
-//    bindAutoComplete();
-//    bindReferDialog();
-//    bindReferDialogButton();
-//    
-//    // initialize and bind 'add to list' dialog
-//    bindAddToListDialog();
-//    bindAddToListButton();
-});
 
 
 /********************************* ALL DIALOG POP UPS ********************************/
@@ -74,7 +57,6 @@ function bindReferDialogButton() {
     // refer SINGLE VENDOR from inbox or sidebar
 //    $('body').on('click','.refer-popup-link', function() {
     $('.refer-popup-link').click(function() {
-//        alert('test');
         var vid_string = $(this).attr('id');
         var vid = vid_string.substring(vid_string.indexOf('id--') + 'id--'.length);
         var vendor_name = jQuery.trim($(this).closest('.name-wrapper').find('.vendor-name').html());
@@ -84,20 +66,27 @@ function bindReferDialogButton() {
     // refer LIST to friends from inbox and from sidebar
 //    $('body').on('click','.refer-list-popup-link', function() {
     $('.refer-list-popup-link').click(function() {
-//        alert('test list');
         var lid_string = $(this).attr('id');
         var lid = lid_string.substring(lid_string.indexOf('id--') + 'id--'.length);
-        var list_name = jQuery.trim($(this).closest('.name-wrapper').find('.list-name').html());
-        bindReferListButton(lid, list_name);
+        var list_name = jQuery.trim($(this).closest('.name-wrapper').find('.list-name').html()); 
+        
+        // if referring from inbox, get rid. otherwise, no rid is necessary
+        var rid = 0;
+        if (!$(this).is('.refer-my-list')) {
+            var ridString = $(this).closest('.button-row').find('.referrals-remove-button').attr('id');
+            rid = ridString.substring(ridString.indexOf('id--') + 'id--'.length);
+        }
+        bindReferListButton(lid, list_name, rid);
+//        bindReferListButton(lid, list_name);
+
     });
 }
 
 // refer vendor functionality
 function bindReferVendorButton(vid, vendor_name) {
-    $("#fuzz").fadeIn();
     $('#dialog').dialog("option","title","Refer to Friends!");
     $('#referLabel').html("Refer <B>\"" + vendor_name + "\"</B> to your friends:")
-    clearReferDialogOnClose(friendList);
+//    clearReferDialogOnClose(friendList);
     
     $('#dialog').dialog("option","buttons", {
         "Refer!": {
@@ -108,8 +97,8 @@ function bindReferVendorButton(vid, vendor_name) {
                     alert("You did not select any friends to refer. Please try again.");
                 }
                 else {
-                    var now = new Date();
-                    now = now.format("yyyy-mm-dd HH:MM:ss");
+//                    var now = new Date();
+//                    now = now.format("yyyy-mm-dd HH:MM:ss");
                     var comment = $('#comment-box').val();
 
                     // create list of friend uid's to refer to
@@ -122,7 +111,7 @@ function bindReferVendorButton(vid, vendor_name) {
                     // perform query to add referrals to Referrals and ReferralDetails databases
                     jQuery.post('searchvendors/add_referral',{
                         myUID: myUID,
-                        date: now,
+//                        date: now,
                         comment: comment,
                         numFriends: friendList.length,
                         uidFriends: uidFriendsStr,
@@ -145,12 +134,10 @@ function bindReferVendorButton(vid, vendor_name) {
 }
 
 // refer list functionality
-function bindReferListButton(lid, list_name) {
-    $('#fuzz').fadeIn();
-    
+function bindReferListButton(lid, list_name, rid) {    
     $('#dialog').dialog('option', 'title', 'Refer to Friends!');
     $('#referLabel').html("Refer <B>\"" + list_name + "\"</B> to your friends:")
-    clearReferDialogOnClose(friendList);
+//    clearReferDialogOnClose(friendList);
 
     $('#dialog').dialog('option', 'buttons', {
         "Refer!": {
@@ -160,8 +147,8 @@ function bindReferListButton(lid, list_name) {
                 if (friendList.length < 1) {
                     alert("You did not select any friends to refer. Please try again.");
                 } else {
-                    var now = new Date();
-                    now = now.format("yyyy-mm-dd HH:MM:ss");
+//                    var now = new Date();
+//                    now = now.format("yyyy-mm-dd HH:MM:ss");
                     var uidFriendsObj = {};
                     for (var i=0; i<friendList.length; i++) {
                         uidFriendsObj[i] = friendList[i].uid;
@@ -171,9 +158,10 @@ function bindReferListButton(lid, list_name) {
                     jQuery.post('list_controller/refer_list', {
                         lid: lid,
                         uid: myUID,
+                        rid: rid,
                         numFriends: friendList.length,
                         uidFriends: uidFriendsStr,
-                        date: now,
+//                        date: now,
                         comment: $('#comment-box').val()
                     }, function(data) {
                         if (data) {
@@ -192,19 +180,19 @@ function bindReferListButton(lid, list_name) {
     return false;
 }
 
-function clearReferDialogOnClose(friendList) {
-    // reset all values when dialog box closes
-    $('#dialog').bind('dialogbeforeclose', function(event, ui) {
-        $('#comment-box').val('');
-        $('#friends-refer-right').html('');
-        $('#tags').val('');
-        friendList.length = 0;
-        displayAutoCompleteResults(allFriends);
-
-        // fade out dark background
-        $('#fuzz').fadeOut();
-    });
-}
+//function clearReferDialogOnClose(friendList) {
+//    // reset all values when dialog box closes
+//    $('#dialog').bind('dialogbeforeclose', function(event, ui) {
+////        $('#comment-box').val('');
+////        $('#friends-refer-right').html('');
+////        $('#tags').val('');
+////        friendList.length = 0;
+////        displayAutoCompleteResults(allFriends);
+//
+//        // fade out dark background
+//        $('#fuzz').fadeOut();
+//    });
+//}
 
 // store referral and vendor information in the database when referral is made from search page
 function bindReferDialogButtonFromSearch(friendList, vendorData) {
@@ -220,9 +208,8 @@ function bindReferDialogButtonFromSearch(friendList, vendorData) {
             }
         }
         
-        $("#fuzz").fadeIn();
         $('#dialog').dialog("option","title","Refer Friends to " + vendor.name);
-        clearReferDialogOnClose(friendList);
+//        clearReferDialogOnClose(friendList);
 
         $('#dialog').dialog("option","buttons", {
             "Refer!": {
@@ -233,8 +220,8 @@ function bindReferDialogButtonFromSearch(friendList, vendorData) {
                         alert("You did not select any friends to refer. Please try again.");
                     }
                     else {
-                        var now = new Date();
-                        now = now.format("yyyy-mm-dd HH:MM:ss");
+//                        var now = new Date();
+//                        now = now.format("yyyy-mm-dd HH:MM:ss");
                         var comment = $('#comment-box').val();
 
                         // create list of friend uid's to refer to
@@ -247,7 +234,7 @@ function bindReferDialogButtonFromSearch(friendList, vendorData) {
                         // perform query to add referrals to Referrals and ReferralDetails databases
                         jQuery.post('searchvendors/add_referral',{
                             myUID: myUID,
-                            date: now,
+//                            date: now,
                             comment: comment,
                             numFriends: friendList.length,
                             uidFriends: uidFriendsStr,
@@ -282,7 +269,18 @@ function bindReferDialog() {
             hide: 'drop',
             resizable: false,
             closeText: '',
+            beforeClose: function() {
+                $('#fuzz').fadeOut();
+            },
             open: function() {
+                $("#fuzz").fadeIn();
+                
+                $('#comment-box').val('');
+                $('#friends-refer-right').html('');
+                $('#tags').val('');
+                friendList.length = 0;
+                displayAutoCompleteResults(allFriends);
+        
                 // change refer button appearance
                 $('.ui-dialog-buttonpane').find('button:first').removeClass('ui-button ui-widget ui-state-default ui-button-text-only ui-corner-all');
                 $('.ui-dialog-buttonpane').addClass('refer-button button-corner');
@@ -420,9 +418,7 @@ function bindAddToListButtonFromSearch(vendorData) {
                 vendor = vendorData[i];
             }
         }
-        
-        $("#fuzz").fadeIn();
-        
+                
         // add comment box for adding to a list from the search
         var showCommentBoxHTML = "<label for='add-to-list-comment-box'>" + 
                                 "Add a comment to remember what you like about this place!" +
@@ -508,7 +504,7 @@ function bindAddToListButton() {
         var vid_string = $(this).attr('id');
         var vid = vid_string.substring(vid_string.indexOf('id--') + 'id--'.length);
         var vendor_name = jQuery.trim($(this).closest('.name-wrapper').find('.vendor-name').html());
-        var comment = jQuery.trim($(this).closest('.name-wrapper').find('.referral-comment').html());
+        var comment = jQuery.trim($(this).closest('.name-wrapper').find('.comment-wrapper').html());
         bindAddToList(vid, vendor_name, "singleVendor", comment, null);
     });
     
@@ -525,9 +521,7 @@ function bindAddToListButton() {
     });
 }
 
-function bindAddToList(id, name, type, comment, rid) {
-    $("#fuzz").fadeIn();
-    
+function bindAddToList(id, name, type, comment, rid) {    
     // dont need comment box for adding to a list from a referral
     $('#add-to-list-comment').html('');
     $('#addToListDialog').dialog('option', 'height', 120);
@@ -571,8 +565,8 @@ function bindAddToList(id, name, type, comment, rid) {
 
                                     // add single vendor or list to new list
                                     if (type == "singleVendor") {
-                                        var strippedComment = comment.substring(1,comment.length-1);
-                                        addVendorToList(newListData[0].lid, id, strippedComment);
+//                                        var strippedComment = comment.substring(1,comment.length-1);
+                                        addVendorToList(newListData[0].lid, id, comment);
                                     }
 
                                     else if (type == "list") {
@@ -590,8 +584,8 @@ function bindAddToList(id, name, type, comment, rid) {
                 // add vendor to existing list
                 else if (selectedList != 'none') {
                     if (type == "singleVendor") {
-                        var strippedComment = comment.substring(1,comment.length-1);
-                        addVendorToList(selectedList, id, strippedComment);
+//                        var strippedComment = comment.substring(1,comment.length-1);
+                        addVendorToList(selectedList, id, comment);
                     }
 
                     else if (type == "list") {
@@ -610,7 +604,6 @@ function bindAddToList(id, name, type, comment, rid) {
     });
 
     $('#addToListDialog').dialog('open');
-
     return false;
 }
 
@@ -625,12 +618,17 @@ function bindAddToListDialog() {
             hide: 'drop',
             resizable: false,
             closeText: '',
+            beforeClose: function() {
+                $("#fuzz").fadeOut();
+            },
             open: function() {
                 // clear contents
                 $('#add-to-new-list').html('');
                 $('#selectList').val('none');
                 $('#add-to-list-comment-box').val('');
                 $('#new-list-name').val('');
+               
+                $("#fuzz").fadeIn();
                 
                 // change add button appearance
                 $('.ui-dialog-buttonpane').find('button:first').removeClass('ui-button ui-widget ui-state-default ui-button-text-only ui-corner-all');
@@ -638,7 +636,6 @@ function bindAddToListDialog() {
 
                 // change close button appearance
                 $('.ui-dialog-titlebar').find('.ui-icon').removeClass('ui-icon ui-icon-closethick');
-
             }
     });
     
@@ -678,23 +675,16 @@ function displayListDropDown(name) {
 // display div for adding new list if you select to add vendor to a new list
 function bindDropDownChange() {
     var origHeight = $('#addToListDialog').dialog('option','height');
-    $('#addToListDialog').dialog({
-            beforeClose: function() {
-                $("#fuzz").fadeOut();
-            }
-    });
     
     $('#selectList').change(function() {
           if($('#selectList').val() == 'addNew') {
               $('#addToListDialog').dialog('option', 'height', origHeight+65);
               var addNewHTML = "Name your new list:<BR>" +
                                "<input type='text' name='newListName' class='box' id='new-list-name'/>";
-//              $('#add-to-new-list').css('padding-top','8px');
               $('#add-to-new-list').html(addNewHTML);
           }
           else {
               $('#add-to-new-list').html('');
-//              $('#add-to-new-list').css('padding-top','0px');
               $('#addToListDialog').dialog('option', 'height', origHeight);
           }
     });

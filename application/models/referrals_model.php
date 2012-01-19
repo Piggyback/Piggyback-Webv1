@@ -122,14 +122,21 @@ class Referrals_Model extends CI_Model {
             $lid = $row->lid;
             $VendorList = array();
 
+            // if the referral is a list
             if ( $lid != 0 ) {
-                // if the referral is a list
-                $this->db->select('vid, comment');
-                $this->db->from('Lists');
-                $this->db->where('lid', $lid);
-                $vidList = $this->db->get()->result();
+//                $this->db->select('vid, comment');
+//                $this->db->from('Lists');
+//                $this->db->where('lid', $lid);
+//                $vidList = $this->db->get()->result();
+                
+                // so that you display referred lists as they were at time of referral
+                $query = "SELECT vid, comment FROM Lists WHERE lid = $lid AND vid IN (SELECT vid FROM ReferralDetails WHERE rid = $rid) AND date < (SELECT date FROM Referrals WHERE rid = $rid) AND ((deleted != 1) OR (deleted = 1 AND deletedDate > (SELECT date FROM Referrals WHERE rid = $rid)))";
+//                $query = "SELECT Lists.vid, Lists.comment FROM Referrals LEFT JOIN ReferralDetails ON Referrals.rid = ReferralDetails.rid LEFT JOIN Lists ON Referrals.lid = Lists.lid WHERE ReferralDetails.rid = $rid";
+//                $query = "SELECT Lists.vid, Lists.comment FROM ReferralsDetails LEFT JOIN Lists ON Referrals.lid = Lists.lid WHERE Referrals.rid = $rid";
+//                $query = "SELECT vid, comment FROM Lists WHERE lid = $lid AND date < (SELECT date FROM Referrals WHERE rid = $rid) AND ((deleted != 1) OR (deleted = 1 AND deletedDate > (SELECT date FROM Referrals WHERE rid = $rid)))";
+                $vidList = $this->db->query($query)->result();
 
-                if(array_filter($vidList)) {
+//                if(array_filter($vidList)) {
                     foreach($vidList as $vidRow)
                     {
                         $vid = $vidRow->vid;
@@ -173,10 +180,10 @@ class Referrals_Model extends CI_Model {
                         
                         $row->UserList[0] = $x;
                     }
-                } else {
-                    $isCorrupted = 3;
-                    //unset ($result[$key]);
-                }
+//                } else {
+//                    $isCorrupted = 3;
+//                    //unset ($result[$key]);
+//                }
 
             } else {
                 // if the referral is single vendor, then

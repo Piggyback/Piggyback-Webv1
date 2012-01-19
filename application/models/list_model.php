@@ -30,9 +30,10 @@ class List_model extends CI_Model {
     public function get_add_to_list_content() {
         $lid = $this->input->post('lid');
         $rid = $this->input->post('rid');
-        // and deleted != 1?
-        $query = $this->db->query("SELECT vid, comment FROM Lists WHERE lid = $lid and date < (SELECT date FROM Referrals WHERE rid = $rid)");
-        echo json_encode($query->result());
+        
+        $query = "SELECT vid, comment FROM Lists WHERE lid = $lid AND date < (SELECT date FROM Referrals WHERE rid = $rid) AND ((deleted != 1) OR (deleted = 1 AND deletedDate > (SELECT date FROM Referrals WHERE rid = $rid)))";
+        $result = $this->db->query($query);
+        echo json_encode($result->result());
     }
 
 
@@ -89,7 +90,7 @@ class List_model extends CI_Model {
         }
         $count = mysql_num_rows($existsResult);
         if ($count == 0) {
-            $query = "INSERT INTO Lists VALUES ($lid,\"$vid\",\"$date\",\"$comment\",0)";
+            $query = "INSERT INTO Lists VALUES ($lid,\"$vid\",\"$date\",\"$comment\",0,0)";
             $result = mysql_query($query);
             if (!$result) {
                 echo "Could not add to list";
@@ -125,9 +126,11 @@ class List_model extends CI_Model {
     function delete_vendor_from_list() {
         $lid = $this->input->post('lid');
         $vid = $this->input->post('vid');
+//        $dateTime = $this->input->post('now');
+        $dateTime = date('Y-m-d H:i:s');
 
         // change deleted flag to 1
-        $data = array('deleted' => 1);
+        $data = array('deleted' => 1, 'deletedDate' => $dateTime);
         $this->db->update('Lists', $data, array('lid' => $lid, 'vid' => $vid));
     }
 
@@ -136,11 +139,14 @@ class List_model extends CI_Model {
     function refer_list() {
         $lid = $_POST["lid"];
         $uid = $_POST["uid"];
+        $prevRid = $_POST["rid"];
         $numFriends = $_POST["numFriends"];
         $uidFriends = json_decode($_POST["uidFriends"]);
-        $date = $_POST["date"];
+//        $date = $_POST["date"];
         $comment = $_POST["comment"];
         
+        $date = date('Y-m-d H:i:s');
+
         // nonduplicate friends that you are referring this list to
         $newFriends = array();
         
@@ -171,8 +177,16 @@ class List_model extends CI_Model {
                 return;
             }
 
-            // get all vendors in the referred list
-            $getVendorQuery = "SELECT vid from Lists where lid = $lid";
+            // referring list from inbox - get all vendors in the referred list
+            if ($prevRid != 0) {
+                $getVendorQuery = "SELECT vid FROM Lists WHERE lid = $lid AND date < (SELECT date FROM Referrals WHERE rid = $prevRid) AND ((deleted != 1) OR (deleted = 1 AND deletedDate > (SELECT date FROM Referrals WHERE rid = $prevRid)))";
+            } 
+            
+            // referring list from sidebar - get all vendors in the referred list
+            else {
+                $getVendorQuery = "SELECT vid FROM Lists WHERE lid = $lid AND deleted != 1";
+            }
+            
             $vendorResult = mysql_query($getVendorQuery);
             if (!$vendorResult) {
                 echo "Could not retrieve vendors in referred list";

@@ -425,6 +425,7 @@ function loadReferralItems(elem) {
         var parsedJSON = jQuery.parseJSON(data);
 //        for (var i = 0; i < parsedJSON.length; i++) {
 //            alert(JSON.stringify(parsedJSON[i]));
+//            alert(parsedJSON[i].isCorrupted);
 //        }
         displayReferralItems(parsedJSON, itemType);
     });
@@ -525,10 +526,10 @@ function createReferralsHTMLString(row, itemType) {
         
         for(var j = 0; j<row.VendorList['VendorList'].length; j++) {
             var SubVendorDetails = row.VendorList['VendorList'][j][0];
-            var singleComment = "<span class='referral-comment'></span>";
+            var singleComment = "<span class='referral-comment'><q class='comment-wrapper'></q></span>";
             if (row.VendorList['VendorList'][j]['senderComment'] != "") {
-                singleComment = "<i><span class='referral-comment'>\"" + row.VendorList['VendorList'][j]['senderComment'] +
-                    "\"</span></i>";
+                singleComment = "<i><span class='referral-comment'><q class='comment-wrapper'>" + row.VendorList['VendorList'][j]['senderComment'] +
+                    "</q></span></i>";
             }
             displayReferralsHTMLString +=
                 "<div class='subaccordion-object name-wrapper'>" +
@@ -597,7 +598,7 @@ function createReferralsHeaderHTMLString(row, itemType, listOrSingle) {
     senderName = "<b>" + row.firstName + " " + row.lastName + "</b>";
     senderComment = "";
     if (row.ReferralsComment != "") {
-        senderComment = "<i><span class='referral-comment'>\"" + row.ReferralsComment + "\"</span></i>";
+        senderComment = "<i><span class='referral-comment'><q class='comment-wrapper'>" + row.ReferralsComment + "</q></span></i>";
     }
     
     // logic based on what tab, what default 'comment' to show as well as fb picture
@@ -927,7 +928,7 @@ function createListHeaderHTMLString(row, itemType, listOrSingle) {
                 "</div>" +
                 "<div class='comment-and-edit-block'>" +
                     "<span class='vendor-list-comment'>" +
-                        "<q>" + row.comment + "</q>" + 
+                        "<q class='comment-wrapper'>" + row.comment + "</q>" + 
                     "</span>" +
                     "<span id='accordion-edit-comment-vid--" + row.vid + "' class='accordion-edit-comment'>" +
                         "Edit Comment" +

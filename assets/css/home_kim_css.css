@@ -11,59 +11,44 @@
    Syntax recommendation http://www.w3.org/TR/REC-CSS2/
 */
 
-root { 
-    display: block;
-}
 
-.autoCompleteImg {
-    width:10%;
-    float:left;
-}
 
-.autoCompleteDiv {
-    width:90%;
-    float: right;
-    vertical-align: top;
-}
-#referredFriendsHeader {
-    font-size:13px; 
-    font-family:helvetica; 
-    font-weight:bold;
-}
+/*-------------------- REFERRAL DIALOG ----------------------*/
 
+
+/*class for td - appearance of referred friends in sidebar of referral dialog*/
 .referredFriend {
     font-size:12px; 
     font-family:helvetica;
 }
 
+/*wrapper for upper part of refer dialog*/
 #friends-refer-upper {
     width:632px;
     height:212px;
-    /*total width with is 618*/
 }
 
+/*comment box of refer dialog*/
 #friends-refer-comment {
     width:608px;
-/*    height:75px;*/
     height:70px;
     clear:both;
     background-color:#DFDFDF;
     overflow:auto;
     border:2px solid white;
     padding: 8px 10px 3px 10px;
-    /*total width with borders is 618*/
 }
 
+/*upper left wrapper of refer dialog*/
 #friends-refer-left {
     height:210px;
     width:450px;
     float:left;
     border-top:2px solid white;
     border-left:2px solid white;
-    /*total width with borders is 452*/
-    /*total height is 236*/
 }
 
+/*upper right wrapper of refer dialog*/
 #friends-refer-right {
     height:204px;
     width:156px;
@@ -73,35 +58,39 @@ root {
     border-top:2px solid white;
     border-right:2px solid white;
     border-left:2px solid white;
-    padding: 8px 10px 3px 10px;    /*total width with borders and margin is is 166*/
+    padding: 8px 10px 3px 10px;
 
 }
 
+/*search part of upper left part of refer dialog*/
 #friends-refer-search {
     background-color:#DFDFDF;
     overflow:auto;
     height: 55px;
-    padding: 8px 10px 3px 10px;    /*total height 61*/
+    padding: 8px 10px 3px 10px;
 }
 
+/*display friend autocomplete results part of upper left part of refer dialog*/
 #friends-refer-display {
     background-color:#DFDFDF;
     overflow:auto;
     z-index:1000;
     height:143px;
     padding: 3px 10px 3px 10px;
-    /*total height:175*/
 }
 
+/*input for searching friend names*/
 #tags {
     width:70%;
     margin-right: 7px;
 }
 
+/*hide search button in refer dialog*/
 #searchFriendsButton {
     visibility:hidden;
 }
 
+/*input for refer dialog comment box*/
 #comment-box {
     width:99%;
     height:50%;
@@ -109,68 +98,99 @@ root {
     resize:none;
 }
 
+/*used to split friend autocomplete display into two columns*/
 #friends-refer-display-left {
     width:50%;
     float:left;
 }
 
+/*used to split friend autocomplete display into two columns*/
 #friends-refer-display-right {
     width:50%;
     float:right;
 }
 
+/*when hovering over friends in refer dialog, background turns white*/
 .friendTable tr:hover {
     background-color:white;
     cursor:pointer;
     border:0px;
 }
 
+/*display names of friends for autocomplete*/
 .friendTable td.friendName {
     width:150px;
     padding-left:5px;
 }
 
+/*display pictures of friends for autocomplete*/
 .friendTable td.friendPic {
     valign:middle;
 }
 
-/*.added-friends tr:hover {
-    background-color:white;
-
-}*/
-
+/*make cursor a pointer when deleting friends you have added for referring*/
 img.delete {
     cursor:pointer;
 }
 
-/* add to list dialog box */
-#add-to-existing-list {
-/*    height:45px;*/
-    padding: 1px 10px 0px 12px;
-
-}
-
-#add-to-new-list {
-    padding: 1px 10px 0px 12px;
-}
-
-#add-to-list-comment {
-    padding: 4px 10px 0px 12px;
-}
-
-#add-to-list-comment-box {
-    width:90%;
-/*    height:80px;;*/
-}
-
-#new-list-name {
-    width:90%;
-}
-
+/*make cursor a pointer when over the referral popup link*/
 .refer-popup-link :hover {
     cursor: pointer;
 }
 
+/*refer! button*/
+.refer-button button {
+    background-color:white;
+    border:0px;
+    background-image: url('../images/piggyback_button_refer_f1.png');
+    background-size: 100%;
+    width:74px;
+    height:30px;
+    color:yellow;
+    padding:0px;
+}
+
+.refer-button button:hover {
+    background-color:white;
+    border:0px;
+    background-image: url('../images/piggyback_button_refer_f2.png');
+    background-size: 100%;
+    width:74px;
+    height:30px;
+    color:yellow;
+    padding:0px;
+}
+
+/*-------------------- ADD TO LIST DIALOG ----------------------*/
+
+
+/*div for adding to existing list -- displays drop down*/
+#add-to-existing-list {
+    padding: 1px 10px 0px 12px;
+
+}
+
+/*div for adding to new list -- displays input for new list name*/
+#add-to-new-list {
+    padding: 1px 10px 0px 12px;
+}
+
+/*div for comment that goes along with adding to a new list -- used from search*/
+#add-to-list-comment {
+    padding: 4px 10px 0px 12px;
+}
+
+/*actual input for adding a comment*/
+#add-to-list-comment-box {
+    width:90%;
+}
+
+/*actual input for new list name*/
+#new-list-name {
+    width:90%;
+}
+
+/*actual add to list dialog*/
 #addToListDialog {
     font-family:helvetica;
     height:50px;
@@ -179,23 +199,7 @@ img.delete {
     background-color: white;
 }
 
-#edit-list-comment-dialog {
-    font-family:helvetica;
-    height:20px;
-    padding-top:.4em;
-    padding-bottom:0px;
-    background-color: white;
-}
-
-#edit-list-comment-form {
-    padding: 2px 10px 0px 12px;
-}
-
-.edit-list-comment-value {
-    width: 90%;
-}
-
-/* dialog buttons that show 'submit' button */
+/* submit button in add to list dialog */
 .add-button button, #add-list-submit {
     background-color:white;
     border:0px;
@@ -217,14 +221,44 @@ img.delete {
     color:yellow;
     padding:0px;
 }
-/*-------------------------*/
 
+/*dropdown for add to list dialog*/
+.drop-down-details {
+    max-height: 250px;
+    font-size:13px;
+}
+
+
+/*-------------------- EDIT LIST COMMENT DIALOG ----------------------*/
+
+#edit-list-comment-dialog {
+    font-family:helvetica;
+    height:20px;
+    padding-top:.4em;
+    padding-bottom:0px;
+    background-color: white;
+}
+
+#edit-list-comment-form {
+    padding: 2px 10px 0px 12px;
+}
+
+.edit-list-comment-value {
+    width: 90%;
+}
+
+/*-------------------- CONFIRM DELETE DIALOG ----------------------*/
+
+/*text in confirm delete dialog*/
+#confirm-delete-msg {
+   padding: 5px 10px 0px 12px;
+}
 
 /*buttons for delete confirmation dialog*/
 #delete-button {
     background-color:white;
     border:0px;
-    background-image: url('../images/piggyback_button_submit_f1.png');
+    background-image: url('../images/piggyback_button_delete_f1.png');
     background-size: 100%;
     width:74px;
     height:30px;
@@ -235,7 +269,7 @@ img.delete {
 #delete-button:hover{
     background-color:white;
     border:0px;
-    background-image: url('../images/piggyback_button_submit_f2.png');
+    background-image: url('../images/piggyback_button_delete_f2.png');
     background-size: 100%;
     width:74px;
     height:30px;
@@ -246,7 +280,7 @@ img.delete {
 #cancel-delete-button {
     background-color:white;
     border:0px;
-    background-image: url('../images/piggyback_button_close_f1.png');
+    background-image: url('../images/piggyback_button_cancel_f1.png');
     background-size: 100%;
     width:74px;
     height:30px;
@@ -257,39 +291,33 @@ img.delete {
 #cancel-delete-button:hover {
     background-color:white;
     border:0px;
-    background-image: url('../images/piggyback_button_close_f2.png');
+    background-image: url('../images/piggyback_button_cancel_f2.png');
     background-size: 100%;
     width:74px;
     height:30px;
     color:yellow;
     padding:0px;
 }
-/*-------------------------*/
+
+/*-------------------- MIKES ADD LIST DIALOG ----------------------*/
+
+#add-list-form {
+    padding: 5px 10px 0px 12px;
+}
+
+#add-list-name {
+    width:90%;
+}
+
+#add-list-button-wrapper {
+    text-align:right;
+    margin-bottom:5px;
+}
+
+/*-------------------- ALL DIALOGS ----------------------*/
 
 .ui-dialog-buttonset {
     padding-left:0px;
-}
-
-.refer-button button {
-    background-color:white;
-    border:0px;
-    background-image: url('../images/piggyback_button_refer_f1.png');
-    background-size: 100%;
-    width:74px;
-    height:30px;
-    color:yellow;
-    padding:0px;
-}
-
-.refer-button button:hover {
-    background-color:white;
-    border:0px;
-    background-image: url('../images/piggyback_button_refer_f2.png');
-    background-size: 100%;
-    width:74px;
-    height:30px;
-    color:yellow;
-    padding:0px;
 }
 
 .button-corner button, .corner {
@@ -346,8 +374,8 @@ img.delete {
     padding:0px;
     background-color:#F6D53A;
 }
-/*
-*/.ui-dialog-titlebar a.ui-dialog-titlebar-close {
+
+.ui-dialog-titlebar a.ui-dialog-titlebar-close {
     border:0px;
     width:16px;
     height:16px;
@@ -356,13 +384,7 @@ img.delete {
     background-color:#F6D53A;
 }
 
-/*.close-button {
-    display: inline-block;
-    width:30px;
-    height:30px;
-    align:right;
-    background-image: url('../images/piggyback_button_close_f1.png');
-}*/
+/*-------------------- ACCORDION ----------------------*/
 
 .website-link:active, .website-link:link, .website-link:visited {
     color:blue;
@@ -371,6 +393,8 @@ img.delete {
 .website-link:hover {
     color:#686868;
 }
+
+/*-------------------- ACCORDION COMMENTS ----------------------*/
 
 .referral-comment {
     display:inline-block;
@@ -419,34 +443,4 @@ input.comment-input {
     border:0px;
     margin-right: 5px;
     margin-top: 5px;    
-}
-
-#add-list-form {
-    padding: 5px 10px 0px 12px;
-}
-
-#add-list-name {
-    width:90%;
-}
-
-#add-list-button-wrapper {
-    text-align:right;
-    margin-bottom:5px;
-}
-
-.drop-down-details {
-    max-height: 250px;
-    font-size:13px;
-/*background-color:rgba(0,0,255,0.2);*/
-}
-
-/*.is-liked {
-    background: url('../images/piggyback_button_like_counter_bg.png') no-repeat;
-    width:42px;
-    height:28px;
-}*/
-
-#confirm-delete-msg {
-   padding: 5px 10px 0px 12px;
-
 }

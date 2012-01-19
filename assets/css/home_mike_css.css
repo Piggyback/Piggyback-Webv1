@@ -94,7 +94,8 @@ a, a:visited, .link {
     margin: 20px 20px 0 0;
     position: relative;
     height: 70%;
-    background-color: #333333;    
+    background: #333333 url('../images/powered-by-google-on-non-white.png') no-repeat 3% 7%;
+/*    background-color: #333333;    */
 }
 
 #search {
