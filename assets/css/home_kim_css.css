@@ -398,9 +398,22 @@ img.delete {
 
 .referral-comment {
     display:inline-block;
-    margin-left:30px;
-    padding-right:140px;
+/*    margin-left:30px;*/
+/*    padding-right:140px;*/
+    max-width:75%;
+/*    margin-right:140px;*/
 }
+
+.subaccordion-header q {
+    display:inline-block;
+    margin-left: 30px;
+}
+
+/*.subaccordion-header:hover {
+    border-bottom: 1px black solid;
+    border-top: 1px black solid;
+    background-color:none;
+}*/
 
 .accordion-footer {
     font-size:13px;

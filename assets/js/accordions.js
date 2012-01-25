@@ -42,21 +42,7 @@
  */
 
 function bindAccordion() {
-//    $("#accordion-object").addClass("ui-accordion ui-widget ui-helper-reset ui-accordion-icons")
-//        .find("div.accordion-header")
-//        .addClass("ui-accordion-header ui-helper-reset ui-corner-all ui-state-default")
-//        .prepend('<span class="ui-icon ui-icon-triangle-1-e"/>')
-//        .click(function() {
-//            $(this).toggleClass("ui-accordion-header-active").toggleClass("ui-state-active")
-//                        .toggleClass("ui-state-default").toggleClass("ui-corner-bottom")
-//                .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e").toggleClass("ui-icon-triangle-1-s")
-//                .end().next().toggle().toggleClass("ui-accordion-content-active");
-//            return false;
-//        })
-//        .next().addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom").hide();
-
     //TODO: Optimize binding calls with Andy -- currently rebinding ALL accordions
-    
     
     $( ".accordion-object" ).accordionCustom({
         header: 'div.accordion-header',
@@ -80,22 +66,11 @@ function bindAccordion() {
 
 // override accordion click handler when clicking Like, Comment, pressing enter or space
 function overrideAccordionEvent() {
-//    $(document).on("click", ".no-accordion", function(e) {
-//        console.log(e);
-//        e.preventDefault();
-//        e.stopPropagation();
-//    });
     $(".no-accordion").click(function(e) {
         //e.preventDefault();
         e.stopPropagation();
         //return false;
     });
-    
-//    $('.accordion-header').click(function(e) {
-//        if($(e.target).closest('.no-accordion').length) {
-//            return false;
-//        } 
-//    });
 
     // override the space and enter key from performing accordion action
     $('.comment-input').keydown(function(e){
@@ -491,10 +466,13 @@ function displayReferralItems(parsedJSON, itemType) {
     for(var i=0; i<parsedJSON.length; i++) {
         var row = parsedJSON[i];
         // first only allow non-corrupted data (consistent table servers)
-        if(row.isCorrupted != 1) {
+        if(row.isCorrupted == "") {
             displayReferralsHTMLString = createReferralsHTMLString(row, itemType);
             //TODO: Talk to Andy -- move variable declaration outside of for loop to avoid redundant instructions
             $(displayReferralsHTMLString).appendTo(accordionName);
+        } else {
+            // error log
+            console.log(row.isCorrupted);
         }
     }
     reBindAccordion();
@@ -512,7 +490,7 @@ function displayReferralItems(parsedJSON, itemType) {
  */
 function createReferralsHTMLString(row, itemType) {
     //TODO: Discuss global javascript variables with Andy -- variables without 'var' keyword are global (green colorcode)'
-    var displayReferralsHTMLString = "<div class='referral-item-wrapper'>";
+    var displayReferralsHTMLString = "<div class='referral-item-wrapper accordion-object'>";
     if ( row.lid == 0 ) {
         displayReferralsHTMLString += createReferralsHeaderHTMLString(row, itemType, row.lid) +
         // details of the row
@@ -538,7 +516,9 @@ function createReferralsHTMLString(row, itemType) {
                             SubVendorDetails.name +
                         "</span> <br> " +
                         singleComment + 
+                        "<div class='subaccordion-button-row no-accordion'>" +
                         createReferralsReferButtonsHTMLString(SubVendorDetails.id) +
+                        "</div>" + 
                     "</div>" +
                     "<div class='subaccordion-content'>" +
                         createReferralsDetailsHTMLString(SubVendorDetails) +
@@ -871,21 +851,24 @@ function displayListItems(parsedJSON, itemType, lid) {
 //    var accordionName = '#list-content';
     
     // destroy the accordion first
-    $('#accordion-list').accordionCustom('destroy');
+    //$('#accordion-list').accordionCustom('destroy');
     $('.subaccordion-object').accordionCustom('destroy');
     
-    var tempHTML = "<div id='accordion-list' class='accordion-object'><div class='none' id='accordion-list-lid'>" + lid + "</div>";
+    var tempHTML = "<div id='accordion-list'><div class='none' id='accordion-list-lid'>" + lid + "</div>";
     $(tempHTML).appendTo('#list-content');
 
     for(var i=0; i<parsedJSON.length; i++) {
         var row = parsedJSON[i];
         
         // first only allow non-corrupted data (consistent table servers)
-        if(row.isCorrupted != 1) {
+        
+        //alert(row.isCorrupted);
+        // TODO: incorporate isCorrupted flag?
+        //if(row.isCorrupted == "") {
             displayListHTMLString = createListHTMLString(row, itemType);
             // itemType has to be 'list-tab' for now
             $(displayListHTMLString).appendTo(accordionName);
-        }
+        //}
     }
     $("</div>").appendTo('#list-content');
 //    bindAccordion();
@@ -895,7 +878,7 @@ function displayListItems(parsedJSON, itemType, lid) {
 }
 
 function createListHTMLString(row, itemType) {
-    var displayListHTMLString = "<div class='list-item-wrapper'>";
+    var displayListHTMLString = "<div class='list-item-wrapper accordion-object'>";
 //    var displayListHTMLString = "";
     
     displayListHTMLString += createListHeaderHTMLString(row, itemType, 0) +
@@ -962,14 +945,14 @@ function displaySearchItems(parsedJSON, itemType, lid) {
     $('#accordion-search').accordionCustom('destroy');
 //    $('.subaccordion-object').accordionCustom('destroy');
     
-    var tempHTML = "<div id='accordion-search' class='accordion-object'>";
+    var tempHTML = "<div id='accordion-search'>";
     $(tempHTML).appendTo('#search-content');
     
     for(var i=0; i<parsedJSON.length; i++) {
         var row = parsedJSON[i];
         
         // first only allow non-corrupted data (consistent table servers)
-//        if(row.isCorrupted != 1) {
+//        if(row.isCorrupted == "") {
             displaySearchHTMLString = createSearchHTMLString(row, itemType);
             // itemType has to be 'list-tab' for now
             $(displaySearchHTMLString).appendTo('#accordion-search');
@@ -982,7 +965,7 @@ function displaySearchItems(parsedJSON, itemType, lid) {
 }
 
 function createSearchHTMLString(row, itemType) {
-    var displaySearchHTMLString = "<div class='list-item-wrapper'>";
+    var displaySearchHTMLString = "<div class='list-item-wrapper accordion-object'>";
 //    var displayListHTMLString = "";
     
     displaySearchHTMLString += createSearchHeaderHTMLString(row, itemType, 0) +

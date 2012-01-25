@@ -137,10 +137,10 @@
                                             </ul>
 <!--                                            <div id='content'>-->
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="inbox-content">
-                                                <div id="accordion-inbox" class="accordion-object">
+                                                <div id="accordion-inbox">
                                                     <?php foreach ($inboxItems as $row):?>
-                                                        <div class="referral-item-wrapper ui-corner-all">
-                                                            <?php if ($row->isCorrupted == 0): ?>
+                                                        <div class="referral-item-wrapper ui-corner-all accordion-object">
+                                                            <?php if ($row->isCorrupted == ""): ?>
                                                                 <?php
                                                                     // get some vital variables ready
                                                                     // the count of likes
@@ -285,10 +285,12 @@
                                                                             <div class="subaccordion-header">
                                                                                 <span class="vendor-name referral-list-vendor-name"><?php echo $vendorRow[0]->name; ?></span><br>
                                                                                 <?php echo $singleComment; ?>
+                                                                                <div class='subaccordion-button-row no-accordion'>
                                                                                 <img alt="refer" src="../assets/images/piggyback_button_refer_f1.png" id="refer-to-friends-single-referral-id--<?php echo $vendorRow[0]->id; ?>" class="refer-popup-link dialog_link referral-list-vendor-refer" onmouseover="this.src='../assets/images/piggyback_button_refer_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_refer_f1.png'">
                                                                                 </img>
                                                                                 <img id="add-to-list-single-referral-id--<?php echo $vendorRow[0]->id; ?>" alt="+" src="../assets/images/piggyback_button_add_f1.png" class="add-to-list-popup-link dialog_link referral-list-vendor-add-to-list" onmouseover="this.src='../assets/images/piggyback_button_add_f2.png'" onmouseout="this.src='../assets/images/piggyback_button_add_f1.png'">
                                                                                 </img>
+                                                                                </div>
                                                                             </div>
                                                                             <div class="subaccordion-content">
                                                                                 <!-- vendor details here -->
@@ -393,15 +395,15 @@
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="search-content">
                                             </div>
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="list-content">
-<!--                                                <div id='accordion-list' class='accordion-object'>
+<!--                                                <div id='accordion-list'>
                                                 </div>-->
                                             </div>
                                             <div class='ui-tabs-panel ui-widget-content ui-corner-bottom' id='friend-activity-content'>
-                                                <div id='accordion-friend-activity' class='accordion-object'>
+                                                <div id='accordion-friend-activity'>
                                                 </div>
                                             </div>
                                             <div class='ui-tabs-panel ui-widget-content ui-corner-bottom' id='referral-tracking-content'>
-                                                <div id='accordion-referral-tracking' class='accordion-object'>
+                                                <div id='accordion-referral-tracking'>
                                                 </div>
                                             </div>
                                             <div class="hidden-list-content none" id="empty-list-content">

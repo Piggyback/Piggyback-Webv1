@@ -74,11 +74,13 @@ $(document).ready(function() {
 function initScrollHeight() {
     // set height of scrollable divs depending on window size
     $('#scrollable-sections').height($(window).height()-150);
-    $('#viewer-page-container').height($(window).height()-92);
+//    $('#viewer-page-container').height($(window).height()-92);
+    $('.ui-tabs-panel').height($(window).height()-160);
 
     $(window).resize(function() {
         $('#scrollable-sections').height($(window).height()-150)
-        $('#viewer-page-container').height($(window).height()-92)
+//        $('#viewer-page-container').height($(window).height()-92)
+        $('.ui-tabs-panel').height($(window).height()-160)
     });
 }
 
@@ -283,17 +285,17 @@ function getFriends() {
     jQuery.post('searchvendors/get_friends', function(data) {
           var parsedJSON = jQuery.parseJSON(data);
           myUID = parsedJSON.myUID;
-          friends = parsedJSON.allFriendsArray;
-          allFriends = new Array();
-          for (var i = 0; i < friends.length; i++) {
-              var oneFriend = new Array();
-              oneFriend['uid'] = friends[i][0];
-              oneFriend['fbid'] = friends[i][1];
-              oneFriend['email'] = friends[i][2];
-              oneFriend['firstName'] = friends[i][3];
-              oneFriend['lastName'] = friends[i][4];
-              allFriends.push(oneFriend);
-          }
+          allFriends = parsedJSON.allFriendsArray;
+//          allFriends = new Array();
+//          for (var i = 0; i < friends.length; i++) {
+//              var oneFriend = new Array();
+//              oneFriend['uid'] = friends[i][0];
+//              oneFriend['fbid'] = friends[i][1];
+//              oneFriend['email'] = friends[i][2];
+//              oneFriend['firstName'] = friends[i][3];
+//              oneFriend['lastName'] = friends[i][4];
+//              allFriends.push(oneFriend);
+//          }
           displayAutoCompleteResults(allFriends);
      });
 }

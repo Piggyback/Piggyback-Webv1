@@ -114,9 +114,9 @@ class Referrals_Model extends CI_Model {
         
         $result = $this->get_corresponding_item_result($data);
         
-        $isCorrupted = 0;       // 0: not corrupted, 1: corrupted
         foreach($result as $key => $row)
         {
+            $isCorrupted = "";       // "" is not corrupted
             // get the array of vendor detail(s)
             $rid = $row->rid;
             $lid = $row->lid;
@@ -136,7 +136,7 @@ class Referrals_Model extends CI_Model {
 //                $query = "SELECT vid, comment FROM Lists WHERE lid = $lid AND date < (SELECT date FROM Referrals WHERE rid = $rid) AND ((deleted != 1) OR (deleted = 1 AND deletedDate > (SELECT date FROM Referrals WHERE rid = $rid)))";
                 $vidList = $this->db->query($query)->result();
 
-//                if(array_filter($vidList)) {
+                if(array_filter($vidList)) {
                     foreach($vidList as $vidRow)
                     {
                         $vid = $vidRow->vid;
@@ -150,41 +150,37 @@ class Referrals_Model extends CI_Model {
                         // make sure that there is a corresponding record in
                         // referral details
                         if(array_filter($vendorDetails)) {
-                            if($vendorDetails[0] === NULL ) {
-                                //unset($result[$key]);                                
-                                $isCorrupted = 1;
-                            } else {
-                                $vendorDetails['senderComment'] = $vidRow->comment;
-                                $VendorList[] = $vendorDetails;
-                            }
+                            $vendorDetails['senderComment'] = $vidRow->comment;
+                            $VendorList[] = $vendorDetails;
                         } else {
-                            $isCorrupted = 2;
+                            $isCorrupted = "2: Error in finding corresponding row in Vendors table. Vendor details data is missing. RID: " . $rid . ", LID: " . $lid . ", comment: " . $row->comment;
                             //unset($result[$key]);
                         }
                     }
-                    
-                    // retrieve userlist name and details
-                    $this->db->select('*');
-                    $this->db->from('UserLists');
-                    $this->db->where('lid', $lid);
+                } else {
+                    $isCorrupted = "3: Error in finding corresponding row in Lists table. No lists attached to this referral. RID: " . $rid . ", LID: " . $lid . ", comment: " . $row->comment;
+                }
+                
+                // retrieve userlist name and details
+                $this->db->select('*');
+                $this->db->from('UserLists');
+                $this->db->where('lid', $lid);
 
-                    $row->UserList = $this->db->get()->result();
-                    
-                    if (!$row->UserList) {
-                        // manually put in userList data
-                        $x = new stdClass();
-                        $x->uid = 0;
-                        $x->lid = 0;
-                        $x->date = 0;
-                        $x->name = "Check out this list!";
-                        
-                        $row->UserList[0] = $x;
-                    }
-//                } else {
-//                    $isCorrupted = 3;
-//                    //unset ($result[$key]);
-//                }
+                $userListItem = $this->db->get()->result();
+                
+                if ( !$userListItem ) {
+                    // manually put in userList data
+                    $x = new stdClass();
+                    $x->uid = 0;
+                    $x->lid = 0;
+                    $x->date = 0;
+                    $x->name = "Check out this list!";
 
+                    $row->UserList[0] = $x;
+                } else {
+                    $row->UserList = $userListItem;
+                }
+                
             } else {
                 // if the referral is single vendor, then
                 $this->db->select('vid');
@@ -204,20 +200,14 @@ class Referrals_Model extends CI_Model {
                     $vendorDetails = $this->db->get()->result();
 
                     if(array_filter($vendorDetails)) {
-                        if($vendorDetails[0] === NULL ) {
-                            $isCorrupted = 4;
-                        } else {
-                            $VendorList[0] = $vendorDetails;
-                        }
+                        $VendorList[0] = $vendorDetails;
                     } else {
                         // unset
-                        $isCorrupted = 5;
+                        $isCorrupted = "5: Error in finding corresponding row in Vendors table. Vendor details data is missing. RID: " . $rid . ", LID: " . $lid . ", comment: " . $row->comment;
                     }
                 } else {
                     // if no corresponding record in referralDetails
-                    // remove self from array
-                    //unset($result[$key]);
-                    $isCorrupted = 6;
+                    $isCorrupted = "6: Error in finding corresponding row in ReferralDetails table. No lists attached to this referral. RID: " . $rid . ", LID: " . $lid . ", comment: " . $row->comment;
                 }
             }
             
@@ -291,8 +281,7 @@ class Referrals_Model extends CI_Model {
 
                 // the following code limits query result
                 $this->db->order_by('Referrals.date', 'desc');
-                //$this->db->limit($rowsRequested, $rowStart);
-                //$this->db->where('Referrals.uid2', $uidRecipient);
+//                $this->db->limit($rowsRequested, $rowStart);  // gets the requested number of rows
                 $this->db->where($where);
 
                 $result = $this->db->get()->result();
@@ -342,8 +331,6 @@ class Referrals_Model extends CI_Model {
         $where = $data['where'];
         $onCriterion = $data['onCriterion'];
         
-        //rid = 13
-        
         // return rid's with most recent activity (comments / likes / referral actions)
         $q = "(select rid, date
               from Likes
@@ -358,15 +345,25 @@ class Referrals_Model extends CI_Model {
               where rid in (select rid from Referrals where " . $where . "))
               order by date desc;";
         
-        $res = mysql_query($q);
-
+//        $res = mysql_query($q);
+        $res = $this->db->query($q);
+//        echo "BEGIN";
+//        var_dump($res);
+//        echo "END";
+        
+//        foreach ($res->result() as $row) {
+//            echo $row->rid;
+//        }
+        
         // create an ordered list of these rid's to order the results of the details query below
         $updatedRIDs = array();
         $updatedRIDsStr = "";
         
-        if (mysql_num_rows($res) > 0) {
+//        if (mysql_num_rows($res) > 0) {
+        if ( $res->num_rows() > 0 ) {
             $updatedRIDsStr = "(";
             while ($row = mysql_fetch_row($res)) {
+//            foreach ( $res->result() as $row ) {
                 if (!in_array($row[0],$updatedRIDs)) {
                     array_push($updatedRIDs, $row[0]);
                     $updatedRIDsStr = $updatedRIDsStr . $row[0] . ",";
@@ -380,7 +377,8 @@ class Referrals_Model extends CI_Model {
                      LEFT JOIN Users
                      ON Users.uid = " . $onCriterion;
         
-        if (mysql_num_rows($res) > 0) {
+//        if (mysql_num_rows($res) > 0) {
+        if ( $res->num_rows() > 0 ) {
             $detailsQ = "$detailsQ WHERE Referrals.rid IN $updatedRIDsStr
                                    ORDER BY CASE Referrals.rid";
         

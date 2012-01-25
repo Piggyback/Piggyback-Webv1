@@ -390,19 +390,21 @@ function overrideListAccordionEvent() {
 //    });
 }
 
+// Andy removed the need for this function. 1/24/2012
 function bindAccordionList() {
-    $('.accordion-list').addClass("ui-accordion ui-widget ui-helper-reset ui-accordion-icons")
-                        .find(".accordion-list-header")
-                        .addClass("ui-accordion-header ui-helper-reset ui-state-default ui-corner-all")
-                        .prepend('<span class="ui-icon ui-icon-triangle-1-e"/>')
-                        .click(function() {
-                            $(this).toggleClass("ui-accordion-header-active").toggleClass("ui-state-active")
-                                   .toggleClass("ui-state-default").toggleClass("ui-corner-bottom")
-                                   .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e").toggleClass("ui-icon-triangle-1-s")
-			           .end().next().toggle().toggleClass("ui-accordion-content-active");
-                            return false;
-                        })
-                        .next().addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom").hide();
+    
+//    $('.accordion-list').addClass("ui-accordion ui-widget ui-helper-reset ui-accordion-icons")
+//                        .find(".accordion-list-header")
+//                        .addClass("ui-accordion-header ui-helper-reset ui-state-default ui-corner-all")
+//                        .prepend('<span class="ui-icon ui-icon-triangle-1-e"/>')
+//                        .click(function() {
+//                            $(this).toggleClass("ui-accordion-header-active").toggleClass("ui-state-active")
+//                                   .toggleClass("ui-state-default").toggleClass("ui-corner-bottom")
+//                                   .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e").toggleClass("ui-icon-triangle-1-s")
+//			           .end().next().toggle().toggleClass("ui-accordion-content-active");
+//                            return false;
+//                        })
+//                        .next().addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom").hide();
 }
 
 function clickAddListButton() {

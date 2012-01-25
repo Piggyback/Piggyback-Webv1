@@ -305,9 +305,7 @@ span.refer-my-list {
     color: #b8b7b7;
 }*/
 
-#content {
-    
-}
+
 
 ul.ui-tabs-nav {
 /*    position: fixed;*/
@@ -432,7 +430,20 @@ div.single-wrapper {
 #viewer-page-container {
 /*    background: none repeat scroll 0 0 #FFFFFF;*/
 /*    display: block;*/
+/*    overflow-x: visible;*/
+/*    overflow-y: auto;*/
+    position: relative;
+}
+
+.ui-tabs-nav {
+    position: relative;
+    overflow-y: auto;
+/*    display: inline;*/
+}
+
+.ui-tabs-panel {
     overflow-x: visible;
+    height: 250px;
     overflow-y: auto;
     position: relative;
 }

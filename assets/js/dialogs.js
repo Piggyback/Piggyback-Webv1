@@ -465,7 +465,7 @@ function bindAddToListButtonFromSearch(vendorData) {
                                         htmlString = htmlString + "<span class='refer-my-list-wrapper'><img src='../assets/images/piggyback_button_refer_small_f1.png' onmouseover=\"this.src='../assets/images/piggyback_button_refer_small_f2.png'\" onmouseout=\"this.src='../assets/images/piggyback_button_refer_small_f1.png'\" id='refer-my-list-lid--" + newListData[0].lid + "' class='refer-my-list refer-list-popup-link'></img></span></li>";
                                         $('#lists').append(htmlString);
 
-                                        // add single vendor or list to new list
+                                        // add single vendor to new list
                                         addVendorToList(newListData[0].lid, vid, comment);
                                         addVendorToDB(vendor);
                                         $('#addToListDialog').dialog("close");

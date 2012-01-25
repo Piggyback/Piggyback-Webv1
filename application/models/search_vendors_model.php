@@ -79,37 +79,35 @@ class search_vendors_model extends CI_Model {
                         WHERE uid IN (SELECT uid2 FROM Friends WHERE uid1 = $currentUID
                                       UNION
                                       SELECT uid1 FROM Friends WHERE uid2 = $currentUID)";
-        $friends = mysql_query($friendQuery);
-
-        // create friend array, if there is an error with the query, return an empty friends list
-        $friendArray = array();
-        if ($friends) {
-            while ($friend = mysql_fetch_row($friends)) {
-                $friendArray[] = $friend;
-            }
-        }
+        $friends = $this->db->query($friendQuery)->result();
         
-        $retArray['allFriendsArray'] = $friendArray;
+        // create friend array, if there is an error with the query, return an empty friends list
+//        $friendArray = array();
+//        if ($friends->num_rows() > 0) {
+//            foreach ($friends->result() as $row) {
+//                $friendArray[] = $row;
+//            }
+//        }
+        
+        $retArray['allFriendsArray'] = $friends;
         $retArray['myUID'] = $currentUID;
         echo json_encode($retArray);
         return;
-    }
+}
    
     // add a referral to the database when a user refers a vendor to another user
     function add_referral()
     {
-        // pull paremeters
         $id = $_POST["id"];
         $uid = $_POST["myUID"];
         $numFriends = $_POST["numFriends"];
         $uidFriends = json_decode($_POST["uidFriends"]);
-//        $date = $_POST["date"];
         $comment = $_POST["comment"];
-        
         $date = date('Y-m-d H:i:s');
 
         // add referrals to Referral table: one for each friend in uidFriends
         if ($numFriends > 0) {
+
             $q = "INSERT INTO Referrals VALUES ";
             $newFriends = array();
             
@@ -119,26 +117,38 @@ class search_vendors_model extends CI_Model {
                
                // check if this referral has already been made (user1 to user2 for this vendor)
                $existsQuery = "SELECT rid FROM Referrals WHERE uid1 = $uid AND uid2 = $uidFriend AND lid = 0";
-               $result = mysql_query($existsQuery);
-               if (!$result) {
-                   echo "Referral could not be processed1";
-                   return;
+               $result = $this->db->query($existsQuery);
+//               $result = mysql_query($existsQuery);
+//               if (!$result) {
+//                   echo "Referral could not be processed1";
+//                   return;
+//               }
+               
+               if ($result->num_rows() > 0) {
+                   foreach ($result->result() as $row) {
+                        $existsQuery = "SELECT rid FROM ReferralDetails WHERE rid = $row->rid AND vid = \"$id\"";
+                        $res = $this->db->query($existsQuery);
+                        if ($res->num_rows() > 0) {
+                            $flag = 1;
+                            break;
+                        }
+                   }
                }
                
-               while ($rid = mysql_fetch_row($result)) {
-                   $existsQuery = "SELECT rid FROM ReferralDetails WHERE rid = $rid[0] AND vid = \"$id\"";
-                   $res = mysql_query($existsQuery);
-                   if (!$res) {
-                       echo "Referral could not be processed2";
-                       return;
-                   }
-                   
-                   // if referral is found to exist already, mark flag
-                   if (mysql_num_rows($res) > 0) {
-                       $flag = 1;
-                       break;
-                   }
-               }
+//               while ($rid = mysql_fetch_row($result)) {
+//                   $existsQuery = "SELECT rid FROM ReferralDetails WHERE rid = $rid[0] AND vid = \"$id\"";
+//                   $res = mysql_query($existsQuery);
+//                   if (!$res) {
+//                       echo "Referral could not be processed2";
+//                       return;
+//                   }
+//                   
+//                   // if referral is found to exist already, mark flag
+//                   if (mysql_num_rows($res) > 0) {
+//                       $flag = 1;
+//                       break;
+//                   }
+//               }
                
                // if referral does not exist yet, then add it
                if ($flag == 0) {
@@ -150,10 +160,11 @@ class search_vendors_model extends CI_Model {
             // delete last comma
             $q = substr($q,0,-1);
             
+            $this->db->trans_start();
             if (count($newFriends) > 0) {
-                $result = mysql_query($q);
+                $result = $this->db->query($q);
                 if (!$result) {
-                    echo "Referral could not be processed3";
+                    echo "Vendor referral could not be processed";
                     return;
                 }
             }
@@ -163,13 +174,16 @@ class search_vendors_model extends CI_Model {
             for ($i = 0; $i < count($newFriends); $i++) {
                 $uidFriend = $newFriends[$i];
                 $getRIDquery = "SELECT rid FROM Referrals WHERE uid1 = $uid AND uid2 = $uidFriend AND date = \"$date\" AND lid = 0 AND comment = \"$comment\"";
-                $result = mysql_query($getRIDquery);
-                if (!$result) {
-                    echo "Referral could not be processed4";
-                    return;
+//                $result = mysql_query($getRIDquery);
+//                if (!$result) {
+//                    echo "Referral could not be processed4";
+//                    return;
+//                }
+                $result = $this->db->query($getRIDquery);
+                if ($result->num_rows() > 0) {
+                    $rid = $result->row()->rid;
+//                    $rid = $resultRow[0];
                 }
-                $resultRow = mysql_fetch_row($result);
-                $rid = $resultRow[0];
                 $addReferralDetailQuery = "$addReferralDetailQuery ($rid,\"$id\",0,0),";
             }
             
@@ -177,11 +191,17 @@ class search_vendors_model extends CI_Model {
             $addReferralDetailQuery = substr($addReferralDetailQuery,0,-1);
             
             if (count($newFriends) > 0) {
-                $result = mysql_query($addReferralDetailQuery);
-                if (!$result) {
-                    echo "Referral could not be processed5";
-                    return;
-                }
+                $result = $this->db->query($addReferralDetailQuery);
+//                $result = mysql_query($addReferralDetailQuery);
+//                if (!$result) {
+//                    echo "Referral could not be processed5";
+//                    return;
+//                }
+            }
+            
+            $this->db->trans_complete();
+            if ($this->db->trans_status() === FALSE) {
+                echo "Vendor referral could not be processed";
             }
         }
         return false;
@@ -206,28 +226,24 @@ class search_vendors_model extends CI_Model {
         $website = $_POST["website"];
         $icon = $_POST["icon"];
         $rating = $_POST["rating"];
-        
+
         // find if vendor exists in db yet
-        $existingVendorQuery = "SELECT id 
-            FROM Vendors 
-            WHERE id = \"$id\"";
-        $existingVendorResult = mysql_query($existingVendorQuery);
-        if (!$existingVendorResult) {
-            echo "Could not add vendor";
-            return;
-        }
+        $this->db->trans_start();
         
-        $count = mysql_num_rows($existingVendorResult);
+        $existingVendorQuery = "SELECT id FROM Vendors WHERE id = \"$id\"";
+        $existingVendorResult = $this->db->query($existingVendorQuery);
         
         // add to vendor db if it does not exist yet
-        if ($count == 0) {
+        if ($existingVendorResult->num_rows() == 0) {
            $addVendorQuery = "INSERT INTO Vendors 
-                           VALUES (\"$name\",\"$reference\",\"$id\",$lat,$lng,\"$phone\",\"$addr\",\"$addrNum\",\"$addrStreet\",\"$addrCity\",\"$addrState\",\"$addrCountry\",\"$addrZip\",\"$vicinity\",\"$website\",\"$icon\",$rating)";
-            $result = mysql_query($addVendorQuery);
-            if (!$result) {
-                echo "Could not add vendor";
-                return;
-            }
+                              VALUES (\"$name\",\"$reference\",\"$id\",$lat,$lng,\"$phone\",\"$addr\",\"$addrNum\",\"$addrStreet\",\"$addrCity\",\"$addrState\",\"$addrCountry\",\"$addrZip\",\"$vicinity\",\"$website\",\"$icon\",$rating)";
+           $this->db->query($addVendorQuery);
+        }
+      
+        $this->db->trans_complete();
+        
+        if ($this->db->trans_status() === FALSE) {
+            echo "Could not add vendor";
         }
         
         // return false if everything worked correctly
