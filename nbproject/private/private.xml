@@ -9,5 +9,9 @@
             <url>application/models/referral_tracking_model.php</url>
             <line>72</line>
         </file>
+        <file>
+            <url>application/models/referrals_model.php</url>
+            <line>49</line>
+        </file>
     </editor-bookmarks>
 </project-private>

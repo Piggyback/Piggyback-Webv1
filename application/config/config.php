@@ -14,7 +14,7 @@
 | path to your installation.
 |
 */
-$config['base_url']	= 'http://192.168.11.28/';
+$config['base_url']	= CONFIG_BASEURL;
 
 /*
 |--------------------------------------------------------------------------

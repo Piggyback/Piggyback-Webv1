@@ -97,7 +97,7 @@ class Login_model extends CI_Model {
             if (count($result) > 0) {
                 $friend = $result[0];
                 //TODO: MG - update from fbid to uid
-                $this->db->query('INSERT IGNORE INTO Friends (uid1, uid2) VALUES (' . $this->my_uid . ', ' . $friend->uid . ')');
+                $this->db->query("INSERT IGNORE INTO Friends (uid1, uid2) VALUES (?,?)",array($this->my_uid,$friend->uid));
             }
         }
 

@@ -56,6 +56,8 @@ $(document).ready(function() {
     bindEditCommentDialog();
     bindFuzzMike();
     initAddList();
+    bindEmailDialog();
+    bindEmailButton();
     
     // accordion content initialization
     initCommentInputDisplay();
@@ -65,6 +67,7 @@ $(document).ready(function() {
     initLoadMoreComments();
     initDatePrototype();
     initRemoveReferralButton();
+    initLoadMoreButton();
 });
 
 /**
@@ -73,14 +76,14 @@ $(document).ready(function() {
  */
 function initScrollHeight() {
     // set height of scrollable divs depending on window size
-    $('#scrollable-sections').height($(window).height()-150);
+    $('#scrollable-sections').height($(window).height()-240);
 //    $('#viewer-page-container').height($(window).height()-92);
-    $('.ui-tabs-panel').height($(window).height()-160);
+    $('.ui-tabs-panel').height($(window).height()-240);
 
     $(window).resize(function() {
-        $('#scrollable-sections').height($(window).height()-150)
+        $('#scrollable-sections').height($(window).height()-240)
 //        $('#viewer-page-container').height($(window).height()-92)
-        $('.ui-tabs-panel').height($(window).height()-160)
+        $('.ui-tabs-panel').height($(window).height()-240)
     });
 }
 
@@ -160,6 +163,13 @@ function initEnterDialogForm() {
             $('#add-button-submit').trigger('click');
         }
     });
+    
+//    $('#email-dialog').keydown(function(e) {
+//        if (e.keyCode == 13) {
+//            e.preventDefault();
+//            $('#email-submit-button').trigger('click');
+//        }
+//    });
 }
 
 /**
@@ -218,6 +228,9 @@ function initSearchAJAX() {
             }
     }); 
     
+    // center spinner for loading ajax results
+    $("#loading").css('margin-top', $(document).height()/3);
+    
     // merge kim's search with home shell
     $('#searchform').submit(function() {
         $('#search-content').empty();
@@ -231,10 +244,12 @@ function initSearchAJAX() {
             }
         });
 
+        showLoading();
         jQuery.post('searchvendors/perform_search', {
             searchLocation: values['searchLocation'],
             searchText: values['searchText']
             }, function(data) {
+                hideLoading();
                 var parsedJSON = jQuery.parseJSON(data);
                 var results = parsedJSON.searchResults;
                 if (results[0] == "error") {
@@ -267,8 +282,39 @@ function initSearchAJAX() {
                     }
                 }
                 else {
-                    var vendorData = getVendorData(parsedJSON);
-                    displaySearchResults(vendorData);
+                    var vendorDetails = new Array();
+                    
+                    // show most important results first -- must force bc of asynchronous callbacks
+                    var limit = Math.min(results.length,3);
+                    var tracker = 0;
+                    for (var i = 0; i < limit; i++) {
+                        tracker += 1;
+                        $.ajaxSetup({async:false})
+                        jQuery.post('searchvendors/get_search_details', {
+                            reference: results[i].reference
+                        }, function(data) {
+                            singleVendorInfo = jQuery.parseJSON(data);
+                            vendorDetails.push(singleVendorInfo);
+                            var vendorData = getVendorData(vendorDetails);
+                            displaySearchResults(vendorData);
+
+                            // display the rest after showing the first few
+                            if (tracker == limit) {
+                                tracker--;
+                                $.ajaxSetup({async:true})
+                                for (var j = limit; j < results.length; j++) {
+                                   jQuery.post('searchvendors/get_search_details', {
+                                        reference: results[j].reference
+                                    }, function(data) {
+                                        singleVendorInfo = jQuery.parseJSON(data);
+                                        vendorDetails.push(singleVendorInfo);
+                                        var vendorData = getVendorData(vendorDetails);
+                                        displaySearchResults(vendorData);
+                                    });
+                                }
+                            }
+                        });
+                    }
                 }
             });
 

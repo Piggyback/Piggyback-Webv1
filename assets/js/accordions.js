@@ -80,32 +80,6 @@ function overrideAccordionEvent() {
     });
 }
 
-
-/*
- * figure out where to put the Load More button
- */
-//function initLoadMoreButton() {
-//    var inboxLoadStart = 3;
-//    var itemType = $(this).closest('#inbox-content').attr('id');
-//    
-//    alert(itemType);
-//    
-//    itemType = itemType.substring(0, itemType.indexOf("content")) + "tab";
-//    
-//    // call more data from mysql ('load more' button action)
-//    $('#load-more-inbox-content-button').click(function(){
-//        // jquery post to retrieve more rows
-//        jQuery.post("http://192.168.11.28/referrals/get_referral_items", {
-//            rowStart: inboxLoadStart,
-//            itemType: itemType
-//        }, function(data) {
-//            var parsedJSON = jQuery.parseJSON(data);
-//            displayReferralItems(parsedJSON, itemType);
-//            inboxLoadStart = inboxLoadStart+3;
-//        });
-//    });
-//}
-
 function initLoadMoreComments() {
     $('.hide-load-comments-button').hide();
     $('.show-load-comments-button').show();
@@ -149,7 +123,7 @@ function initLike() {
 //        var likes = $(this).closest('.row').find('.number-of-likes');
 //        var likeStatus = $(this);
 
-        jQuery.post("http://192.168.11.28/referrals/perform_like_action", {
+        jQuery.post("referrals/perform_like_action", {
             rid: referId
         }, function(){
             // parse the existing number of likes from the front end html div
@@ -227,12 +201,17 @@ function initComment() {
             
             var lastRow = $(this).closest('.comments').find('.comments-body');
             
-
+            // in PHP: $date = date("Y-m-d H:i:s");
+            // client side date below
+//            var date = new Date();
+//            var dateString = date.toFormattedString('yyyy-mm-P H:i:S');
+            
             // if the comment is not empty, then proceed with ajax
             if(name) {
-                jQuery.post("http://192.168.11.28/referrals/add_new_comment", {
+                jQuery.post("referrals/add_new_comment", {
                     comment: name,
                     rid: referId
+//                    date: dateString
                 }, function(data){
                     // add comment to table using javascript
                     var currentUserName = jQuery.trim($("#currentUserName").text());
@@ -245,8 +224,8 @@ function initComment() {
                             '<div class="comment-wrapper-text">' +
                                 '<div class="comments-content">' +
                                     '<b>' +
-                                        currentUserName + ': ' +
-                                    '</b>' +
+                                        currentUserName +
+                                    '</b><BR>' +
                                     name +
                                 '</div>' +
                                 '<div class="comment-date time-stamp">' +
@@ -270,7 +249,7 @@ function initRemoveComment() {
         var cid = cidString.substring(cidString.indexOf('cid--') + 'cid--'.length);
         var singleComment = $(this).closest('.single-comment');
         
-        jQuery.post("http://192.168.11.28/referrals/remove_comment", {
+        jQuery.post("referrals/remove_comment", {
             cid: cid
         }, function(data) {
             singleComment.remove();
@@ -281,13 +260,12 @@ function initRemoveComment() {
 function initRemoveReferralButton() {
     //$(document).on("click", ".referrals-remove-button", function() {
     $('.referrals-remove-button').click( function() {
-        $("#fuzz").fadeIn();
         $('#confirmDeleteDialog').dialog('open');
 
         var ridString = $(this).attr('id');
         var rid = ridString.substring(ridString.indexOf('id--') + 'id--'.length);
         var itemType = $(this).closest('.ui-widget-content').attr('id');
-        var itemType = itemType.substring(0, itemType.indexOf('-content'));
+        itemType = itemType.substring(0, itemType.indexOf('-content'));
         var refElem = $(this).closest('.single-wrapper');
         
         $('#confirmDeleteDialog').dialog('option','buttons', {
@@ -301,9 +279,8 @@ function initRemoveReferralButton() {
                         itemType: itemType
                     }, function(data) {
                         // remove referral from html
-                        //TODO: Talk to Andy -- make this its own function so i can use it for my accordion
                         removeReferral(refElem);
-                        // see below 'removeReferral'
+                        refreshEmptyMessage(itemType);
                     });
                 }
             },
@@ -315,6 +292,16 @@ function initRemoveReferralButton() {
                 }
             }
         });
+    });
+}
+
+function initLoadMoreButton() {
+    $(document).on("click", ".load-more-button", function() {
+        var a = $(this).attr('id').toString();
+        var rs = a.substring(a.indexOf('--') + '--'.length);
+        var it = a.substring(0, a.indexOf('-load'));
+        
+        loadReferralItems(it, rs, 3);
     });
 }
 
@@ -359,6 +346,7 @@ function reBindAccordionFromSearch(vendorData) {
     bindAccordion();
     overrideAccordionEvent();
     
+    bindReferDialogButton();
     bindReferDialogButtonFromSearch(friendList,vendorData);
     bindAddToListButtonFromSearch(vendorData);
     
@@ -366,9 +354,10 @@ function reBindAccordionFromSearch(vendorData) {
 }
 
 function removeReferral(elem) {
-    elem.next().next().remove();
-    elem.next().remove();
-    elem.remove();
+//    elem.next().next().remove();
+//    elem.next().remove();
+//    elem.remove();
+    elem.parent().remove(); // gets rid of parent div
 }
 
 /*
@@ -377,53 +366,97 @@ function removeReferral(elem) {
  * input:
  *      elem (the element that is calling this function)
  */
-function loadReferralItems(elem) {
+function loadReferralItemsFromTab (elem) {
     // itemType:
-    //      inbox-tab
-    //      friend-activity-tab
-    //      referral-tracking-tab
+    //      inbox
+    //      friend-activity
+    //      referral-tracking
     
-    // parse out the '-selected' part of the ID
+    // get itemType
     var itemType = $(elem).closest('li').attr('id').toString();
     if (itemType.indexOf("-selected") >= 0) {
         itemType = itemType.substring(0, itemType.indexOf("-selected"));
     }
+    itemType = itemType.substring(0, itemType.indexOf("-tab"));
     
-//    var id = $(elem).attr("href");
-//    alert(id);
+    // get the rowsRequested
+    var contentElem = "#" + itemType + "-content";
+    var rrString = $(contentElem).find(".load-more-button").attr("id").toString();
+    var rowsRequested = rrString.substring(rrString.indexOf("--") + "--".length);
     
+    if ( rowsRequested < 3 ) {
+        rowsRequested = 3;
+    }
+    
+    var rowStart = 0;
+    
+    loadReferralItems(itemType, rowStart, rowsRequested)
+    
+}
+
+function loadReferralItems (itemType, rowStart, rowsRequested) {
+    var loadMoreElem = $("#" + itemType + "-content").find(".load-more-button");
+    var accordionElem = "#accordion-" + itemType;
     jQuery.post('referrals/get_referral_items', {
-        rowStart:0,
+        rowStart: rowStart,
+        rowsRequested: rowsRequested,
         itemType: itemType
     }, function(data){
-        resetReferralContent(itemType);
+        if ( rowStart == 0 )
+            resetReferralContent(itemType);
+        
         var parsedJSON = jQuery.parseJSON(data);
-//        for (var i = 0; i < parsedJSON.length; i++) {
-//            alert(JSON.stringify(parsedJSON[i]));
-//            alert(parsedJSON[i].isCorrupted);
-//        }
+        // see if length equals to expected length
+        if (parsedJSON.length > rowsRequested) {
+            // show the 'show older' button
+            // remove the last item from the parsedJSON array
+            $(loadMoreElem).removeClass("none");
+            parsedJSON.splice(parsedJSON.length-1, 1);
+        } else {
+            // hide the 'show older' button
+            $(loadMoreElem).addClass("none");
+        }
+        
         displayReferralItems(parsedJSON, itemType);
+        var newCount = $(accordionElem + " > div").size();
+        $(loadMoreElem).attr('id', itemType + '-load-more-button--' + newCount);
+        
+        refreshEmptyMessage(itemType);
     });
+}
+
+function refreshEmptyMessage(itemType) {
+    // prepare specific accordion elem
+    var accordionElem = "#accordion-" + itemType;
+    // prepare empty element
+    var emptyElem = "#empty-" + itemType + "-message";
+    
+    if ( $(accordionElem + " > div").size() == 0 ) {
+        $(emptyElem).removeClass("none");   // show empty message
+    } else {
+        $(emptyElem).addClass("none");      // remove empty message
+    }
 }
 
 /*
  * reset the content given the input of what the itemType is
  * 
  * input:
- *      itemType: 'inbox-tab', 'friend-activity-tab', 'referral-tracking-tab'
+ *      itemType: 'inbox', 'friend-activity', 'referral-tracking'
  */
 function resetReferralContent(itemType) {
     // itemType:
-    //  inbox-tab
-    //  friend-activity-tab
-    //  referral-tracking-tab
-    //  list-tab
-    if (itemType == 'list-tab') {
+    //  inbox
+    //  friend-activity
+    //  referral-tracking
+    //  list
+    //  search
+    if (itemType == 'list') {
         itemType = '#list-content';
-    } else if (itemType == 'search-tab') {
+    } else if (itemType == 'search') {
         itemType = '#search-content';
     } else {
-        itemType = "#accordion-" + itemType.substring(0, itemType.indexOf('-tab'));
+        itemType = "#accordion-" + itemType;
     }
     
     // itemType:
@@ -431,7 +464,12 @@ function resetReferralContent(itemType) {
     //  #accordion-friend-activity
     //  #accordion-referral-tracking
     //  #accordion-list
+    //  #list-content
+    //  #search-content
     $(itemType).empty();
+    
+    // TODO: use the ID of the direct parent DIV and then instead of EMPTY just add
+    //       html to include the number of items loaded
 }
 
 /*
@@ -440,7 +478,7 @@ function resetReferralContent(itemType) {
  * 
  * input:
  *      parsedJSON (obj array for all referral items)
- *      itemType: inbox-tab, friend-activity-tab, referral-tracking-tab
+ *      itemType: inbox, friend-activity, referral-tracking
  * 
  * output: none
  * 
@@ -452,17 +490,17 @@ function displayReferralItems(parsedJSON, itemType) {
     
     // destroy the accordion first
     //TODO: Optimize destroy to specific accordion. Code review with Andy. maybe even remove other accordions when tab is not selected (minimize html?)
-//    if (itemType == 'inbox-tab') {
+//    if (itemType == 'inbox') {
 //        $('#accordion-inbox').accordionCustom('destroy');
-//    } else if (itemType == 'friend-activity-tab') {
+//    } else if (itemType == 'friend-activity') {
 //        $('#accordion-friend-activity').accordionCustom('destroy');
-//    } else if (itemType == 'referral-tracking-tab') {
+//    } else if (itemType == 'referral-tracking') {
 //        $('#accordion-referral-tracking').accordionCustom('destroy');
 //    }
     $('.accordion-object').accordionCustom('destroy');
     $('.subaccordion-object').accordionCustom('destroy');
 
-    var accordionName = "#accordion-" + itemType.substring(0, itemType.length-4);
+    var accordionName = "#accordion-" + itemType;
     for(var i=0; i<parsedJSON.length; i++) {
         var row = parsedJSON[i];
         // first only allow non-corrupted data (consistent table servers)
@@ -483,7 +521,7 @@ function displayReferralItems(parsedJSON, itemType) {
  * 
  * input:
  *      row (obj array) that contains all details regarding the referral item
- *      itemType (string): 'inbox-tab', 'friend-activity-tab', 'referral-tracking-tab'
+ *      itemType (string): 'inbox', 'friend-activity', 'referral-tracking'
  * 
  * output:
  *      one referral item's html
@@ -504,7 +542,7 @@ function createReferralsHTMLString(row, itemType) {
         
         for(var j = 0; j<row.VendorList['VendorList'].length; j++) {
             var SubVendorDetails = row.VendorList['VendorList'][j][0];
-            var singleComment = "<span class='referral-comment'><q class='comment-wrapper'></q></span>";
+            var singleComment = "<span class='referral-comment'><q class='comment-wrapper empty-quote'></q></span>";
             if (row.VendorList['VendorList'][j]['senderComment'] != "") {
                 singleComment = "<i><span class='referral-comment'><q class='comment-wrapper'>" + row.VendorList['VendorList'][j]['senderComment'] +
                     "</q></span></i>";
@@ -541,9 +579,9 @@ function createReferralsHTMLString(row, itemType) {
 //      object array with all referral information
 //
 // itemType (string):
-//      inbox-tab
-//      friend-activity-tab
-//      referral-tracking-tab
+//      inbox
+//      friend-activity
+//      referral-tracking
 //
 // listOrSingle (integer):
 //      0 = single
@@ -554,7 +592,7 @@ function createReferralsHTMLString(row, itemType) {
  * 
  */
 function createReferralsHeaderHTMLString(row, itemType, listOrSingle) {
-    var timeStamp = row.refDate.toFuzzyElapsedTime();
+    var timeStamp = row.date.toFuzzyElapsedTime();
     var referralID = row.rid;
     var fbidPicture = "";
     var genName, genID, recipientName, senderName, senderComment;
@@ -576,20 +614,20 @@ function createReferralsHeaderHTMLString(row, itemType, listOrSingle) {
     }
     
     senderName = "<b>" + row.firstName + " " + row.lastName + "</b>";
-    senderComment = "";
-    if (row.ReferralsComment != "") {
-        senderComment = "<i><span class='referral-comment'><q class='comment-wrapper'>" + row.ReferralsComment + "</q></span></i>";
+    senderComment = "<i><span class='referral-comment'><q class='comment-wrapper'>" + row.comment + "</q></span></i>";
+    if (row.comment == "") {
+        senderComment = "<i><span class='referral-comment'><q class='comment-wrapper empty-quote'></q></span></i>";
     }
     
     // logic based on what tab, what default 'comment' to show as well as fb picture
-    if (itemType != 'inbox-tab') {
+    if (itemType != 'inbox') {
         var RecipientDetails = row.RecipientDetails['RecipientDetails'][0];
         recipientName = "<b>" + RecipientDetails.firstName + " " + RecipientDetails.lastName + "</b>";
-        if (itemType == 'friend-activity-tab') {
+        if (itemType == 'friend-activity') {
             userReferralString = senderName + " recommended " + genName + " to " + recipientName;
             referralID = -1;
             fbidPicture = row.fbid;
-        } else if (itemType == 'referral-tracking-tab') {
+        } else if (itemType == 'referral-tracking') {
             userReferralString = "You recommended " + genName + " to " + recipientName;
             fbidPicture = RecipientDetails.fbid;
         }
@@ -747,6 +785,11 @@ function createReferralsRemoveButtonHTMLString(referralID) {
     }
 }
 
+function createListRemoveButtonHTMLString(vid) {
+    var listRemoveButtonHTMLString = "<img src='../assets/images/piggyback_button_close_big_f1.png' alt='refer' id='accordion-remove-vid--" + vid + "' class='accordion-remove' onmouseover=\"this.src='../assets/images/piggyback_button_close_big_f2.png'\" onmouseout=\"this.src='../assets/images/piggyback_button_close_big_f1.png'\"></img>";
+    return listRemoveButtonHTMLString;
+}
+
 /*
  * this function will add vendor details
  *
@@ -843,13 +886,13 @@ function createCommentsHTMLString(commentList) {
  * @mikegao functions for list accordion
  */
 function displayListItems(parsedJSON, itemType, lid) {    
-    resetReferralContent('list-tab');
+    resetReferralContent('list');
     // moreRows is a parsedJSON object
     // create a string that captures all HTML required to write the next referral
     var displayListHTMLString = "";
-    var accordionName = "#accordion-" + itemType.substring(0, itemType.length-4);
+    var accordionName = "#accordion-" + itemType; //.substring(0, itemType.length-4);
 //    var accordionName = '#list-content';
-    
+
     // destroy the accordion first
     //$('#accordion-list').accordionCustom('destroy');
     $('.subaccordion-object').accordionCustom('destroy');
@@ -866,7 +909,7 @@ function displayListItems(parsedJSON, itemType, lid) {
         // TODO: incorporate isCorrupted flag?
         //if(row.isCorrupted == "") {
             displayListHTMLString = createListHTMLString(row, itemType);
-            // itemType has to be 'list-tab' for now
+            // itemType has to be 'list' for now
             $(displayListHTMLString).appendTo(accordionName);
         //}
     }
@@ -897,6 +940,13 @@ function createListHTMLString(row, itemType) {
 }
 
 function createListHeaderHTMLString(row, itemType, listOrSingle) {
+    var commentPrompt = "Add Comment";
+    var commentHTML = "<span class='comment-wrapper'>" + row.comment + "</span>";
+    if (row.comment != "") {
+        commentPrompt = "Edit Comment";
+        commentHTML = "<q class='comment-wrapper'>" + row.comment + "</q>";
+    }
+    
     var listHeaderHTMLString =
         "<div class='single-wrapper accordion-header name-wrapper'>" +
             "<a>" +
@@ -904,17 +954,15 @@ function createListHeaderHTMLString(row, itemType, listOrSingle) {
                     row.name +
                 "</div>" + 
                 "<div class='button-row no-accordion'>" +
-                    "<span id='accordion-remove-vid--" + row.vid + "' class='accordion-remove'>" +
-                        "remove" +
-                    "</span>" +
+                    createListRemoveButtonHTMLString(row.vid) +
                     createReferralsReferButtonsHTMLString(row.vid, 0) +
                 "</div>" +
                 "<div class='comment-and-edit-block'>" +
                     "<span class='vendor-list-comment'>" +
-                        "<q class='comment-wrapper'>" + row.comment + "</q>" + 
+                        commentHTML +
                     "</span>" +
                     "<span id='accordion-edit-comment-vid--" + row.vid + "' class='accordion-edit-comment'>" +
-                        "Edit Comment" +
+                        commentPrompt +
                     "</span>" +
                 "</div>" +
             "</a>" +
@@ -938,7 +986,7 @@ function createListDetailsHTMLString(details) {
 
 // FOR KIM'S SEARCH
 function displaySearchItems(parsedJSON, itemType, lid) {    
-    resetReferralContent('search-tab');
+    resetReferralContent('search');
 
     var displaySearchHTMLString = "";
     
@@ -954,7 +1002,7 @@ function displaySearchItems(parsedJSON, itemType, lid) {
         // first only allow non-corrupted data (consistent table servers)
 //        if(row.isCorrupted == "") {
             displaySearchHTMLString = createSearchHTMLString(row, itemType);
-            // itemType has to be 'list-tab' for now
+            // itemType has to be 'list' for now
             $(displaySearchHTMLString).appendTo('#accordion-search');
 //        }
     }

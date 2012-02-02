@@ -67,6 +67,7 @@
     background-color:#DFDFDF;
     overflow:auto;
     height: 55px;
+/*    height:auto;*/
     padding: 8px 10px 3px 10px;
 }
 
@@ -88,6 +89,8 @@
 /*hide search button in refer dialog*/
 #searchFriendsButton {
     visibility:hidden;
+    width:0px;
+    height:0px;
 }
 
 /*input for refer dialog comment box*/
@@ -139,7 +142,8 @@ img.delete {
 }
 
 /*refer! button*/
-.refer-button button {
+/*.refer-button button {*/
+#refer-button-submit {
     background-color:white;
     border:0px;
     background-image: url('../images/piggyback_button_refer_f1.png');
@@ -150,7 +154,8 @@ img.delete {
     padding:0px;
 }
 
-.refer-button button:hover {
+/*.refer-button button:hover {*/
+#refer-button-submit:hover {
     background-color:white;
     border:0px;
     background-image: url('../images/piggyback_button_refer_f2.png');
@@ -200,7 +205,8 @@ img.delete {
 }
 
 /* submit button in add to list dialog */
-.add-button button, #add-list-submit {
+/*.add-button button, #add-list-submit {*/
+#add-button-submit, #add-list-submit {
     background-color:white;
     border:0px;
     background-image: url('../images/piggyback_button_submit_f1.png');
@@ -211,7 +217,8 @@ img.delete {
     padding:0px;
 }
 
-.add-button button:hover, #add-list-submit:hover {
+/*.add-button button:hover, #add-list-submit:hover {*/
+#add-button-submit:hover, #add-list-submit:hover {
     background-color:white;
     border:0px;
     background-image: url('../images/piggyback_button_submit_f2.png');
@@ -456,4 +463,59 @@ input.comment-input {
     border:0px;
     margin-right: 5px;
     margin-top: 5px;    
+}
+
+/*-------------------- LOADING IMAGE ----------------------*/
+
+#loading { 
+    display:none; 
+    position:fixed; 
+    left:0; 
+    top:0; 
+    width:100%; 
+    height:100%;
+    text-align:center;
+/*    background-image:url("transparentbg.png"); */
+}
+
+/*-------------------- EMAIL BUG DIALOG ----------------------*/
+
+#email-dialog-form {
+    padding: 5px 10px 0px 12px;
+}
+
+#email-content-body {
+    width:90%;
+}
+
+#email-submit-button {
+    background-color:white;
+    border:0px;
+    background-image: url('../images/piggyback_button_submit_f1.png');
+    background-size: 100%;
+    width:74px;
+    height:30px;
+    color:yellow;
+    padding:0px;
+}
+
+#email-submit-button:hover {
+    background-color:white;
+    border:0px;
+    background-image: url('../images/piggyback_button_submit_f2.png');
+    background-size: 100%;
+    width:74px;
+    height:30px;
+    color:yellow;
+    padding:0px;
+}
+
+#email-dialog-wrapper {
+    text-align: right;
+    margin-top: 10px;
+}
+
+#email-button:hover {
+    color:blue;
+    cursor:pointer;
 }

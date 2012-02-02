@@ -51,6 +51,9 @@ class Referrals extends CI_Controller {
         $this->referrals_model->flag_delete_referral_item();
     }
     
+    public function get_current_date() {
+        echo $this->referrals_model->get_current_date();
+    }
 }
 
 ?>

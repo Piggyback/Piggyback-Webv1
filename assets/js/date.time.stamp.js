@@ -1,6 +1,22 @@
 function initDatePrototype () {
 
     /*
+     * calculate the difference between server and client date time
+     *
+     */
+    offset = 0;
+    
+    // get server time of 'now'
+    // get client time now
+    // calculate difference
+    jQuery.get("referrals/get_current_date", function(data) {
+        var serverTime = data.toDate();
+        var clientTime = new Date();
+        offset = clientTime - serverTime;
+        // cache this in the future
+    });
+    
+    /*
      * this function takes String in
      *      yyyy-mm-dd hh:mm:ss
      *      
@@ -42,13 +58,15 @@ function initDatePrototype () {
         f = f.replace(/DD\*/g, nd.toUpperCase());
         f = f.replace(/Dd\*/g, nd);
         f = f.replace(/dd/g, String(this.getTrimmedDate()));
-        f = f.replace(/d\*/g, this.getDate());
+        f = f.replace(/P/g, this.getDate());
         f = f.replace(/h/g, this.getHours() % 12);
+        f = f.replace(/H/g, String(this.getHours()).padLeft('0', 2));
         f = f.replace(/i/g, String(this.getMinutes()).padLeft('0', 2));
         f = f.replace(/z/g, this.getDayName());
         f = f.replace(/q/g, this.getMonthName());
         f = f.replace(/X/g, this.getSuffix());
-
+        f = f.replace(/S/g, this.getSeconds());
+        
         return f
     };
     
@@ -137,14 +155,19 @@ function initDatePrototype () {
 
     Date.prototype.getFuzzyTimeElapsed = function ()
     {
-        // Get the current date and reference date
+        
+        // Get the current date and reference date (client)
         var currentDate = new Date();
+        // Add the time offset (between server and client)
+        currentDate = new Date(currentDate - offset);
+        
         var refDate = new Date(this);
         var dateOfRecord = "";
 
         // Extract from currentDate
         var currentYear = currentDate.getFullYear().toString();
         var currentMonth = currentDate.getMonthString();
+        var currentDay, refDay;
 
         if (currentDate.getDate() < 10) {
             currentDay = '0' + currentDate.getDate().toString();
@@ -181,10 +204,8 @@ function initDatePrototype () {
             var refSec = refDate.getSeconds();
 
             var diffInHours = currentHour - refHour;
-            var diffInMin = currentMin - refMin +1;
-            var diffInSec = (currentSec - refSec) -17;
-            
-            //alert("1: " +diffInDays + "days " + diffInHours + "hr " + diffInMin + "min " + diffInSec + "sec");
+            var diffInMin = currentMin - refMin;
+            var diffInSec = (currentSec - refSec);
             
             if (diffInSec<0) {
                 diffInSec += 60;
@@ -199,8 +220,11 @@ function initDatePrototype () {
                 diffInDays --;
             }
             
-            //alert("2: "+diffInDays + "days " + diffInHours + "hr " + diffInMin + "min " + diffInSec + "sec");
-
+//            alert(currentDate);
+//            alert("1: " + currentHour + " hr, " + currentMin + " min, " + currentSec + " sec");
+//            alert("2: " + refHour + " hr, " + refMin + " min, " + refSec + " sec");
+//            alert("3: " + diffInHours + " hr, " + diffInMin + " min, " + diffInSec + " sec");
+            
             // show time difference
             if (diffInDays < 1) {   // if less than a day
                 if (diffInHours > 0) {
@@ -223,7 +247,6 @@ function initDatePrototype () {
         }
 
         return dateOfRecord;
-
     }
 
 }

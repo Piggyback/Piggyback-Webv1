@@ -10,12 +10,21 @@
  * 
  */
 
-// retrieve vendor data from google API request for specific search and store results
-function getVendorData(parsedJSON) {
+function showLoading() {
+  $("#loading").show();
+}
 
-    var results = parsedJSON.searchResults;
-    var srcLat = parsedJSON.srcLat;
-    var srcLng = parsedJSON.srcLng;
+function hideLoading() {
+  $("#loading").hide();
+}
+
+ 
+// retrieve vendor data from google API request for specific search and store results
+function getVendorData(results) {
+
+//    var results = parsedJSON.searchResults;
+//    var srcLat = parsedJSON.srcLat;
+//    var srcLng = parsedJSON.srcLng;
 
     var vendorData = new Array();
     for(var i=0; i<results.length; i++) {
@@ -120,7 +129,7 @@ function getVendorData(parsedJSON) {
 function displaySearchResults(vendorData) {
     // mike's code
     resetTabsStates();  // reset tabs to default setting
-    displaySearchItems(vendorData, 'search-tab', 0);
+    displaySearchItems(vendorData, 'search', 0);
     
     $('#search-content').removeClass("ui-tabs-hide");
     $('#inbox-content, #friend-activity-content, #referral-tracking-content, #list-content').addClass("ui-tabs-hide")
@@ -213,30 +222,31 @@ $("#accordion-search").addClass("ui-accordion ui-widget ui-helper-reset ui-accor
         .next().addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom").hide();
 }
 
+
 // add vendor to db whenever the vendor is added to a list or is referred to a friend
-function addVendorToDB(vendor) {
-    jQuery.post('searchvendors/add_vendor', {
-        name: vendor.name,
-        reference: vendor.reference,
-        id: vendor.id,
-        lat: vendor.lat,
-        lng: vendor.lng,
-        phone: vendor.phone,
-        addr: vendor.addr,
-        addrNum: vendor.addrNum,
-        addrStreet: vendor.addrStreet,
-        addrCity: vendor.addrCity,
-        addrState: vendor.addrState,
-        addrCountry: vendor.addrCountry,
-        addrZip: vendor.addrZip,
-        website: vendor.website,
-        icon: vendor.icon,
-        rating: vendor.rating,
-        vicinity: vendor.vicinity
-    }, function(data) {
-        // alert error if one occurred
-        if (data) {
-            alert(data);
-        }
-    });
-}
+//function addVendorToDB(vendor) {
+//    jQuery.post('searchvendors/add_vendor', {
+//        name: vendor.name,
+//        reference: vendor.reference,
+//        id: vendor.id,
+//        lat: vendor.lat,
+//        lng: vendor.lng,
+//        phone: vendor.phone,
+//        addr: vendor.addr,
+//        addrNum: vendor.addrNum,
+//        addrStreet: vendor.addrStreet,
+//        addrCity: vendor.addrCity,
+//        addrState: vendor.addrState,
+//        addrCountry: vendor.addrCountry,
+//        addrZip: vendor.addrZip,
+//        website: vendor.website,
+//        icon: vendor.icon,
+//        rating: vendor.rating,
+//        vicinity: vendor.vicinity
+//    }, function(data) {
+//        // alert error if one occurred
+//        if (data) {
+//            alert(data);
+//        }
+//    });
+//}

@@ -28,6 +28,7 @@
 <!--        <script type="text/javascript" src="../assets/js/home_andy_js.js"></script>-->
 <!--        <script type="text/javascript" src="../assets/js/home_kim_js.js"></script>-->
 <!--        <script type="text/javascript" src="../assets/js/fixedSplit.js"></script>-->
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false"></script>
         <script type="text/javascript" src="../assets/js/dialogs.js"></script>
         <script type="text/javascript" src="../assets/js/lists.js"></script>
         <script type="text/javascript" src="../assets/js/accordions.js"></script>
@@ -37,9 +38,6 @@
         <?php include "dateTimeDiff.php" ?>
     </head>
     <body>
-<!--        <div id='loadingDiv'>
-            <img src='../assets/images/ajax-loader.gif' />
-        </div>-->
         </div>
         <div id='currentUserNameWrapper'>
             <span id="currentUserName" class="none">
@@ -59,7 +57,7 @@
         <div id='fuzz'></div>
         <div id="fb-root"></div>
         <script>
-            loadFbApiForHome();
+            loadFbApiForHomeClosedBeta();
         </script>
         <div id="top-bar">
                 <h1 id="logo">
@@ -71,9 +69,9 @@
                 <div id="search">
                     <form id="searchform" action="#" method="post">
 <!--                        <label for="search-box" id="search-box-label" class='round-element'>Search for: </label>-->
-                        <input type="text" value="search for..." name="searchText" size="20" class="box round-element placeholder rounded-corners" id="search-box"/>
+                        <input type="text" value="search for..." name="searchText" size="20" maxlength="64" class="box round-element placeholder rounded-corners" id="search-box"/>
 <!--                        <label for="search-location" id="search-location-label">Near: </label>-->
-                        <input type="text" value="near..." name ="searchLocation" size="20" class="box round-element placeholder rounded-corners" id="search-location"/>
+                        <input type="text" value="near..." name ="searchLocation" size="20" maxlength="64" class="box round-element placeholder rounded-corners" id="search-location"/>
                         <button id="searchbutton" name="submitSearch" class="btn" title="Submit Search">search</button>
                     </form>
                 </div>
@@ -97,6 +95,11 @@
                         <div id="lists-container">
                             <ul id="lists">
                                 <?php
+                                if (count($myLists) == 0) {
+                                    echo "<div id='no-list-message'>You currently have no lists!</div>";
+                                } else {
+                                    echo "<div id='no-list-message' class='none'>You currently have no lists!</div>";
+                                }
                                 // add each list as its own <li>
                                 foreach ($myLists as $list) {
                                   //  echo "<li id='my-list-lid--" . $list->lid . "'><span id='delete-my-list-lid--" . $list->lid . "' class='delete-my-list'>x</span>" . $list->name . "</li>";
@@ -129,19 +132,29 @@
                                     <div id="content">
                                         <div class="ui-tabs ui-widget ui-widget-content ui-corner-top" id="tabs">
                                             <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-top">
-                                                <li id="inbox-tab" class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#inbox-content" onClick=loadReferralItems(this);><span>&nbsp;</span></a></li>
-                                                <li id="friend-activity-tab" class="ui-state-default ui-corner-top"><a href="#friend-activity-content" onClick=loadReferralItems(this);><span>&nbsp;</span></a></li>
-                                                <li id="referral-tracking-tab" class="ui-state-default ui-corner-top"><a href="#referral-tracking-content" onClick=loadReferralItems(this);><span>&nbsp;</span></a></li>
+                                                <li id="inbox-tab" class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#inbox-content" onClick=loadReferralItemsFromTab(this);><span>&nbsp;</span></a></li>
+                                                <li id="friend-activity-tab" class="ui-state-default ui-corner-top"><a href="#friend-activity-content" onClick=loadReferralItemsFromTab(this);><span>&nbsp;</span></a></li>
+                                                <li id="referral-tracking-tab" class="ui-state-default ui-corner-top"><a href="#referral-tracking-content" onClick=loadReferralItemsFromTab(this);><span>&nbsp;</span></a></li>
                                                 <li id="search-tab" class="ui-state-default ui-corner-top none"><a href="#search-content"></a></li>
                                                 <li id="list-tab" class="ui-state-default ui-corner-top none"><a href="#list-content"></a></li>
                                             </ul>
 <!--                                            <div id='content'>-->
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="inbox-content">
                                                 <div id="accordion-inbox">
+                                                    <?php
+                                                    $none = ""; 
+                                                    $showMore = "none";
+                                                    if( count($inboxItems) > 3 ) {
+                                                        $showMore = "";
+                                                        array_pop( $inboxItems );
+                                                    }
+                                                    ?>
                                                     <?php foreach ($inboxItems as $row):?>
                                                         <div class="referral-item-wrapper ui-corner-all accordion-object">
                                                             <?php if ($row->isCorrupted == ""): ?>
                                                                 <?php
+                                                                    $none = "none";
+                                                                
                                                                     // get some vital variables ready
                                                                     // the count of likes
                                                                     $tempArray = $row->LikesList;
@@ -182,14 +195,17 @@
                                                                         $recommendationComment = "<b>" . $row->firstName . " " . $row->lastName . "</b> recommended you the \"<span class='list-name'>" . $row->UserList[0]->name . "</span>\" list";
                                                                     }
 
-                                                                    $senderComment = "<i><span class='referral-comment'><q class='comment-wrapper'>" . $row->ReferralsComment . "</q></span></i>";
+                                                                    $senderComment = "<i><span class='referral-comment'><q class='comment-wrapper'>" . $row->comment . "</q></span></i>";
+                                                                    if ($row->comment == "") {
+                                                                        $senderComment = "<i><span class='referral-comment'><q class='comment-wrapper empty-quote'></q></span></i>";
+                                                                    }
 
-                                                                    $data_ref = date('Y-m-d H:i:s', strtotime($row->refDate));
+                                                                    $data_ref = date('Y-m-d H:i:s', strtotime($row->date));
 
                                                                     $dateOfRecord = dateTimeDiff($data_ref);
 
                                                                     if ($dateOfRecord == "") {
-                                                                        $dateOfRecord = date("g:ia, l, F jS, Y", strtotime($row->refDate));
+                                                                        $dateOfRecord = date("g:ia, l, F jS, Y", strtotime($row->date));
                                                                     }
                                                                 ?>
                                                                 <!-- determine if $row is a list or single vendor -->
@@ -275,7 +291,7 @@
                                                                     <div class="drop-down-details accordion-content">
                                                                         <?php foreach($row->VendorList['VendorList'] as $vendorRow): ?>
                                                                         <?php
-                                                                            $singleComment = "<span class='referral-comment'><q class='comment-wrapper'></q></span>";
+                                                                            $singleComment = "<span class='referral-comment'><span class='comment-wrapper'></span></span>";
                                                                             if ($vendorRow['senderComment'] != "") {
                                                                                 $singleComment = "<i><span class='referral-comment'><q class='comment-wrapper'>" . $vendorRow['senderComment'] . "</q></span></i>";
                                                                             }
@@ -387,29 +403,34 @@
                                                             </div>
                                                         <?php endforeach; ?>
                                                     </div>
-<!--                                                <div id="load-more-inbox-content-button" class="load-more-button">
-                                                    Load more..
-                                                </div>-->
+                                                <div id="inbox-load-more-button--<?php echo count($inboxItems); ?>" class="load-more-button <?php echo $showMore; ?>">
+                                                       Show older..
+                                                </div>
+                                                <div id="empty-inbox-message" class="<?php echo $none;?>">Your inbox is empty! Better make some friends who want to share cool things with you.</div>
                                             </div>
-                                               
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="search-content">
-                                            </div>
+                                            </div>  
                                             <div class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="list-content">
-<!--                                                <div id='accordion-list'>
-                                                </div>-->
                                             </div>
                                             <div class='ui-tabs-panel ui-widget-content ui-corner-bottom' id='friend-activity-content'>
                                                 <div id='accordion-friend-activity'>
                                                 </div>
+                                                <div id="friend-activity-load-more-button--0" class="load-more-button none">
+                                                       Show older..
+                                                </div>
+                                                <div id="empty-friend-activity-message" class="none">There is no friend activity.</div>
                                             </div>
                                             <div class='ui-tabs-panel ui-widget-content ui-corner-bottom' id='referral-tracking-content'>
                                                 <div id='accordion-referral-tracking'>
                                                 </div>
+                                                <div id="referral-tracking-load-more-button--0" class="load-more-button none">
+                                                       Show older..
+                                                </div>
+                                                <div id="empty-referral-tracking-message" class="none">You haven't recommended anything to anyone yet. Recommend something today!</div>
                                             </div>
                                             <div class="hidden-list-content none" id="empty-list-content">
-                                                <p> List is empty! </p>
+                                                List is empty!
                                             </div>
-<!--                                            </div>-->
                                         </div>
                                     </div>
                                 </div>
@@ -419,11 +440,12 @@
                 </div>
             </div>
         </div>
+        
         <div id='add-list-dialog' class='none'>
             <form id='add-list-form' method='post' onsubmit='return false;'>
                 <label for='add-list-name'>Name your new list: </label>
                 <br>
-                <input type='text' id='add-list-name' name='add-list-name'>
+                <input type='text' id='add-list-name' maxlength="32" name='add-list-name'>
                 <br>
                 <br>
                 <div id='add-list-button-wrapper'>
@@ -477,7 +499,27 @@
                 Are you sure you want to delete this?
             </div>
         </div>
+        <div id='email-dialog' class='none'>
+            <form id='email-dialog-form' method='post' onsubmit='return false;'>
+<!--                <label for='email-bug-name'>Your name:</label><BR>
+                <input type="text" id='email-bug-name' name='email-bug-name'></input><BR>
+                <label for='email-bug-email'>Your email:</label><BR>
+                <input type="text" id='email-bug-email' name='email-bug-email'></input><BR>-->
+                <label for='email-bug-body'>Describe the bug:</label><BR>
+                <textarea id="email-content-body" name="email-bug-body" rows="8" cols="20"></textarea>
+                <div id='email-dialog-wrapper'>
+                    <input type='submit' id='email-submit-button' value=''>
+                </div>
+<!--                <br>
+                <em id="empty-email-alert" class="none">Email content is empty.</em>-->
+            </form>
+<!--            <div id="email-confirmation-alert" class="none"><br><em>Message sent!</em></div>-->
+        </div>
+        <div id="loading">
+          <p><img src="../assets/images/loading.gif" /><BR>Please Wait</p>
+        </div>
         <div id="footer">
+            <div id="email-button">Something not working? <em>Click here to tell us about it!</em></div>
             <div id="tempfooter">Piggyback</div>
         </div>
     </body>

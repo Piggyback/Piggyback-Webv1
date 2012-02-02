@@ -65,7 +65,7 @@ function initGetListContent() {
                 $('#list-content').html(htmlString);
 //                $(htmlString).appendTo('accordion-list');
             } else {
-                displayListItems(parsedJSON, 'list-tab', lid);
+                displayListItems(parsedJSON, 'list', lid);
             }
             
             // place list contents in content frame
@@ -103,7 +103,7 @@ function initGetListContent() {
                     $('#list-content').html(htmlString);
 //                    $(htmlString).appendTo('accordion-list');
                 } else {
-                    displayListItems(parsedJSON, 'list-tab', lid);
+                    displayListItems(parsedJSON, 'list', lid);
                 }
 //
 //                } else {
@@ -159,6 +159,10 @@ function initDeleteList() {
                     });
 
                     list_wrapper.remove();
+                    
+                    if ($('#lists').find('li').length == 0) {
+                        $('#no-list-message').removeClass('none');
+                    }
 
                     // if current content is specified list content, then replace with inbox content
                     if (!($('#list-content').hasClass('ui-tabs-hide'))) {
@@ -220,39 +224,91 @@ function bindDeleteVendorFromList() {
 //        var lid_string = $(this).closest(".accordion-list").attr("id");
 //        var lid = lid_string.substring(lid_string.indexOf('lid--') + 'lid--'.length);
         var lid = $(this).closest("#accordion-list").find("#accordion-list-lid").html();
+        var accordionRow = $(this).closest(".single-wrapper");
 //        var now = new Date();
 //        now = now.format("yyyy-mm-dd HH:MM:ss");
         
-        // delete vendor from database
-        jQuery.post('list_controller/delete_vendor_from_list', {
-            lid: lid,
-            vid: vid
-//            now: now
+        $('#confirmDeleteDialog').dialog('open');
+
+
+        $('#confirmDeleteDialog').dialog('option','buttons', {
+            "Delete": {
+                text: '',
+                id: 'delete-button',
+                click: function() {
+                    $( this ).dialog( "close" );
+                    
+                    jQuery.post('list_controller/delete_vendor_from_list', {
+                        lid: lid,
+                        vid: vid
+                    }, function() {
+                        accordionRow.next().remove();
+                        accordionRow.remove();
+
+                        // delete vendor from div
+                        if ($('#list-content-lid--' + lid).length) {
+                            var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
+                            var parsedJSON = jQuery.parseJSON(htmlString);
+
+                            for (var i=0; i<parsedJSON.length; i++) {
+                                if (parsedJSON[i].vid == vid) {
+                                    parsedJSON.splice(i,1);
+                                }
+                            }
+                            var json_text = JSON.stringify(parsedJSON, null, 2);
+                            $('#list-content-lid--' + lid).html(json_text);
+
+                            // what if list is empty? redirect to list is empty text
+                            if (parsedJSON.length == 0) {
+                                $('#list-content').html(jQuery.trim($('#empty-list-content').html()));
+                            }
+                        }
+                    });
+        
+                }
+            },
+            "Cancel": {
+                text: '',
+                id: 'cancel-delete-button',
+                click: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
         });
+
+
+
+        // delete vendor from database
+//        jQuery.post('list_controller/delete_vendor_from_list', {
+//            lid: lid,
+//            vid: vid
+////            now: now
+//        });
 
         // delete vendor from HTML
 //        $(this).closest(".single-wrapper").next().next().remove();
-        $(this).closest(".single-wrapper").next().remove();
-        $(this).closest(".single-wrapper").remove();
-
-        // delete vendor from div
-        if ($('#list-content-lid--' + lid).length) {
-            var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
-            var parsedJSON = jQuery.parseJSON(htmlString);
-
-            for (var i=0; i<parsedJSON.length; i++) {
-                if (parsedJSON[i].vid == vid) {
-                    parsedJSON.splice(i,1);
-                }
-            }
-            var json_text = JSON.stringify(parsedJSON, null, 2);
-            $('#list-content-lid--' + lid).html(json_text);
-            
-            // what if list is empty? redirect to list is empty text
-            if (parsedJSON.length == 0) {
-                $('#list-content').html(jQuery.trim($('#empty-list-content').html()));
-            }
-        }
+        
+//        $(this).closest(".single-wrapper").next().remove();
+//        $(this).closest(".single-wrapper").remove();
+//
+//        // delete vendor from div
+//        if ($('#list-content-lid--' + lid).length) {
+//            var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
+//            var parsedJSON = jQuery.parseJSON(htmlString);
+//
+//            for (var i=0; i<parsedJSON.length; i++) {
+//                if (parsedJSON[i].vid == vid) {
+//                    parsedJSON.splice(i,1);
+//                }
+//            }
+//            var json_text = JSON.stringify(parsedJSON, null, 2);
+//            $('#list-content-lid--' + lid).html(json_text);
+//            
+//            // what if list is empty? redirect to list is empty text
+//            if (parsedJSON.length == 0) {
+//                $('#list-content').html(jQuery.trim($('#empty-list-content').html()));
+//            }
+//        }
 
         return false;
     });
@@ -285,7 +341,14 @@ function bindDeleteVendorFromList() {
                         newComment: newComment
                     }, function() {
                         // change comment in HTML
-                        editCommentObj.prev('.vendor-list-comment').html("<q class='comment-wrapper'>" + newComment + "</q>");
+                        var commentPrompt = "Add Comment";
+                        var commentHTML = "<span class='comment-wrapper'>" + newComment + "</span>";
+                        if (newComment != "") {
+                            commentPrompt = "Edit Comment";
+                            commentHTML = "<q class='comment-wrapper'>" + newComment + "</q>";
+                        }
+                        editCommentObj.prev('.vendor-list-comment').html(commentHTML);
+                        editCommentObj.html(commentPrompt);
                         var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
                         var parsedJSON = jQuery.parseJSON(htmlString);
                         for (var i=0; i<parsedJSON.length; i++) {
@@ -512,6 +575,9 @@ function initAddList() {
                 } else if (newListData == "Could not add list") {
                     alert("Could not add list");
                 } else {
+                    if (!$('#no-list-message').hasClass('none')) {
+                        $('#no-list-message').addClass('none');
+                    }
                     // add list to sidebar HTML
                     var htmlString = "<li class='my-list-wrapper name-wrapper'><img src='../assets/images/piggyback_button_close_f1.png' onmouseover=\"this.src='../assets/images/piggyback_button_close_f2.png'\" onmouseout=\"this.src='../assets/images/piggyback_button_close_f1.png'\" id='delete-my-list-lid--" + newListData[0].lid + "' class='delete-my-list'></img>";
                     htmlString = htmlString + "<span id='my-list-lid--" + newListData[0].lid + "' class='my-list list-name'>" + newListData[0].name + "</span>";
@@ -528,50 +594,41 @@ function initAddList() {
     });
 }
 
-// add list to list -- put lid1 into lid2
-// use rid to get timestamp to add list as it was when referred
-function addListToList(lid2, lid1, rid) {
-    // turn lid into an array, right now it is just an integer
-    jQuery.post('list_controller/get_add_to_list_content', {
-        lid: lid1,
-        rid: rid
-    }, function(data) {
-        var parsedJSON = jQuery.parseJSON(data);
-        for (var i = 0; i < parsedJSON.length; i++ ) {
-            addVendorToList(lid2, parsedJSON[i].vid, parsedJSON[i].comment);
-        }
-    });
-}
+//// add list to list -- put lid1 into lid2
+//// use rid to get timestamp to add list as it was when referred
+//function addListToList(lid2, lid1, rid) {
+//    // turn lid into an array, right now it is just an integer
+//    jQuery.post('list_controller/get_add_to_list_content', {
+//        lid: lid1,
+//        rid: rid
+//    }, function(data) {
+//        var parsedJSON = jQuery.parseJSON(data);
+//        for (var i = 0; i < parsedJSON.length; i++ ) {
+//            addVendorToList(lid2, parsedJSON[i].vid, parsedJSON[i].comment);
+//        }
+//    });
+//}
 
 
 // update database and update mylists sidebar to reflect new vendor/list
 function addVendorToList(lid, vid, comment) {
-    //get date
-    var now = new Date();
-    now = now.format("yyyy-mm-dd HH:MM:ss");
-
-    // get comment
-//    var comment = $('#add-to-list-comment-box').val();
-//    comment = "";
 
     // add vendor to list (new or old) and make it so that list div is updated to show new vendor
     jQuery.post('list_controller/add_vendor_to_list', {
         lid: lid,
         vid: vid,
-        date: now,
         comment: comment
     }, function(data) {
-        if (data == "Could not add to list") {
+        var vendorObj = jQuery.parseJSON(data);
+        
+        if (vendorObj == "Could not add to list") {
             alert("Could not add to list");
+        } else if (vendorObj == "Already in list") {
+            alert("Already in list");
         }
-        // if there was no error, then vendor was added to list. close the dialog
         else {
-//            $('#addToListDialog').dialog("close");
-
             // if the div exists for the list, then add on to the stored data for displaying
-            if ($('#list-content-lid--' + lid).length) {
-                var vendorObj = jQuery.parseJSON(data);
-                
+            if ($('#list-content-lid--' + lid).length) {                
                 // get existing html that is stored in div
                 var htmlString = jQuery.trim($('#list-content-lid--' + lid).html());
                 

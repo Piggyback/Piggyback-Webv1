@@ -18,7 +18,7 @@
     <body>
         <div id="fb-root"></div>
         <script>
-            loadFbApiForLogin();
+            loadFbApiForLoginClosedBeta();
 //            window.fbAsyncInit = function() {
 //                FB.init({
 //                    appId      : '251920381531962',

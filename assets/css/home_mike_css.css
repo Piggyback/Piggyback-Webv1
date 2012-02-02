@@ -65,6 +65,10 @@ ul#icons span.ui-icon {
     border-top-right-radius: 10px;
 }
 
+q.empty-quote:before, q.empty-quote:after {
+    content: '';
+}
+
 /* top bar */
 #top-bar {
     border: 1px solid #E5E5E5;
@@ -74,7 +78,7 @@ ul#icons span.ui-icon {
 }
 
 #left-list-pane, #logo-container, #left-list-pane-header, #scrollable-sections-bottom {
-    width: 220px;
+/*    width: 220px;*/
 }
 
 a, a:visited, .link {
@@ -217,6 +221,10 @@ a, a:visited, .link {
     position: relative;
 }
 
+#no-list-message {
+    margin: 5px 0px 0px 20px;
+}
+
 #lists li {
     margin: 5px 0px 0px 7px;
     font-size: 14px;
@@ -235,7 +243,7 @@ a, a:visited, .link {
 
 #lists li span.my-list {
     font-weight:normal;
-    width: 150px;
+    width: 130px;
     font-family: helvetica, tahoma, arial, sans-serif;
     white-space: nowrap;
     overflow: hidden;
@@ -283,7 +291,8 @@ span.refer-my-list {
     opacity: 0;
     height: 8px;
     left: 0;
-    margin-right: 0;
+/*    margin-right: 0;*/
+    margin: 0;
     position: absolute;
     z-index: -1;
 }
@@ -296,17 +305,6 @@ span.refer-my-list {
     cursor: pointer;
 }
 
-/*.accordion-remove {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    text-align: right;
-    width: auto;
-    color: #b8b7b7;
-}*/
-
-
-
 ul.ui-tabs-nav {
 /*    position: fixed;*/
 /*    background-color: white;*/
@@ -317,7 +315,7 @@ ul.ui-tabs-nav {
 #inbox-content, #search-content, #list-content, #friend-activity-content, #referral-tracking-content {
 /*    margin-top: 200px;*/
 /*    padding-top: 200px;*/
-    
+    height: 90%;
 }
 
 .referral-list-vendor-add-to-list, .referral-list-vendor-refer {
@@ -359,14 +357,14 @@ div.single-wrapper {
     border-bottom-right-radius: 10px;
 }
 
-.accordion-remove {
+/*.accordion-remove {
     position: absolute;
     right: 151px;
     display: inline;
     color: #b8b7b7;
     font-size: 14px;
     margin: 5px 5px 0 0;
-}
+}*/
 
 .accordion-edit-comment {
     color: #b8b7b7;
@@ -530,4 +528,16 @@ div.single-wrapper {
     text-align: center;
     opacity: 0.5;
     padding: 1em 0;
+}
+
+#email-button {
+    position: relative;
+    text-align: center;
+    opacity: 0.5;
+    padding: 0;
+}
+
+
+#email-submit-button {
+    cursor: pointer;
 }
