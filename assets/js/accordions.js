@@ -138,6 +138,9 @@ function initLike() {
             likeStatus = likeStatus.substring(likeStatus.indexOf('like_counter_') + 'like_counter_'.length, likeStatus.indexOf('.png'));
             var likedImg = "";
             
+            $(likeElem).attr("src", likedImg);
+            likes.text(likeNumber.toString());
+            
             // liked
             if(likeStatus != 'f1'){
                 likedImg = "../assets/images/piggyback_button_like_counter_f1.png";
@@ -146,6 +149,7 @@ function initLike() {
                 // change text to 'unlike'
                 likeNumber = likeNumber - 1;
 //                $(this).removeClass('is-liked');
+                $("#like-list-dialog--" + referId).append("hi");    // add users name
             // not liked
             } else {
                 likedImg = "../assets/images/piggyback_button_like_counter_red_f1.png";
@@ -154,9 +158,12 @@ function initLike() {
                 // change text to 'like'
                 likeNumber = likeNumber + 1;
 //                $(this).addClass('is-liked');
+
+                // $("#like-list-dialog--" + referId).append("hi"); // remove users name
             }
-            $(likeElem).attr("src", likedImg);
-            likes.text(likeNumber.toString());
+            
+            // need to determine format of the who likes dialog. span or div?
+            
 //            if ( a > 0 ) {
 ////                if(a == 1) {
 ////                    likes.text(a.toString() + " person likes this.");
@@ -305,6 +312,17 @@ function initLoadMoreButton() {
     });
 }
 
+function initScrollLoadMore() {
+    $("#inbox-content, #friend-activity-content, #referral-tracking-content").scroll( function() {
+        if( ($(this).scrollTop() > $(this)[0].scrollHeight - $(this).height() - 100) && !$(this).find('.load-more-button').hasClass('none'))  {
+            var a = $(this).find('.load-more-button').attr('id').toString();
+            var rs = a.substring(a.indexOf('--') + '--'.length);
+            var it = a.substring(0, a.indexOf('-load'));
+            loadReferralItems(it, rs, 3);
+        }
+    });
+}
+
 function reInitCommentEvents() {
     //$('.comment-box').hide();
     $('.hide-load-comments-button').hide();
@@ -320,9 +338,11 @@ function reBindAccordion() {
     $('.add-to-list-popup-link').unbind();
     $('.refer-list-popup-link').unbind();
     $('.add-list-to-list-popup-link').unbind();
+    $('.number-of-likes').unbind();
     
     initLike();
     initRemoveReferralButton();
+    initWhoLikesButton();
     
     bindAccordion();
     overrideAccordionEvent();
@@ -985,7 +1005,7 @@ function createListDetailsHTMLString(details) {
 }
 
 // FOR KIM'S SEARCH
-function displaySearchItems(parsedJSON, itemType, lid) {    
+function displaySearchItems(parsedJSON) {    
     resetReferralContent('search');
 
     var displaySearchHTMLString = "";
@@ -1001,7 +1021,7 @@ function displaySearchItems(parsedJSON, itemType, lid) {
         
         // first only allow non-corrupted data (consistent table servers)
 //        if(row.isCorrupted == "") {
-            displaySearchHTMLString = createSearchHTMLString(row, itemType);
+            displaySearchHTMLString = createSearchHTMLString(row);
             // itemType has to be 'list' for now
             $(displaySearchHTMLString).appendTo('#accordion-search');
 //        }
@@ -1012,11 +1032,11 @@ function displaySearchItems(parsedJSON, itemType, lid) {
     
 }
 
-function createSearchHTMLString(row, itemType) {
+function createSearchHTMLString(row) {
     var displaySearchHTMLString = "<div class='list-item-wrapper accordion-object'>";
 //    var displayListHTMLString = "";
     
-    displaySearchHTMLString += createSearchHeaderHTMLString(row, itemType, 0) +
+    displaySearchHTMLString += createSearchHeaderHTMLString(row) +
     // details of the row
        "<div class='drop-down-details accordion-content'>" +
            createListDetailsHTMLString(row) +
@@ -1031,7 +1051,7 @@ function createSearchHTMLString(row, itemType) {
     return displaySearchHTMLString;
 }
 
-function createSearchHeaderHTMLString(row, itemType, listOrSingle) {
+function createSearchHeaderHTMLString(row) {
 
     var listHeaderHTMLString =
         "<div class='single-wrapper accordion-header name-wrapper'>" +

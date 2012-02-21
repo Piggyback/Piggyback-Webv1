@@ -228,13 +228,25 @@ function initDatePrototype () {
             // show time difference
             if (diffInDays < 1) {   // if less than a day
                 if (diffInHours > 0) {
-                    dateOfRecord = String(diffInHours) + ' hr ago';// + String(diffInMin) + ' min ago';
+                    if ( diffInHours == 1 ) {
+                        dateOfRecord = String(diffInHours) + ' hour ago';// + String(diffInMin) + ' min ago';
+                    } else {
+                        dateOfRecord = String(diffInHours) + ' hours ago';
+                    }
                 } else {
                     // if less than an hour
                     if (diffInMin == 0) {
-                        dateOfRecord = String(diffInSec) + ' sec ago';
+                        if (diffInSec == 1) {
+                            dateOfRecord = String(diffInSec) + ' second ago';
+                        } else {
+                            dateOfRecord = String(diffInSec) + ' seconds ago';
+                        }
                     } else {
-                        dateOfRecord = String(diffInMin) + ' min ago';
+                        if (diffInMin == 1) {
+                            dateOfRecord = String(diffInMin) + ' minute ago';
+                        } else {
+                            dateOfRecord = String(diffInMin) + ' minutes ago';
+                        }
                     }
                 }
             } else {        // if more than a day

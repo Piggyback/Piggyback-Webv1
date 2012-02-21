@@ -36,6 +36,7 @@
         <script type="text/javascript" src="../assets/js/date.time.stamp.js"></script>
         <script type="text/javascript" src="../../assets/jquery-ui-1.8.16.custom/development-bundle/ui/jquery.ui.accordionCustom.js"></script>
         <?php include "dateTimeDiff.php" ?>
+        <link rel="icon" href="https://twimg0-a.akamaihd.net/profile_images/1796614844/piggyback512x512_reasonably_small.png" type="image/x-png">
     </head>
     <body>
         </div>
@@ -163,6 +164,9 @@
                                                                     $commentsArray = $tempArray['CommentsList'];
 
                                                                     $likesArrayCount = count($likesArray);
+                                                                    
+//                                                                    echo $likesArray[0]->rid;     // how to get the likes
+                                                                    
                                                                     $likeNumber = "0";
                                                                     if ($likesArrayCount>0) {
                                                                         $likeNumber = "$likesArrayCount";
@@ -400,6 +404,13 @@
                                                                         </div>
                                                                     </div>
                                                                 <?php endif; ?>
+                                                                <div id="like-list-dialog--<?php echo $row->rid?>" class="like-dialog-modeless none">
+                                                                    <?php
+                                                                        foreach( $likesArray as $i ) {
+                                                                            echo $i->firstName . " " . $i->lastName;
+                                                                        }
+                                                                    ?>
+                                                                </div>
                                                             </div>
                                                         <?php endforeach; ?>
                                                     </div>

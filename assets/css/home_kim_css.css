@@ -206,7 +206,7 @@ img.delete {
 
 /* submit button in add to list dialog */
 /*.add-button button, #add-list-submit {*/
-#add-button-submit, #add-list-submit {
+#add-button-submit, #add-list-submit, #edit-comment-submit {
     background-color:white;
     border:0px;
     background-image: url('../images/piggyback_button_submit_f1.png');
@@ -218,7 +218,7 @@ img.delete {
 }
 
 /*.add-button button:hover, #add-list-submit:hover {*/
-#add-button-submit:hover, #add-list-submit:hover {
+#add-button-submit:hover, #add-list-submit:hover, #edit-comment-submit:hover {
     background-color:white;
     border:0px;
     background-image: url('../images/piggyback_button_submit_f2.png');
@@ -253,6 +253,7 @@ img.delete {
 .edit-list-comment-value {
     width: 90%;
 }
+
 
 /*-------------------- CONFIRM DELETE DIALOG ----------------------*/
 

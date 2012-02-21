@@ -234,6 +234,8 @@ class Referrals_Model extends CI_Model {
                 $this->db->select('*');
                 $this->db->from('Likes');
                 $this->db->where('rid', $rid);
+                $this->db->join('Users', 'Users.uid = Likes.uid');
+                
                 $LikesList = $this->db->get()->result();
 
                 $row->LikesList = array("LikesList" => $LikesList);

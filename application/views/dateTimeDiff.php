@@ -66,12 +66,24 @@ function dateTimeDiff($data_ref)
         
         if ($dDf < 1) {
             if ($hDf > 0) {
-                $dateOfRecord = $hDf . " hr ago";
+                if ($hDf == 1) {
+                    $dateOfRecord = $hDf . " hour ago";
+                } else {
+                    $dateOfRecord = $hDf . " hours ago";
+                }
             } else {
                 if ( $mDf == 0 ) {
-                    $dateOfRecord = $sDf . " sec ago";
+                    if ( $sDf == 1 ) {
+                        $dateOfRecord = $sDf . " second ago";
+                    } else {
+                        $dateOfRecord = $sDf . " seconds ago";
+                    }
                 } else {
-                    $dateOfRecord = $mDf . " min ago";
+                    if ($mDf == 1) {
+                        $dateOfRecord = $mDf . " minute ago";
+                    } else {
+                        $dateOfRecord = $mDf . " minutes ago";
+                    }
                 }
             }
         } else {

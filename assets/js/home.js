@@ -58,6 +58,8 @@ $(document).ready(function() {
     initAddList();
     bindEmailDialog();
     bindEmailButton();
+    initWhoLikesDialog();
+    initWhoLikesButton();
     
     // accordion content initialization
     initCommentInputDisplay();
@@ -68,6 +70,7 @@ $(document).ready(function() {
     initDatePrototype();
     initRemoveReferralButton();
     initLoadMoreButton();
+    initScrollLoadMore();
 });
 
 /**
@@ -252,6 +255,10 @@ function initSearchAJAX() {
                 hideLoading();
                 var parsedJSON = jQuery.parseJSON(data);
                 var results = parsedJSON.searchResults;
+                
+                resetTabsStates();  // reset tabs to default setting
+                
+                // errors
                 if (results[0] == "error") {
                     var errorType;
                     if (results[1] == "locationError") {
@@ -266,22 +273,25 @@ function initSearchAJAX() {
                     // print out error message
                     switch (results[2]) {
                         case "ZERO_RESULTS":
-                            alert(errorType + ": No results were found");
+                            errorType = errorType + ": No results were found";
                             break;
                         case "OVER_QUERY_LIMIT":
-                            alert(errorType + ": You are over the API query limit");
+                            errorType = errorType + ": You are over the API query limit";
                             break;
                         case "REQUEST_DENIED":
-                            alert(errorType + ": Your request was denied");
+                            errorType = errorType + ": Your request was denied";
                             break;
                         case "INVALID_REQUEST":
-                            alert(errorType + ": Your request is invalid");
+                            errorType = errorType + ": Your request is invalid";
                             break;
                         default:
-                            alert(errorType);
+                            break;
                     }
+                    
+                    $('#search-content').append(errorType);
+
                 }
-                else {
+                else {  // no errors
                     var vendorDetails = new Array();
                     
                     // show most important results first -- must force bc of asynchronous callbacks
@@ -296,8 +306,9 @@ function initSearchAJAX() {
                             singleVendorInfo = jQuery.parseJSON(data);
                             vendorDetails.push(singleVendorInfo);
                             var vendorData = getVendorData(vendorDetails);
-                            displaySearchResults(vendorData);
-
+//                            displaySearchResults(vendorData);
+                            displaySearchItems(vendorData);
+                            
                             // display the rest after showing the first few
                             if (tracker == limit) {
                                 tracker--;
@@ -309,7 +320,8 @@ function initSearchAJAX() {
                                         singleVendorInfo = jQuery.parseJSON(data);
                                         vendorDetails.push(singleVendorInfo);
                                         var vendorData = getVendorData(vendorDetails);
-                                        displaySearchResults(vendorData);
+//                                        displaySearchResults(vendorData);
+                                        displaySearchItems(vendorData);
                                     });
                                 }
                             }

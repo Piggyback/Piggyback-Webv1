@@ -2,13 +2,9 @@
 /*
     Document   : home.php
     Created on : Nov 30, 2011, 6:49:47 AM
-    Author     : gaobi
+    Author     : @lemikegao
     Description:
         Controller for the entire site
-*/
-
-/*
-   TO-DOs:
 */
 
 class Home extends CI_Controller {
@@ -17,7 +13,6 @@ class Home extends CI_Controller {
     {
         parent::__construct();
         $this->load->model('list_model');
-//        $this->load->model('manage_referral_model');        
     
         $this->load->model('referrals_model');
     }

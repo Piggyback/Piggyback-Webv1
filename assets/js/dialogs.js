@@ -458,6 +458,7 @@ function bindAddToListButtonFromSearch(vendorData) {
                         var newListName = jQuery.trim($('#new-list-name').val());
                         if (newListName == '') {
                             alert('List name cannot be empty!');
+                            
                         }
                         else {
                             jQuery.post('list_controller/add_to_new_list_from_search', {
@@ -500,6 +501,9 @@ function bindAddToListButtonFromSearch(vendorData) {
 
                                     // if the div exists for the list, then add on to the stored data for displaying
                                     updateListDiv(lid, vendorObj);
+                                    if (!$('#no-list-message').hasClass('none')) {
+                                        $('#no-list-message').addClass('none');
+                                    }
                                     $('#addToListDialog').dialog("close");
                                 }
                             });
@@ -620,6 +624,9 @@ function bindAddToList(id, name, type, comment, rid) {
                                     } else if (parsedJSON == "List already exists!") {
                                         alert("List already exists!");
                                     } else {
+                                        if (!$('#no-list-message').hasClass('none')) {
+                                            $('#no-list-message').addClass('none');
+                                        }
                                         var newListData = parsedJSON.newList;
                                         var vendorObj = parsedJSON.vendor;      
                                         var lid = newListData[0].lid;
@@ -649,6 +656,9 @@ function bindAddToList(id, name, type, comment, rid) {
                                     alert("List already exists!");
                                 }
                                 else {
+                                    if (!$('#no-list-message').hasClass('none')) {
+                                        $('#no-list-message').addClass('none');
+                                    }
                                     updateListPanelHTML(newLid, newListName);
                                     $('#addToListDialog').dialog("close");
                                 }
@@ -814,28 +824,28 @@ function bindDropDownChange() {
 
 function bindDeleteDialog() {
     $('#confirmDeleteDialog').dialog({
-            autoOpen: false,
-            width: 350,
-            height: 110,
-            closeOnEscape: true,
-            show: 'drop',
-            hide: 'drop',
-            resizable: false,
-            closeText: '',
-            title: 'Delete?',
-            open: function() {
-                $("#fuzz").fadeIn();
-                // change add button appearance
+        autoOpen: false,
+        width: 350,
+        height: 110,
+        closeOnEscape: true,
+        show: 'drop',
+        hide: 'drop',
+        resizable: false,
+        closeText: '',
+        title: 'Delete?',
+        open: function() {
+            $("#fuzz").fadeIn();
+            // change add button appearance
 //                $('.ui-dialog-buttonpane').find('button:first').removeClass('ui-button ui-widget ui-state-default ui-button-text-only ui-corner-all');
 //                $('.ui-dialog-buttonpane').find('button:last').removeClass('ui-button ui-widget ui-state-default ui-button-text-only ui-corner-all');
-                $('.ui-dialog-buttonpane').addClass('delete-button button-corner');
+            $('.ui-dialog-buttonpane').addClass('delete-button button-corner');
 
-                // change close button appearance
-                $('.ui-dialog-titlebar').find('.ui-icon').removeClass('ui-icon ui-icon-closethick');
-            },
-            beforeClose: function() {
-                $("#fuzz").fadeOut();
-            }
+            // change close button appearance
+            $('.ui-dialog-titlebar').find('.ui-icon').removeClass('ui-icon ui-icon-closethick');
+        },
+        beforeClose: function() {
+            $("#fuzz").fadeOut();
+        }
     });
 }
 
@@ -873,7 +883,6 @@ function bindEmailDialog() {
 
 function bindEmailButton() {
     $(document).on("click", "#email-button", function () {
-        // remove the 'none' class
         $("#email-dialog").dialog("open");
     });
     $(document).on("click", "#email-submit-button", function () {
@@ -900,4 +909,44 @@ function bindEmailButton() {
         }
     });
     
+}
+
+
+/****************************** see who has liked this button pop up *********************************/
+function initWhoLikesButton() {
+    $(".number-of-likes").click(function() {
+        var ridString = $(this).closest(".referral-item-wrapper").find(".accordion-footer").find(".row").attr("id");
+        var rid = ridString.substring(ridString.indexOf("--") + "--".length);
+        var likeNum = $(this).find(".number-of-likes-inner").html();
+        var whoLikesDialogElem = "#like-list-dialog--" + rid;
+        
+        if (likeNum > 0) {
+            $(whoLikesDialogElem).dialog("open");
+        }
+        
+    });
+}
+
+function initWhoLikesDialog() {
+    $(".like-dialog-modeless").dialog({
+//        disabled:true,
+        autoOpen: false,
+        width: 300,
+        height: 270,
+        closeOnEscape: true,
+        show: 'drop',
+        hide: 'drop',
+        resizable: false,
+        closeText: '',
+        modal: false,
+        title: 'People who liked this recommendation',
+        open: function() {
+            
+        },
+        beforeClose: function() {
+            
+        },
+        close: function() {
+        }
+    })
 }

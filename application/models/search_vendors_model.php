@@ -29,8 +29,13 @@ class search_vendors_model extends CI_Model {
         $long = $geocodeArray->results[0]->geometry->location->lng;
         $location = $lat.",".$long;
 
+        $radius = "50000";
+        
         // retrieve search results using google places API
-        $searchRequest = file_get_contents(MAPS_HOST."/place/search/json?sensor=false&radius=5000&types=bakery|bar|cafe|restaurant|night_club&key=".KEY."&location=".$location."&keyword=".$keyword);
+        $types = "&types=bakery|bar|cafe|restaurant|night_club";
+//        $types = "";
+        
+        $searchRequest = file_get_contents(MAPS_HOST."/place/search/json?sensor=false&radius=".$radius.$types."&key=".KEY."&location=".$location."&keyword=".$keyword);
         $searchArray = json_decode($searchRequest);
         
         // return error string: ZERO_RESULTS, OVER_QUERY_LIMIT, REQUEST_DENIED, or INVALID_REQUEST

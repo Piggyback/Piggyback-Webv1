@@ -520,7 +520,7 @@ function bindEditCommentDialog() {
     $('#edit-list-comment-dialog').dialog({
         autoOpen: false,
         width: 350,
-        height: 120,
+        height: 140,
         closeOnEscape: true,
         show: 'drop',
         hide: 'drop',

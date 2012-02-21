@@ -1,11 +1,12 @@
 <?php
 
-/**
- *  @mike gao
- *
- *  Controls all intereactions with list_model.php
- *
- *   */
+/*
+    Document   : list_controller.php
+    Created on : Nov 30, 2011, 6:49:47 AM
+    Author     : @lemikegao
+    Description:
+        Controller for all list actions
+*/
 
 class List_controller extends CI_Controller {
 
