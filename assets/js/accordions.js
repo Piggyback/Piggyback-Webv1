@@ -125,54 +125,22 @@ function initLike() {
 
         jQuery.post("referrals/perform_like_action", {
             rid: referId
-        }, function(){
-            // parse the existing number of likes from the front end html div
-            var likeNumber = likes.text().trim();
-            likeNumber = parseInt(likeNumber);
-//            likeNumber = likeNumber.substring(0, likeNumber.indexOf(' ')).trim();
-//            var a = parseInt(likeNumber) || 0;
+        }, function(likeNum){
+            // set new number of likes for display
+            likes.text(likeNum.toString());
             
             var likeStatus = likeElem.src;
-//            var likeStatus = $(this).hasClass('is-liked');
-//            alert($(this).closest('.button-row').find("img[alt='like']").hasClass("is-liked"));
             likeStatus = likeStatus.substring(likeStatus.indexOf('like_counter_') + 'like_counter_'.length, likeStatus.indexOf('.png'));
             var likedImg = "";
-            
-            $(likeElem).attr("src", likedImg);
-            likes.text(likeNumber.toString());
             
             // liked
             if(likeStatus != 'f1'){
                 likedImg = "../assets/images/piggyback_button_like_counter_f1.png";
-                // user has liked
-                // like count++
-                // change text to 'unlike'
-                likeNumber = likeNumber - 1;
-//                $(this).removeClass('is-liked');
-                $("#like-list-dialog--" + referId).append("hi");    // add users name
             // not liked
             } else {
                 likedImg = "../assets/images/piggyback_button_like_counter_red_f1.png";
-                // user has unliked
-                // like count--
-                // change text to 'like'
-                likeNumber = likeNumber + 1;
-//                $(this).addClass('is-liked');
-
-                // $("#like-list-dialog--" + referId).append("hi"); // remove users name
             }
-            
-            // need to determine format of the who likes dialog. span or div?
-            
-//            if ( a > 0 ) {
-////                if(a == 1) {
-////                    likes.text(a.toString() + " person likes this.");
-////                } else {
-////                    likes.text(a.toString() + " people like this.");
-////                }
-//            } else {
-////                likes.text("");
-//            }
+            $(likeElem).attr("src", likedImg);
         });
     });
 }

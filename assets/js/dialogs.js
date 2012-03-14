@@ -237,7 +237,6 @@ function bindReferDialogButtonFromSearch(friendList, vendorData) {
                             id: vendor.id, 
                             name: vendor.name,
                             reference: vendor.reference,
-                            id: vendor.id,
                             lat: vendor.lat,
                             lng: vendor.lng,
                             phone: vendor.phone,

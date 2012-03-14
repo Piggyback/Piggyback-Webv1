@@ -39,10 +39,10 @@ class Home extends CI_Controller {
     //        $data['friendActivityItems'] = $this->manage_referral_model->load_friend_activity_items($currentUserData);
 
             $inboxData = $currentUserData;
-            $inboxData['rowStart'] = 0;
-            $inboxData['rowsRequested'] = 3;
-            $inboxData['itemType'] = "inbox";
-            $data['inboxItems'] = $this->referrals_model->get_referral_items($inboxData);
+//            $inboxData['rowStart'] = 0;
+//            $inboxData['rowsRequested'] = 3;
+//            $inboxData['itemType'] = "inbox";
+            $data['inboxItems'] = $this->referrals_model->get_referral_items($currentUserData['uid'],0,3,"inbox");
 
             $this->load->view('home_view', $data);
         }

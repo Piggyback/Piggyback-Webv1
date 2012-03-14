@@ -195,7 +195,7 @@ if (defined('ENVIRONMENT'))
  * load dif variables for test/prod environments
  * --------------------------------------------------------------------
  */
-include BASEPATH.'../../vars.php';
+require_once BASEPATH.'../../vars.php';
 
 /*
  * --------------------------------------------------------------------

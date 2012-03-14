@@ -17,12 +17,12 @@ class Login_model extends CI_Model {
     {
         // Call the Model consutrctor
         parent::__construct();
+        $this->load->database();
     }
     
-    function check_if_user_exists()
+    function check_if_user_exists($fbid)
     {
-        $this->load->database();
-        $this->fbid = $this->input->post('fbid');
+        $this->fbid = $fbid;
         
         // check if user exists
         $query = $this->db->get_where('Users', array('fbid' => $this->fbid));
@@ -43,19 +43,17 @@ class Login_model extends CI_Model {
             $this->session->set_userdata('currentUserData', $currentUserData);
         }
         // else, user does not exist; move on to add_new_user();
-        echo (count($result));
+        return (count($result));
         
     }
     
     // add_user only called if user current user does not exist already
-    function add_user()
+    function add_user($fbid, $email, $firstName, $lastName)
     {
-        $this->load->database();
-        
-        $this->fbid = $this->input->post('fbid');
-        $this->email = $this->input->post('email');
-        $this->firstName = $this->input->post('firstName');
-        $this->lastName = $this->input->post('lastName');
+        $this->fbid = $fbid;
+        $this->email = $email;
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
         
         $this->db->insert('Users', $this);
         
@@ -81,11 +79,9 @@ class Login_model extends CI_Model {
 //        $this->db->query('INSERT IGNORE INTO Users (fbid, email, firstName, lastName) VALUES (' . $this->fbid . ', \'' . $this->email. '\', \'' . $this->firstName . '\', \'' . $this->lastName . '\')');
     }
     
-    function search_for_friends()
+    function search_for_friends($data)
     {
-        $this->load->database();
-        
-        $this->data = $this->input->post('data');
+        $this->data = $data;
         $currentUserData = $this->session->userdata('currentUserData');
         $this->my_uid = $currentUserData['uid'];
 

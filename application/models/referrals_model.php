@@ -14,13 +14,9 @@ class Referrals_Model extends CI_Model {
         return $date;
     }
     
-    public function add_new_comment($data)
+    public function add_new_comment($uid,$rid,$comment)
     {
-        $uid = $data['uid'];        // only get user data from controller
-        $rid = $this->input->post('rid');
         $date = date("Y-m-d H:i:s");
-//        $date = $this->input->post('date');           // client-side date
-        $comment = $this->input->post('comment');
             
         // insert new row into Comments table
         $newComment = array(
@@ -37,22 +33,17 @@ class Referrals_Model extends CI_Model {
         return $cid;
     }
     
-    public function remove_comment($data)
+    public function remove_comment($uid,$cid)
     {
         // TODO: add error handling for deleting when not your own comment? @andyjiang
-        $uid = $data['uid'];
-        $cid = $this->input->post('cid');
 
         // remove the comment
         $this->db->where('cid', $cid);
         $this->db->delete('Comments');
     }
     
-    public function is_already_liked($data)
+    public function is_already_liked($uid,$rid)
     {
-        $uid = $data['uid'];
-        $rid = $this->input->post('rid');
-
         $this->db->from('Likes');
         $this->db->where('rid', $rid);
         $this->db->where('uid', $uid);
@@ -64,10 +55,8 @@ class Referrals_Model extends CI_Model {
         return $this->db->count_all_results();
     }
 
-    public function add_new_like($data)
+    public function add_new_like($uid,$rid)
     {
-        $uid = $data['uid'];
-        $rid = $this->input->post('rid');
         $date = date("Y-m-d H:i:s");
 
         $newLike = array(
@@ -79,11 +68,8 @@ class Referrals_Model extends CI_Model {
         $this->db->insert('Likes', $newLike);
     }
 
-    public function remove_like($data)
+    public function remove_like($uid,$rid)
     {
-        $uid = $data['uid'];
-        $rid = $this->input->post('rid');
-
         $this->db->where('rid', $rid);
         $this->db->where('uid', $uid);
         $this->db->delete('Likes');
@@ -92,10 +78,8 @@ class Referrals_Model extends CI_Model {
     /*
      * use front-end so can delete this
      */
-    public function get_like_count()
+    public function get_like_count($rid)
     {
-        $rid = $this->input->post('rid');
-
         // ajax wants the count of the new likes
         $this->db->from('Likes');
         $this->db->where('rid', $rid);
@@ -104,21 +88,19 @@ class Referrals_Model extends CI_Model {
         return $this->db->count_all_results();
     }
     
-    public function get_referral_items($data) 
-    {
-        $myUID = $data['uid'];
-        
-        // added my mike gao to display inbox from php
-        if (!array_key_exists('rowStart', $data))
-            $data['rowStart'] = $this->input->post('rowStart');
-        
-        // added by mike gao to display inbox from php
-        if (!array_key_exists('itemType', $data))
-            $data['itemType'] = $this->input->post('itemType');
-        
-        if (!array_key_exists('rowsRequested', $data)) {
-            $data['rowsRequested'] = $this->input->post('rowsRequested');
-        }
+    public function get_referral_items($uid,$rowStart,$rowsReq,$itemType) 
+    {       
+//        // added my mike gao to display inbox from php
+//        if (!array_key_exists('rowStart', $data))
+            $data['rowStart'] = $rowStart;
+//        
+//        // added by mike gao to display inbox from php
+//        if (!array_key_exists('itemType', $data))
+            $data['itemType'] = $itemType;
+//        
+//        if (!array_key_exists('rowsRequested', $data)) {
+            $data['rowsRequested'] = $rowsReq;
+//        }
         
         $rowsRequested = $data['rowsRequested'];
         $rowsNotCorrupted = 0;          // counter for not corrupted rows
@@ -127,7 +109,7 @@ class Referrals_Model extends CI_Model {
         $data['rowsRequested'] = $data['rowsRequested'] + 1;
         
         while ( $rowsNotCorrupted < $rowsRequested ) {
-            $result = $this->get_corresponding_item_result($data);
+            $result = $this->get_corresponding_item_result($uid,$data);
             $maxSize = count($result);
             if ( $maxSize < $rowsRequested ) {
                 $rowsRequested = $maxSize;
@@ -253,7 +235,7 @@ class Referrals_Model extends CI_Model {
                 // add whether the user has Liked the status or not
                 $this->db->from('Likes');
                 $this->db->where('rid', $rid);
-                $this->db->where('uid', $myUID);
+                $this->db->where('uid', $uid);
 
                 if ($this->db->count_all_results() == 0) {
                     $row->alreadyLiked = "0";
@@ -300,9 +282,8 @@ class Referrals_Model extends CI_Model {
         return $returnedResult;
     }
     
-    private function get_corresponding_item_result($data) 
+    private function get_corresponding_item_result($myUID,$data) 
     {
-        $myUID = $data['uid'];
         $itemType = $data['itemType'];
         $rowsRequested = $data['rowsRequested'];
         $rowStart = $data['rowStart'];
@@ -434,10 +415,8 @@ class Referrals_Model extends CI_Model {
 //        return $this->db->query($detailsQ)->result();
     }
     
-    public function flag_delete_referral_item()
+    public function flag_delete_referral_item($rid,$itemType)
     {
-        $rid = $this->input->post('rid');
-        $itemType = $this->input->post('itemType'); 
         // if inbox, then delete uid2
         // if referral-tracking, then delete uid1
         switch ($itemType) {
