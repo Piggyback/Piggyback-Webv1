@@ -16,11 +16,48 @@ class List_model extends CI_Model {
      * Functions called by listapi.php
      */
     
-    public function get_list_entries($lid)
+    public function get_list_with_entrys($uid)
     {
-        $query = $this->db->get_where('Lists', array('lid' => $lid));
+        $this->db->distinct();
+        $this->db->select('UserLists.lid AS list_lid,
+            Lists.date AS listentry_date, Lists.comment AS listentry_comment,
+            Vendors.id AS vendor_vid, Vendors.name AS vendor_name, Vendors.reference AS vendor_reference, Vendors.lat AS vendor_lat, Vendors.lng AS vendor_lng, Vendors.phone AS vendor_phone, Vendors.addr AS vendor_addr,
+            Vendors.addrNum as vendor_addrNum, Vendors.addrStreet AS vendor_addrStreet, Vendors.addrCity AS vendor_addrCity, Vendors.addrState AS vendor_addrState, Vendors.addrCountry AS vendor_addrCountry,
+            Vendors.addrZip AS vendor_addrZip, Vendors.vicinity AS vendor_vicinity, Vendors.website AS vendor_website, Vendors.icon AS vendor_icon, Vendors.rating AS vendor_rating');
+        $this->db->from('UserLists');
+        $this->db->join('Lists', 'UserLists.lid = Lists.lid');
+        $this->db->join('Vendors', 'Lists.vid = Vendors.id');
+        $this->db->where(array('UserLists.uid' => $uid, 'UserLists.deleted' => 0, 'Lists.deleted' => 0));
+        $this->db->order_by('listentry_date desc');
         
-        return $query->result();
+        return $this->db->get()->result();
+    }
+    
+    public function get_list_with_entrys_with_incoming_referrals($uid)
+    {
+        $this->db->distinct();
+        $this->db->select('ReferralDetails.vid AS referraldetails_vid, Referrals.rid AS referral_rid, Referrals.date AS referral_date, Referrals.lid AS referral_lid, Referrals.comment AS referral_comment, 
+            Users.uid AS referrer_uid, Users.fbid AS referrer_fbid, Users.email AS referrer_email, Users.firstName AS referrer_firstName, Users.lastName AS referrer_lastName');
+        $this->db->from('UserLists');
+        $this->db->join('Lists', 'UserLists.lid = Lists.lid');
+        $this->db->join('ReferralDetails', 'Lists.vid = ReferralDetails.vid');
+        $this->db->join('Referrals', 'ReferralDetails.rid = Referrals.rid');
+        $this->db->join('Users', 'Referrals.uid1 = Users.uid');
+        $this->db->where(array('UserLists.uid' => $uid, 'UserLists.deleted' => 0, 'Lists.deleted' => 0, 'Referrals.uid2' => $uid, 'Referrals.deletedUID2' => 0));
+        $this->db->order_by('referral_lid asc, referral_date desc');
+        
+        return $this->db->get()->result();
+    }
+    
+    public function get_list_entry_comments_of_incoming_referrals($uid)
+    {
+        $this->db->distinct();
+        $this->db->select('Lists.lid AS listentry_lid, Lists.vid AS listentry_vid, Lists.comment AS listentry_comment');
+        $this->db->from('Referrals');
+        $this->db->join('Lists', 'Referrals.lid = Lists.lid');
+        $this->db->where(array('Referrals.uid2' => $uid, 'Referrals.deletedUID2' => 0,'Lists.deleted' => 0));
+        
+        return $this->db->get()->result();
     }
 
     /**
