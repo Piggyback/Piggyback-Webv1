@@ -21,12 +21,12 @@ class List_model extends CI_Model {
         $this->db->distinct();
         $this->db->select('UserLists.lid AS list_lid,
             Lists.date AS listentry_date, Lists.comment AS listentry_comment,
-            Vendors.id AS vendor_vid, Vendors.name AS vendor_name, Vendors.reference AS vendor_reference, Vendors.lat AS vendor_lat, Vendors.lng AS vendor_lng, Vendors.phone AS vendor_phone, Vendors.addr AS vendor_addr,
-            Vendors.addrNum as vendor_addrNum, Vendors.addrStreet AS vendor_addrStreet, Vendors.addrCity AS vendor_addrCity, Vendors.addrState AS vendor_addrState, Vendors.addrCountry AS vendor_addrCountry,
-            Vendors.addrZip AS vendor_addrZip, Vendors.vicinity AS vendor_vicinity, Vendors.website AS vendor_website, Vendors.icon AS vendor_icon, Vendors.rating AS vendor_rating');
+            VendorsFoursquare.id AS vendor_vid, VendorsFoursquare.name AS vendor_name, VendorsFoursquare.lat AS vendor_lat, VendorsFoursquare.lng AS vendor_lng, VendorsFoursquare.phone AS vendor_phone, VendorsFoursquare.addr AS vendor_addr,
+            VendorsFoursquare.addrCrossStreet AS vendor_addrCrossStreet, VendorsFoursquare.addrCity AS vendor_addrCity, VendorsFoursquare.addrState AS vendor_addrState, VendorsFoursquare.addrCountry AS vendor_addrCountry,
+            VendorsFoursquare.addrZip AS vendor_addrZip, VendorsFoursquare.website AS vendor_website');
         $this->db->from('UserLists');
         $this->db->join('Lists', 'UserLists.lid = Lists.lid');
-        $this->db->join('Vendors', 'Lists.vid = Vendors.id');
+        $this->db->join('VendorsFoursquare', 'Lists.vid = VendorsFoursquare.id');
         $this->db->where(array('UserLists.uid' => $uid, 'UserLists.deleted' => 0, 'Lists.deleted' => 0));
         $this->db->order_by('listentry_date desc');
         
@@ -36,12 +36,13 @@ class List_model extends CI_Model {
     public function get_list_with_entrys_with_incoming_referrals($uid)
     {
         $this->db->distinct();
-        $this->db->select('ReferralDetails.vid AS referraldetails_vid, Referrals.rid AS referral_rid, Referrals.date AS referral_date, Referrals.lid AS referral_lid, Referrals.comment AS referral_comment, 
+        $this->db->select('Referrals.vid AS referral_vid, Referrals.rid AS referral_rid, Referrals.date AS referral_date, Referrals.lid AS referral_lid, Referrals.comment AS referral_comment, 
             Users.uid AS referrer_uid, Users.fbid AS referrer_fbid, Users.email AS referrer_email, Users.firstName AS referrer_firstName, Users.lastName AS referrer_lastName');
         $this->db->from('UserLists');
         $this->db->join('Lists', 'UserLists.lid = Lists.lid');
-        $this->db->join('ReferralDetails', 'Lists.vid = ReferralDetails.vid');
-        $this->db->join('Referrals', 'ReferralDetails.rid = Referrals.rid');
+//        $this->db->join('ReferralDetails', 'Lists.vid = ReferralDetails.vid');
+//        $this->db->join('Referrals', 'ReferralDetails.rid = Referrals.rid');
+        $this->db->join('Referrals', 'Lists.vid = Referrals.vid');
         $this->db->join('Users', 'Referrals.uid1 = Users.uid');
         $this->db->where(array('UserLists.uid' => $uid, 'UserLists.deleted' => 0, 'Lists.deleted' => 0, 'Referrals.uid2' => $uid, 'Referrals.deletedUID2' => 0));
         $this->db->order_by('referral_lid asc, referral_date desc');
@@ -75,7 +76,7 @@ class List_model extends CI_Model {
      */
     public function get_list_content($lid)
     {
-        $query = $this->db->query("SELECT *, Lists.date AS listsDate FROM Lists INNER JOIN Vendors ON Lists.vid = Vendors.id WHERE Lists.lid = ? AND deleted != 1",array($lid));
+        $query = $this->db->query("SELECT *, Lists.date AS listsDate FROM Lists INNER JOIN VendorsFoursquare ON Lists.vid = VendorsFoursquare.id WHERE Lists.lid = ? AND deleted != 1",array($lid));
         return $query->result();       
     }
 
@@ -132,8 +133,8 @@ class List_model extends CI_Model {
 
         // get vendor data so that the list html can be dynamically updated
         $getVendorQuery = "SELECT *, Lists.date AS listsDate FROM Lists 
-                    INNER JOIN Vendors ON Lists.vid = Vendors.id 
-                    WHERE Lists.lid = ? AND deleted != 1 AND Vendors.id = ?";
+                    INNER JOIN VendorsFoursquare ON Lists.vid = VendorsFoursquare.id 
+                    WHERE Lists.lid = ? AND deleted != 1 AND VendorsFoursquare.id = ?";
         $result = $this->db->query($getVendorQuery,array($lid,$vid));
         return $result->result();
     }
@@ -225,7 +226,7 @@ class List_model extends CI_Model {
         
         // get vendor data so that the list html can be dynamically updated
         $getVendorQuery = "SELECT *, Lists.date AS listsDate FROM Lists 
-                    INNER JOIN Vendors ON Lists.vid = Vendors.id 
+                    INNER JOIN VendorsFoursquare ON Lists.vid = VendorsFoursquare.id 
                     WHERE Lists.lid = ? AND deleted != 1";
         
         $result = $this->db->query($getVendorQuery, array($outerLid))->result();
@@ -279,7 +280,7 @@ class List_model extends CI_Model {
            // TODO: right now, it does not notify you if you have referred some of the friends to the list already
            if ($result->num_rows() == 0) {
                array_push($newFriends,$uidFriend);
-               $q = "$q (NULL, ?, ?, ?, ?, ?, 0, 0),";
+               $q = "$q (NULL, ?, ?, ?, ?, 0, ?, 0, 0),";
                array_push($params,$uid,$uidFriend,$date,$lid,$comment);
            }
         }
@@ -292,51 +293,51 @@ class List_model extends CI_Model {
             $result = $this->db->query($q,$params);
 
             // referring list from inbox - get all vendors in the referred list
-            if ($prevRid != 0) {
-                $getVendorQuery = "SELECT vid FROM Lists WHERE lid = ? AND date < (SELECT date FROM Referrals WHERE rid = ?) 
-                                AND ((deleted != 1) OR (deleted = 1 AND deletedDate > (SELECT date FROM Referrals WHERE rid = ?)))";
-                $params = array($lid,$prevRid,$prevRid);
-            } 
-            
-            // referring list from sidebar - get all vendors in the referred list
-            else {
-                $getVendorQuery = "SELECT vid FROM Lists WHERE lid = ? AND deleted != 1";
-                $params = array($lid);
-            }
-            
-            $vendorResult = $this->db->query($getVendorQuery,$params);
-
-            // set up string for adding all rows - one for each vendor in the list, for each friend
-            $addRefDetsQuery = "INSERT INTO ReferralDetails VALUES ";
-            $params = array();
-
-            // get RID that was just inserted into Referrals table
-            for ($i = 0; $i < count($newFriends); $i++) {
-                $uidFriend = $newFriends[$i];
-                $getRIDquery = "SELECT rid FROM Referrals WHERE uid1 = ? AND uid2 = ? AND date = ? AND lid = ? AND comment = ?";
-                $result = $this->db->query($getRIDquery,array($uid,$uidFriend,$date,$lid,$comment));
-                
-                if ($result->num_rows() > 0) {
-                    $rid = $result->row()->rid;
-                }
-
-                // add each vendor in the list to the referraldetails table
-                if ($vendorResult->num_rows() > 0) {
-                    foreach ($vendorResult->result() as $row) {
-                        $addRefDetsQuery = "$addRefDetsQuery (?, ?, 0, 0),";
-                        array_push($params,$rid,$row->vid);
-
-                    }
-                }
-            }
-
-            // remove last comma and run query to add rows to ReferralDetails table
-            $addRefDetsQuery = substr($addRefDetsQuery,0,-1);
-
-            if($vendorResult->num_rows() > 0) {
-                $result = $this->db->query($addRefDetsQuery,$params);
-            }
-            
+//            if ($prevRid != 0) {
+//                $getVendorQuery = "SELECT vid FROM Lists WHERE lid = ? AND date < (SELECT date FROM Referrals WHERE rid = ?) 
+//                                AND ((deleted != 1) OR (deleted = 1 AND deletedDate > (SELECT date FROM Referrals WHERE rid = ?)))";
+//                $params = array($lid,$prevRid,$prevRid);
+//            } 
+//            
+//            // referring list from sidebar - get all vendors in the referred list
+//            else {
+//                $getVendorQuery = "SELECT vid FROM Lists WHERE lid = ? AND deleted != 1";
+//                $params = array($lid);
+//            }
+//            
+//            $vendorResult = $this->db->query($getVendorQuery,$params);
+//
+//            // set up string for adding all rows - one for each vendor in the list, for each friend
+//            $addRefDetsQuery = "INSERT INTO ReferralDetails VALUES ";
+//            $params = array();
+//
+//            // get RID that was just inserted into Referrals table
+//            for ($i = 0; $i < count($newFriends); $i++) {
+//                $uidFriend = $newFriends[$i];
+//                $getRIDquery = "SELECT rid FROM Referrals WHERE uid1 = ? AND uid2 = ? AND date = ? AND lid = ? AND comment = ?";
+//                $result = $this->db->query($getRIDquery,array($uid,$uidFriend,$date,$lid,$comment));
+//                
+//                if ($result->num_rows() > 0) {
+//                    $rid = $result->row()->rid;
+//                }
+//
+//                // add each vendor in the list to the referraldetails table
+//                if ($vendorResult->num_rows() > 0) {
+//                    foreach ($vendorResult->result() as $row) {
+//                        $addRefDetsQuery = "$addRefDetsQuery (?, ?, 0, 0),";
+//                        array_push($params,$rid,$row->vid);
+//
+//                    }
+//                }
+//            }
+//
+//            // remove last comma and run query to add rows to ReferralDetails table
+//            $addRefDetsQuery = substr($addRefDetsQuery,0,-1);
+//
+//            if($vendorResult->num_rows() > 0) {
+//                $result = $this->db->query($addRefDetsQuery,$params);
+//            }
+//            
             $this->db->trans_complete();
             if ($this->db->trans_status() === FALSE) {
                 return "List referral could not be processed";
@@ -355,7 +356,7 @@ class List_model extends CI_Model {
     function add_to_new_list_from_search($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
             $addrCountry, $addrZip, $website, $tags, $categories, $photos, $uid, $newListName, $vid, $comment) {
         $this->db->trans_start();
-        
+
         $this->add_vendor($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
             $addrCountry, $addrZip, $website, $tags, $categories, $photos);        
         $result = $this->add_vendor_to_new_list($uid, $newListName, $vid, $comment);
@@ -427,7 +428,8 @@ class List_model extends CI_Model {
            }
            
            // add categories to category table
-           if (count($categories) > 0) {
+//           if (count($categories) > 0) {
+           if ($categories) {
                $addCategoriesQuery = "INSERT INTO VendorsFoursquareCategories VALUES ";
                foreach ($categories as $category) {
                    $cid = $category['cid'];
@@ -439,7 +441,8 @@ class List_model extends CI_Model {
            }
            
            // add photos to photo table
-           if (count($photos) > 0) {
+//           if (count($photos) > 0) {
+           if($photos) {
                $addPhotosQuery = "INSERT INTO VendorsFoursquarePhotos VALUES ";
                foreach ($photos as $photo) {
                    $pid = $photo['pid'];
@@ -486,8 +489,8 @@ class List_model extends CI_Model {
 
             // get vendor data so that the list html can be dynamically updated
             $getVendorQuery = "SELECT *, Lists.date AS listsDate FROM Lists 
-                        INNER JOIN Vendors ON Lists.vid = Vendors.id 
-                        WHERE Lists.lid = ? AND deleted != 1 AND Vendors.id = ?";
+                        INNER JOIN VendorsFoursquare ON Lists.vid = VendorsFoursquare.id 
+                        WHERE Lists.lid = ? AND deleted != 1 AND VendorsFoursquare.id = ?";
             
             $result = array();
             $result['newList'] = $newListData->result();

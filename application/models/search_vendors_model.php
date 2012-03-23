@@ -27,7 +27,7 @@ class search_vendors_model extends CI_Model {
         
         $radius = "100000";
         $intent = "checkin";
-        $limit = "500";
+        $limit = "20";
         $date = date('Ymd');
         $clientID = "LQYMHEIG05TK2HIQJGJ3MUGDNBAW1OKJKM4SSUFNYGSQMQIZ";
         $clientSecret = "AXDTUGX5AA1DXDI2HUWVSODSFGKIK2RQYYGUWSUBDC0R5OLX";
@@ -158,7 +158,7 @@ class search_vendors_model extends CI_Model {
                
                if ($result->num_rows() > 0) {
                    foreach ($result->result() as $row) {
-                        $existsQuery = "SELECT rid FROM ReferralDetails WHERE rid = ? AND vid = ?";
+                        $existsQuery = "SELECT rid FROM Referrals WHERE rid = ? AND vid = ?";
                         $res = $this->db->query($existsQuery,array($row->rid,$id));
                         if ($res->num_rows() > 0) {
                             $flag = 1;
@@ -169,9 +169,9 @@ class search_vendors_model extends CI_Model {
 
                // if referral does not exist yet, then add it
                if ($flag == 0) {
-                   $q = "$q (NULL, ?, ?, ?, 0, ?, 0, 0),";
+                   $q = "$q (NULL, ?, ?, ?, 0, ?, ?, 0, 0),";
                    array_push($newFriends,$uidFriend);
-                   array_push($params,$uid,$uidFriend,$date,$comment);
+                   array_push($params,$uid,$uidFriend,$date,$id,$comment);
                }
             }
 
@@ -186,27 +186,27 @@ class search_vendors_model extends CI_Model {
             }
             
             // get RID that was just inserted into Referrals table and build query for adding to referral details: one for each friend
-            $addReferralDetailQuery = "INSERT INTO ReferralDetails VALUES ";
-            $params = array();
-            
-            for ($i = 0; $i < count($newFriends); $i++) {
-                $uidFriend = $newFriends[$i];
-                $getRIDquery = "SELECT rid FROM Referrals WHERE uid1 = ? AND uid2 = ? AND date = ? AND lid = 0 AND comment = ?";
-
-                $result = $this->db->query($getRIDquery,array($uid,$uidFriend,$date,$comment));
-                if ($result->num_rows() > 0) {
-                    $rid = $result->row()->rid;
-                }
-                $addReferralDetailQuery = "$addReferralDetailQuery (?,?,0,0),";
-                array_push($params,$rid,$id);
-            }
-            
-            // delete last comma
-            $addReferralDetailQuery = substr($addReferralDetailQuery,0,-1);
-            
-            if (count($newFriends) > 0) {
-                $result = $this->db->query($addReferralDetailQuery,$params);
-            }
+//            $addReferralDetailQuery = "INSERT INTO ReferralDetails VALUES ";
+//            $params = array();
+//            
+//            for ($i = 0; $i < count($newFriends); $i++) {
+//                $uidFriend = $newFriends[$i];
+//                $getRIDquery = "SELECT rid FROM Referrals WHERE uid1 = ? AND uid2 = ? AND date = ? AND lid = 0 AND comment = ?";
+//
+//                $result = $this->db->query($getRIDquery,array($uid,$uidFriend,$date,$comment));
+//                if ($result->num_rows() > 0) {
+//                    $rid = $result->row()->rid;
+//                }
+//                $addReferralDetailQuery = "$addReferralDetailQuery (?,?,0,0),";
+//                array_push($params,$rid,$id);
+//            }
+//            
+//            // delete last comma
+//            $addReferralDetailQuery = substr($addReferralDetailQuery,0,-1);
+//            
+//            if (count($newFriends) > 0) {
+//                $result = $this->db->query($addReferralDetailQuery,$params);
+//            }
         }
         return false;
     }

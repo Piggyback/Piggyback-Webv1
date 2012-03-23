@@ -51,9 +51,9 @@ function getVendorData(results) {
         if (singleVendor['addr'] == undefined) {
             singleVendor['addr'] = "";
         }
-        singleVendor['crossStreet'] = results[i].response.venue.location.crossStreet;
-        if (singleVendor['crossStreet'] == undefined) {
-            singleVendor['crossStreet'] ="";
+        singleVendor['addrCrossStreet'] = results[i].response.venue.location.crossStreet;
+        if (singleVendor['addrCrossStreet'] == undefined) {
+            singleVendor['addrCrossStreet'] = "";
         }
         singleVendor['addrCity'] = results[i].response.venue.location.city;
         if (singleVendor['addrCity'] == undefined) {
@@ -76,13 +76,13 @@ function getVendorData(results) {
             singleVendor['website'] = "";
         }
 
-        var tags = new Array();
+        var tags = [];
         if (results[i].response.venue.tags != undefined) {
             for(var j=0; j<results[i].response.venue.tags.length; j++) {
                 tags[j] = results[i].response.venue.tags[j];
             }
-            singleVendor['tags'] = tags;
-        }
+        } 
+        singleVendor['tags'] = tags;
         
         var categories = {};
         if (results[i].response.venue.categories != undefined) {
@@ -94,8 +94,8 @@ function getVendorData(results) {
             singleVendor['categories'] = categories;
         }
 
-        var photos = {};
         var counter = 0;
+        var photos = {};
         if (results[i].response.venue.photos != undefined) {
             for(var j=0; j<results[i].response.venue.photos.groups.length; j++) {
                 for (var k = 0; k < results[i].response.venue.photos.groups[j].items.length; k++) {
@@ -107,6 +107,7 @@ function getVendorData(results) {
             }
             singleVendor['photos'] = photos;
         }
+
         
         // add singleVendor to vendorData array
         vendorData[i] = singleVendor;

@@ -251,7 +251,7 @@ function bindReferDialogButtonFromSearch(friendList, vendorData) {
 //                            icon: vendor.icon,
 //                            rating: vendor.rating,
 //                            vicinity: vendor.vicinity 
-                            tags: vendor.tags,
+                            tags: JSON.stringify(vendor.tags),
                             categories: vendor.categories,
                             photos: vendor.photos
                         }, function(data) {
@@ -463,6 +463,12 @@ function bindAddToListButtonFromSearch(vendorData) {
                             
                         }
                         else {
+                            alert(vendor.id);
+//                            if(vendor.tags instanceof Array) {
+//                                alert("the tags is an array lala!");
+//                            } else {
+//                                alert("the tags is not an array");
+//                            }
                             jQuery.post('list_controller/add_to_new_list_from_search', {
                                 newListName: newListName,
                                 uid: myUID,
@@ -485,7 +491,7 @@ function bindAddToListButtonFromSearch(vendorData) {
 //                                icon: vendor.icon,
 //                                rating: vendor.rating,
 //                                vicinity: vendor.vicinity  
-                                tags: vendor.tags,
+                                tags: JSON.stringify(vendor.tags),
                                 categories: vendor.categories,
                                 photos: vendor.photos
                             }, function(data) {
@@ -538,7 +544,7 @@ function bindAddToListButtonFromSearch(vendorData) {
 //                                icon: vendor.icon,
 //                                rating: vendor.rating,
 //                                vicinity: vendor.vicinity
-                                tags: vendor.tags,
+                                tags: JSON.stringify(vendor.tags),
                                 categories: vendor.categories,
                                 photos: vendor.photos
                             }, function(data) {

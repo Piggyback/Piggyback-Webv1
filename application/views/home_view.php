@@ -250,7 +250,7 @@
                                                                     <!-- END HEADER OF ACCORDION HERE ENDS HERE -->
                                                                     <!-- vendor details here (among anything else)-->
                                                                     <div class="drop-down-details accordion-content">
-                                                                        <?php echo $VendorDetails->addrNum . " " . $VendorDetails->addrStreet . "<br>"; // add all list detail here
+                                                                        <?php echo $VendorDetails->addr . "<br>"; // add all list detail here
                                                                         echo $VendorDetails->addrCity . " " . $VendorDetails->addrState . " " . $VendorDetails->addrZip . "<br>";
                                                                         echo $VendorDetails->phone;
                                                                         if ($VendorDetails->website != '') {

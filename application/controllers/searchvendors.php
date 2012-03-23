@@ -71,7 +71,7 @@ class searchvendors extends CI_Controller {
         $website = $this->input->post('website');
 //        $icon = $this->input->post('icon');
 //        $rating = $this->input->post('rating');
-        $tags = $this->input->post('tags');
+        $tags = json_decode($this->input->post('tags'));
         $categories = $this->input->post('categories');
         $photos = $this->input->post('photos');
         echo $this->search_vendors_model->refer_from_search($id,$uid,$numFriends,$uidFriends,$comment,$name,$lat,$lng,$phone,$addr,$addrCrossStreet,$addrCity,$addrState,$addrCountry,$addrZip,$website,$tags,$categories,$photos);

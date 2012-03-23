@@ -3,6 +3,41 @@ require(APPPATH.'libraries/REST_Controller.php');
 
 class InboxAPI extends REST_Controller
 {
+    /**
+     * returns all single vendors referred to user
+     */
+    function inboxSingleVendorInboxItems_get() {
+        $uid = $this->get('id');
+        if (!$uid) {
+            $this->response(NULL,400);
+        } else {
+            $this->load->model('inbox_model');
+            
+            $vendorList = $this->inbox_model->get_single_vendor_inbox_items($uid);
+            if ($vendorList) {
+                $this->response($vendorList);
+            } else {
+                $this->response(array('error' => 'User could not be found'), 404);
+            }
+        }
+    }
+    
+    function inboxVendors_get() {
+        $uid = $this->get('id');
+        if (!$uid) {
+            $this->response(NULL,400);
+        } else {
+            $this->load->model('inbox_model');
+            
+            $vendorList = $this->inbox_model->get_vendors($uid);
+            if ($vendorList) {
+                $this->response($vendorList);
+            } else {
+                $this->response(array('error' => 'User could not be found'), 404);
+            }
+        }
+    }
+    
     // get inbox contents
     function inbox_get() {
         $uid = $this->get('id');
@@ -49,8 +84,8 @@ class InboxAPI extends REST_Controller
             $incomingReferralsAssocArray = array();
             if ($listsWithEntrysWithIncomingReferralsResult) {
                 foreach ($listsWithEntrysWithIncomingReferralsResult as $row) {
-                    if (!array_key_exists($row->referraldetails_vid, $incomingReferralsAssocArray)) {                            
-                        $incomingReferralsAssocArray[$row->referraldetails_vid] = array();
+                    if (!array_key_exists($row->referral_vid, $incomingReferralsAssocArray)) {                            
+                        $incomingReferralsAssocArray[$row->referral_vid] = array();
                     }
 
                     $referredBy = new stdClass();
@@ -67,16 +102,16 @@ class InboxAPI extends REST_Controller
                     $referredBy->rid = $row->referral_rid;
                     $referredBy->referralLid = $row->referral_lid;
                     $referredBy->date = $row->referral_date;
-                    if (array_key_exists($row->referraldetails_vid, $listEntryCommentsOfIncomingReferralsAssocArray)) {
-                        if (array_key_exists($row->referral_lid, $listEntryCommentsOfIncomingReferralsAssocArray[$row->referraldetails_vid])) {
-                            $referredBy->listEntryComment = $listEntryCommentsOfIncomingReferralsAssocArray[$row->referraldetails_vid][$row->referral_lid];
+                    if (array_key_exists($row->referral_vid, $listEntryCommentsOfIncomingReferralsAssocArray)) {
+                        if (array_key_exists($row->referral_lid, $listEntryCommentsOfIncomingReferralsAssocArray[$row->referral_vid])) {
+                            $referredBy->listEntryComment = $listEntryCommentsOfIncomingReferralsAssocArray[$row->referral_vid][$row->referral_lid];
                         } else {
                             $referredBy->listEntryComment = "";
                         }
                     } else {
                         $referredBy->listEntryComment = "";
                     }
-                    array_push($incomingReferralsAssocArray[$row->referraldetails_vid], $referredBy);
+                    array_push($incomingReferralsAssocArray[$row->referral_vid], $referredBy);
                 }
             }
             
@@ -167,8 +202,7 @@ class InboxAPI extends REST_Controller
                         
                         // get other friends referred to this list
 //                        $otherFriends = $this->inbox_model->other_friends_to_list($inboxItem->referral_lid,$inboxItem->uid1,$uid);
-                        $otherFriends = array();
-                        $newInboxItem->otherFriends = $otherFriends;
+                        $newInboxItem->otherFriends = array();
                         
 //                        if (array_key_exists($inboxItem->referral_lid,$listEntrysArray)) {
 //                            $newInboxItem->listEntrys = $listEntrysArray[$inboxItem->referral_lid];

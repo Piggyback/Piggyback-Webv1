@@ -125,8 +125,7 @@ class Referrals_Model extends CI_Model {
                 // if the referral is a list
                 if ( $lid != 0 ) {
                     // so that you display referred lists as they were at time of referral
-                    $query = "SELECT vid, comment FROM Lists WHERE lid = ? AND vid IN (SELECT vid FROM ReferralDetails WHERE rid = ?)
-                                AND date < (SELECT date FROM Referrals WHERE rid = ?) AND ((deleted != 1) 
+                    $query = "SELECT vid, comment FROM Lists WHERE lid = ? AND date < (SELECT date FROM Referrals WHERE rid = ?) AND ((deleted != 1) 
                                 OR (deleted = 1 AND deletedDate > (SELECT date FROM Referrals WHERE rid = ?)))";
                     $vidList = $this->db->query($query,array($lid,$rid,$rid,$rid))->result();
 
@@ -136,7 +135,7 @@ class Referrals_Model extends CI_Model {
                             $vid = $vidRow->vid;
 
                             $this->db->select('*');
-                            $this->db->from('Vendors');
+                            $this->db->from('VendorsFoursquare');
                             $this->db->where('id', $vid);
 
                             $vendorDetails = $this->db->get()->result();
@@ -179,17 +178,17 @@ class Referrals_Model extends CI_Model {
                 } else {
                     // if the referral is single vendor, then
                     $this->db->select('vid');
-                    $this->db->from('ReferralDetails');
-                    $this->db->where('ReferralDetails.rid', $rid);
+                    $this->db->from('Referrals');
+                    $this->db->where('Referrals.rid', $rid);
 
                     // ReferralDetails is an associative array that holds the vendor information
-                    $ReferralDetails = $this->db->get()->result();
+                    $Referrals = $this->db->get()->result();
 
-                    if($ReferralDetails) {
-                        $vid = $ReferralDetails[0]->vid;
+                    if($Referrals) {
+                        $vid = $Referrals[0]->vid;
 
                         $this->db->select('*');
-                        $this->db->from('Vendors');
+                        $this->db->from('VendorsFoursquare');
                         $this->db->where('id', $vid);
 
                         $vendorDetails = $this->db->get()->result();
@@ -203,7 +202,7 @@ class Referrals_Model extends CI_Model {
                         }
                     } else {
                         // if no corresponding record in referralDetails
-                        $isCorrupted = "6: Error in finding corresponding row in ReferralDetails table. No lists attached to this referral. 
+                        $isCorrupted = "6: Error in finding corresponding row in Referrals table. No lists attached to this referral. 
                                         RID: " . $rid . ", LID: " . $lid . ", comment: " . $row->comment;
                     }
                 }

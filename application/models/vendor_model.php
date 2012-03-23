@@ -14,7 +14,7 @@ class vendor_model extends CI_Model {
     function get_vendor_info($vid) 
     {
         $this->db->select('*, id as vid');
-        $query = $this->db->get_where('Vendors', array('id' => $vid));
+        $query = $this->db->get_where('VendorsFoursquare', array('id' => $vid));
         return $query->result();
     }
     
@@ -39,11 +39,12 @@ class vendor_model extends CI_Model {
     function get_referred_by($uid, $vid) 
     {
         $this->db->distinct();
-        $this->db->select('uid1,comment,firstName,lastName,fbid,email,lid,date');
+        $this->db->select('uid1,comment,firstName,lastName,fbid,email,Referrals.lid,date');
         $this->db->from('Referrals');
-        $this->db->join('ReferralDetails','Referrals.rid = ReferralDetails.rid','left');
+//        $this->db->join('ReferralDetails','Referrals.rid = ReferralDetails.rid','left');
+        $this->db->join('Lists', 'Referrals.lid = Lists.lid', 'left');
         $this->db->join('Users','Referrals.uid1 = Users.uid','left');
-        $this->db->where('vid',$vid);
+        $this->db->where('Lists.vid',$vid);
         $this->db->where('uid2',$uid);
         $this->db->where('deletedUID1',0);
         $this->db->order_by('lid asc, date desc');
