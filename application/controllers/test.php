@@ -2,22 +2,23 @@
 
 class test extends CI_Controller {
 
-    public function index()
+    
+    
+    function __construct()
     {
-        //$this->load->model('test_model');
-        $this->load->view('test');
+        parent::__construct();
+        $this->load->model('test_model');
     }
     
-    public function testmeth() {
-        $this->load->model('test_model');
-        $this->test_model->get_referral_items();
-//        $data['blah'] = $this->test_model->testMethod();
-//        $this->load->view('test_view',$data);
-    }  
     
-    public function refer_list() {
-        $this->load->model('test_model');
-        $this->test_model->refer_list();
+    public function index()
+    {
+        $this->load->view('test_view');
+        $this->transfer_google_vendor_table_to_foursquare_api();
+    }
+    
+    public function transfer_google_vendor_table_to_foursquare_api() {
+        $this->test_model->transfer_google_vendor_table_to_foursquare_api();
     }
 
 }

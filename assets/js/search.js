@@ -18,111 +18,206 @@ function hideLoading() {
   $("#loading").hide();
 }
 
- 
-// retrieve vendor data from google API request for specific search and store results
-function getVendorData(results) {
-
-//    var results = parsedJSON.searchResults;
-//    var srcLat = parsedJSON.srcLat;
-//    var srcLng = parsedJSON.srcLng;
-
+// get vendor data from foursquare api search and store results
+function getVendorData(results) {    
     var vendorData = new Array();
-    for(var i=0; i<results.length; i++) {
+    
+    for(var i = 0; i < results.length; i++) {
         var singleVendor = new Array();
         var addrComponents;
 
         // get values if they exist, otherwise set to default value
-        singleVendor['name'] = results[i].result.name;
+        singleVendor['name'] = results[i].response.venue.name;
         if (singleVendor['name'] == undefined) {
             singleVendor['name'] = "";
         }
-        singleVendor['reference'] = results[i].result.reference;
-        if (singleVendor['reference'] == undefined) {
-            singleVendor['reference'] = "";
-        }
-        singleVendor['id'] = results[i].result.id;
+        singleVendor['id'] = results[i].response.venue.id;
         if (singleVendor['id'] == undefined) {
             singleVendor['id'] = "";
         }
-        singleVendor['lat'] = results[i].result.geometry.location.lat;
-        if (singleVendor['lat'] == undefined) {
-            singleVendor['lat'] = 0;
-        }
-        singleVendor['lng'] = results[i].result.geometry.location.lng;
-        if (singleVendor['lng'] == undefined) {
-            singleVendor['lng'] = 0;
-        }
-        singleVendor['phone'] = results[i].result.formatted_phone_number;
+        singleVendor['phone'] = results[i].response.venue.contact.formattedPhone;
         if (singleVendor['phone'] == undefined) {
             singleVendor['phone'] = "";
         }
-        singleVendor['addr'] = results[i].result.formatted_address;
+        singleVendor['lat'] = results[i].response.venue.location.lat;
+        if (singleVendor['lat'] == undefined) {
+            singleVendor['lat'] = 0;
+        }
+        singleVendor['lng'] = results[i].response.venue.location.lng;
+        if (singleVendor['lng'] == undefined) {
+            singleVendor['lng'] = 0;
+        }
+        singleVendor['addr'] = results[i].response.venue.location.address;
         if (singleVendor['addr'] == undefined) {
             singleVendor['addr'] = "";
         }
-
-        singleVendor['addrNum'] = "";
-        singleVendor['addrStreet'] = "";
-        singleVendor['addrCity'] = "";
-        singleVendor['addrState'] = "";
-        singleVendor['addrCountry'] = "";
-        singleVendor['addrZip'] = "";
-        addrComponents = results[i].result.address_components;
-        if (addrComponents != undefined) {
-            for (var j = 0; j < addrComponents.length; j++) {
-                switch (addrComponents[j].types[0]) {
-                    case "street_number":
-                        singleVendor['addrNum'] = addrComponents[j].short_name;
-                        break;
-                    case "route":
-                        singleVendor['addrStreet'] = addrComponents[j].short_name;
-                        break;
-                    case "locality":
-                        singleVendor['addrCity'] = addrComponents[j].short_name;
-                        break;
-                    case "administrative_area_level_1":
-                        singleVendor['addrState'] = addrComponents[j].short_name;
-                        break;
-                    case "country":
-                        singleVendor['addrCountry'] = addrComponents[j].short_name;
-                        break;
-                    case "postal_code":
-                        singleVendor['addrZip'] = addrComponents[j].short_name;
-                        break;
-                }
-            }
+        singleVendor['crossStreet'] = results[i].response.venue.location.crossStreet;
+        if (singleVendor['crossStreet'] == undefined) {
+            singleVendor['crossStreet'] ="";
         }
-
-        singleVendor['website'] = results[i].result.website;
+        singleVendor['addrCity'] = results[i].response.venue.location.city;
+        if (singleVendor['addrCity'] == undefined) {
+            singleVendor['addrCity'] = "";
+        }
+        singleVendor['addrState'] = results[i].response.venue.location.state;
+        if (singleVendor['addrState'] == undefined) {
+            singleVendor['addrState'] = "";
+        }
+        singleVendor['addrCountry'] = results[i].response.venue.location.country;
+        if (singleVendor['addrCountry'] == undefined) {
+            singleVendor['addrCountry'] = "";
+        }
+        singleVendor['addrZip'] = results[i].response.venue.location.postalCode;
+        if (singleVendor['addrZip'] == undefined) {
+            singleVendor['addrZip'] = "";
+        }
+        singleVendor['website'] = results[i].response.venue.url;
         if (singleVendor['website'] == undefined) {
             singleVendor['website'] = "";
         }
-        singleVendor['icon'] = results[i].result.icon;
-        if (singleVendor['icon'] == undefined) {
-            singleVendor['icon'] = "";
-        }
-        singleVendor['rating'] = results[i].result.rating;
-        if (singleVendor['rating'] == undefined) {
-            singleVendor['rating'] = 0;
-        }
-        singleVendor['vicinity'] = results[i].result.vicinity;
-        if (singleVendor['vicinity'] == undefined) {
-            singleVendor['vicinity'] = "";
-        }
 
-        var types = new Array();
-        if (results[i].result.types != undefined) {
-            for(var j=0; j<results[i].result.types.length; j++) {
-                types[j] = results[i].result.types[j];
+        var tags = new Array();
+        if (results[i].response.venue.tags != undefined) {
+            for(var j=0; j<results[i].response.venue.tags.length; j++) {
+                tags[j] = results[i].response.venue.tags[j];
             }
-            singleVendor['types'] = types;
+            singleVendor['tags'] = tags;
+        }
+        
+        var categories = {};
+        if (results[i].response.venue.categories != undefined) {
+            for(var j=0; j<results[i].response.venue.categories.length; j++) {
+                categories[j] = {};
+                categories[j]['cid'] = results[i].response.venue.categories[j].id;
+                categories[j]['categoryName'] = results[i].response.venue.categories[j].name;
+            }
+            singleVendor['categories'] = categories;
         }
 
+        var photos = {};
+        var counter = 0;
+        if (results[i].response.venue.photos != undefined) {
+            for(var j=0; j<results[i].response.venue.photos.groups.length; j++) {
+                for (var k = 0; k < results[i].response.venue.photos.groups[j].items.length; k++) {
+                    photos[counter] = {};
+                    photos[counter]['pid'] = results[i].response.venue.photos.groups[j].items[k].id;
+                    photos[counter]['photoURL'] = results[i].response.venue.photos.groups[j].items[k].url;
+                    counter++;
+                }
+            }
+            singleVendor['photos'] = photos;
+        }
+        
         // add singleVendor to vendorData array
         vendorData[i] = singleVendor;
     }
     return vendorData;
 }
+
+// retrieve vendor data from google API request for specific search and store results
+//function getVendorData(results) {
+//
+////    var results = parsedJSON.searchResults;
+////    var srcLat = parsedJSON.srcLat;
+////    var srcLng = parsedJSON.srcLng;
+//
+//    var vendorData = new Array();
+//    for(var i=0; i<results.length; i++) {
+//        var singleVendor = new Array();
+//        var addrComponents;
+//
+//        // get values if they exist, otherwise set to default value
+//        singleVendor['name'] = results[i].result.name;
+//        if (singleVendor['name'] == undefined) {
+//            singleVendor['name'] = "";
+//        }
+//        singleVendor['reference'] = results[i].result.reference;
+//        if (singleVendor['reference'] == undefined) {
+//            singleVendor['reference'] = "";
+//        }
+//        singleVendor['id'] = results[i].result.id;
+//        if (singleVendor['id'] == undefined) {
+//            singleVendor['id'] = "";
+//        }
+//        singleVendor['lat'] = results[i].result.geometry.location.lat;
+//        if (singleVendor['lat'] == undefined) {
+//            singleVendor['lat'] = 0;
+//        }
+//        singleVendor['lng'] = results[i].result.geometry.location.lng;
+//        if (singleVendor['lng'] == undefined) {
+//            singleVendor['lng'] = 0;
+//        }
+//        singleVendor['phone'] = results[i].result.formatted_phone_number;
+//        if (singleVendor['phone'] == undefined) {
+//            singleVendor['phone'] = "";
+//        }
+//        singleVendor['addr'] = results[i].result.formatted_address;
+//        if (singleVendor['addr'] == undefined) {
+//            singleVendor['addr'] = "";
+//        }
+//
+//        singleVendor['addrNum'] = "";
+//        singleVendor['addrStreet'] = "";
+//        singleVendor['addrCity'] = "";
+//        singleVendor['addrState'] = "";
+//        singleVendor['addrCountry'] = "";
+//        singleVendor['addrZip'] = "";
+//        addrComponents = results[i].result.address_components;
+//        if (addrComponents != undefined) {
+//            for (var j = 0; j < addrComponents.length; j++) {
+//                switch (addrComponents[j].types[0]) {
+//                    case "street_number":
+//                        singleVendor['addrNum'] = addrComponents[j].short_name;
+//                        break;
+//                    case "route":
+//                        singleVendor['addrStreet'] = addrComponents[j].short_name;
+//                        break;
+//                    case "locality":
+//                        singleVendor['addrCity'] = addrComponents[j].short_name;
+//                        break;
+//                    case "administrative_area_level_1":
+//                        singleVendor['addrState'] = addrComponents[j].short_name;
+//                        break;
+//                    case "country":
+//                        singleVendor['addrCountry'] = addrComponents[j].short_name;
+//                        break;
+//                    case "postal_code":
+//                        singleVendor['addrZip'] = addrComponents[j].short_name;
+//                        break;
+//                }
+//            }
+//        }
+//
+//        singleVendor['website'] = results[i].result.website;
+//        if (singleVendor['website'] == undefined) {
+//            singleVendor['website'] = "";
+//        }
+//        singleVendor['icon'] = results[i].result.icon;
+//        if (singleVendor['icon'] == undefined) {
+//            singleVendor['icon'] = "";
+//        }
+//        singleVendor['rating'] = results[i].result.rating;
+//        if (singleVendor['rating'] == undefined) {
+//            singleVendor['rating'] = 0;
+//        }
+//        singleVendor['vicinity'] = results[i].result.vicinity;
+//        if (singleVendor['vicinity'] == undefined) {
+//            singleVendor['vicinity'] = "";
+//        }
+//
+//        var types = new Array();
+//        if (results[i].result.types != undefined) {
+//            for(var j=0; j<results[i].result.types.length; j++) {
+//                types[j] = results[i].result.types[j];
+//            }
+//            singleVendor['types'] = types;
+//        }
+//
+//        // add singleVendor to vendorData array
+//        vendorData[i] = singleVendor;
+//    }
+//    return vendorData;
+//}
 
 
 // display vendor search results in accordion

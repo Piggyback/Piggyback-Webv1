@@ -138,12 +138,12 @@ class List_model extends CI_Model {
         return $result->result();
     }
     
-    function add_to_existing_list_from_search($name, $reference, $id, $lat, $lng, $phone, $addr, $addrNum, $addrStreet, $addrCity, $addrState, 
-            $addrCountry, $addrZip, $vicinity, $website, $icon, $rating, $lid, $vid, $comment) {
+    function add_to_existing_list_from_search($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
+            $addrCountry, $addrZip, $website, $tags, $categories, $photos, $lid, $vid, $comment) {
         $this->db->trans_start();
         
-        $this->add_vendor($name, $reference, $id, $lat, $lng, $phone, $addr, $addrNum, $addrStreet, $addrCity, $addrState, 
-            $addrCountry, $addrZip, $vicinity, $website, $icon, $rating);
+        $this->add_vendor($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
+            $addrCountry, $addrZip, $website, $tags, $categories, $photos);
         $result = $this->add_vendor_to_list($lid, $vid, $comment);
         
         $this->db->trans_complete();
@@ -352,12 +352,12 @@ class List_model extends CI_Model {
         $this->db->update('Lists', $data, array('lid' => $lid, 'vid' => $vid));
     }
     
-    function add_to_new_list_from_search($name, $reference, $id, $lat, $lng, $phone, $addr, $addrNum, $addrStreet, $addrCity, $addrState, 
-            $addrCountry, $addrZip, $vicinity, $website, $icon, $rating, $uid, $newListName, $vid, $comment) {
+    function add_to_new_list_from_search($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
+            $addrCountry, $addrZip, $website, $tags, $categories, $photos, $uid, $newListName, $vid, $comment) {
         $this->db->trans_start();
         
-        $this->add_vendor($name, $reference, $id, $lat, $lng, $phone, $addr, $addrNum, $addrStreet, $addrCity, $addrState, 
-            $addrCountry, $addrZip, $vicinity, $website, $icon, $rating);        
+        $this->add_vendor($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
+            $addrCountry, $addrZip, $website, $tags, $categories, $photos);        
         $result = $this->add_vendor_to_new_list($uid, $newListName, $vid, $comment);
 
         $this->db->trans_complete();
@@ -386,18 +386,69 @@ class List_model extends CI_Model {
     }
     
     
-    function add_vendor($name, $reference, $id, $lat, $lng, $phone, $addr, $addrNum, $addrStreet, $addrCity, $addrState, 
-            $addrCountry, $addrZip, $vicinity, $website, $icon, $rating) {
+//    function add_vendor($name, $reference, $id, $lat, $lng, $phone, $addr, $addrNum, $addrStreet, $addrCity, $addrState, 
+//            $addrCountry, $addrZip, $vicinity, $website, $icon, $rating) {
+//
+//        // find if vendor exists in db yet        
+//        $existingVendorQuery = "SELECT id FROM Vendors WHERE id = ?";
+//        $existingVendorResult = $this->db->query($existingVendorQuery,array($id));
+//
+//        // add to vendor db if it does not exist yet
+//        if ($existingVendorResult->num_rows() == 0) {
+//           $addVendorQuery = "INSERT INTO Vendors 
+//                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+//           $this->db->query($addVendorQuery,array($name,$reference,$id,$lat,$lng,$phone,$addr,$addrNum,$addrStreet,$addrCity,$addrState,$addrCountry,$addrZip,$vicinity,$website,$icon,$rating));
+//        }
+    
+    // add vendor to db for foursquare api
+    function add_vendor($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
+            $addrCountry, $addrZip, $website, $tags, $categories, $photos) {
 
         // find if vendor exists in db yet        
-        $existingVendorQuery = "SELECT id FROM Vendors WHERE id = ?";
+        $existingVendorQuery = "SELECT id FROM VendorsFoursquare WHERE id = ?";
         $existingVendorResult = $this->db->query($existingVendorQuery,array($id));
 
         // add to vendor db if it does not exist yet
         if ($existingVendorResult->num_rows() == 0) {
-           $addVendorQuery = "INSERT INTO Vendors 
-                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-           $this->db->query($addVendorQuery,array($name,$reference,$id,$lat,$lng,$phone,$addr,$addrNum,$addrStreet,$addrCity,$addrState,$addrCountry,$addrZip,$vicinity,$website,$icon,$rating));
+            
+            // add vendor info to vendor table
+           $addVendorQuery = "INSERT INTO VendorsFoursquare
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+           $this->db->query($addVendorQuery,array($name,$id,$lat,$lng,$phone,$addr,$addrCrossStreet,$addrCity,$addrState,$addrCountry,$addrZip,$website));
+        
+           // add tags to tag table
+           if (count($tags) > 0) {
+               $addTagsQuery = "INSERT INTO VendorsFoursquareTags VALUES ";
+               foreach ($tags as $tag) {
+                   $addTagsQuery = "$addTagsQuery (\"$id\",\"$tag\"),";
+               }
+               $addTagsQuery = substr($addTagsQuery,0,-1);
+               $this->db->query($addTagsQuery);
+           }
+           
+           // add categories to category table
+           if (count($categories) > 0) {
+               $addCategoriesQuery = "INSERT INTO VendorsFoursquareCategories VALUES ";
+               foreach ($categories as $category) {
+                   $cid = $category['cid'];
+                   $categoryName = $category['categoryName'];
+                   $addCategoriesQuery = "$addCategoriesQuery (\"$id\",\"$cid\",\"$categoryName\"),";
+               }
+               $addCategoriesQuery = substr($addCategoriesQuery,0,-1);
+               $this->db->query($addCategoriesQuery);
+           }
+           
+           // add photos to photo table
+           if (count($photos) > 0) {
+               $addPhotosQuery = "INSERT INTO VendorsFoursquarePhotos VALUES ";
+               foreach ($photos as $photo) {
+                   $pid = $photo['pid'];
+                   $photoURL = $photo['photoURL'];
+                   $addPhotosQuery = "$addPhotosQuery (\"$id\",\"$pid\",\"$photoURL\"),";
+               }
+               $addPhotosQuery = substr($addPhotosQuery,0,-1);
+               $this->db->query($addPhotosQuery);
+           }
         }
     }
     

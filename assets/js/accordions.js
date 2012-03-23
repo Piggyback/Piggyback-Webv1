@@ -963,7 +963,8 @@ function createListHeaderHTMLString(row, itemType, listOrSingle) {
 function createListDetailsHTMLString(details) {
     // vendor details are here
     var listDetailsHTMLString =
-        details.addrNum + " " + details.addrStreet + "<br>" +
+//        details.addrNum + " " + details.addrStreet + "<br>" +
+        details.addr + "<br>" +
         details.addrCity + " " + details.addrState + " " + details.addrZip + "<br>" +
         details.phone;
     if (details.website != '') {

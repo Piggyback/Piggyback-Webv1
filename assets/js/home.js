@@ -248,17 +248,17 @@ function initSearchAJAX() {
         });
 
         showLoading();
+        
+        // perform search
         jQuery.post('searchvendors/perform_search', {
             searchLocation: values['searchLocation'],
             searchText: values['searchText']
             }, function(data) {
                 hideLoading();
-                var parsedJSON = jQuery.parseJSON(data);
-                var results = parsedJSON.searchResults;
-                
                 resetTabsStates();  // reset tabs to default setting
+                var results = jQuery.parseJSON(data);
                 
-                // errors
+                // handling errors
                 if (results[0] == "error") {
                     var errorType;
                     if (results[1] == "locationError") {
@@ -269,44 +269,27 @@ function initSearchAJAX() {
                     else if (results[1] == "searchError") {
                         errorType = "Error with Search";
                     }
-
-                    // print out error message
-                    switch (results[2]) {
-                        case "ZERO_RESULTS":
-                            errorType = errorType + ": No results were found";
-                            break;
-                        case "OVER_QUERY_LIMIT":
-                            errorType = errorType + ": You are over the API query limit";
-                            break;
-                        case "REQUEST_DENIED":
-                            errorType = errorType + ": Your request was denied";
-                            break;
-                        case "INVALID_REQUEST":
-                            errorType = errorType + ": Your request is invalid";
-                            break;
-                        default:
-                            break;
-                    }
                     
-                    $('#search-content').append(errorType);
-
-                }
-                else {  // no errors
+                    $('search-content').append(errorType);
+                } else {
                     var vendorDetails = new Array();
-                    
+//                    var singleVendorInfo;
+
                     // show most important results first -- must force bc of asynchronous callbacks
+                    if (results.length == 0) {
+                        alert('No results matching your query were found. Please try again!');
+                    }
                     var limit = Math.min(results.length,3);
                     var tracker = 0;
                     for (var i = 0; i < limit; i++) {
                         tracker += 1;
-                        $.ajaxSetup({async:false})
+                        jQuery.ajaxSetup({async:false})
                         jQuery.post('searchvendors/get_search_details', {
-                            reference: results[i].reference
+                            id: results[i].id
                         }, function(data) {
                             singleVendorInfo = jQuery.parseJSON(data);
                             vendorDetails.push(singleVendorInfo);
                             var vendorData = getVendorData(vendorDetails);
-//                            displaySearchResults(vendorData);
                             displaySearchItems(vendorData);
                             
                             // display the rest after showing the first few
@@ -315,12 +298,11 @@ function initSearchAJAX() {
                                 $.ajaxSetup({async:true})
                                 for (var j = limit; j < results.length; j++) {
                                    jQuery.post('searchvendors/get_search_details', {
-                                        reference: results[j].reference
+                                        id: results[j].id
                                     }, function(data) {
                                         singleVendorInfo = jQuery.parseJSON(data);
                                         vendorDetails.push(singleVendorInfo);
                                         var vendorData = getVendorData(vendorDetails);
-//                                        displaySearchResults(vendorData);
                                         displaySearchItems(vendorData);
                                     });
                                 }
@@ -328,6 +310,80 @@ function initSearchAJAX() {
                         });
                     }
                 }
+               
+//             // errors from google places api
+//                var parsedJSON = jQuery.parseJSON(data);
+//                var results = parsedJSON.searchResults;
+//                
+//                if (results[0] == "error") {
+//                    var errorType;
+//                    if (results[1] == "locationError") {
+//                            errorType = "Error with Location";
+//                    }
+//
+//                    // error with the search
+//                    else if (results[1] == "searchError") {
+//                        errorType = "Error with Search";
+//                    }
+//
+//                    // print out error message
+//                    switch (results[2]) {
+//                        case "ZERO_RESULTS":
+//                            errorType = errorType + ": No results were found";
+//                            break;
+//                        case "OVER_QUERY_LIMIT":
+//                            errorType = errorType + ": You are over the API query limit";
+//                            break;
+//                        case "REQUEST_DENIED":
+//                            errorType = errorType + ": Your request was denied";
+//                            break;
+//                        case "INVALID_REQUEST":
+//                            errorType = errorType + ": Your request is invalid";
+//                            break;
+//                        default:
+//                            break;
+//                    }
+//                    
+//                    $('#search-content').append(errorType);
+//
+//                }
+//                else {  // no errors
+//                    var vendorDetails = new Array();
+//                    
+//                    // show most important results first -- must force bc of asynchronous callbacks
+//                    var limit = Math.min(results.length,3);
+//                    var tracker = 0;
+//                    for (var i = 0; i < limit; i++) {
+//                        tracker += 1;
+//                        $.ajaxSetup({async:false})
+//                        jQuery.post('searchvendors/get_search_details', {
+//                            reference: results[i].reference
+//                        }, function(data) {
+//                            singleVendorInfo = jQuery.parseJSON(data);
+//                            vendorDetails.push(singleVendorInfo);
+//                            var vendorData = getVendorData(vendorDetails);
+////                            displaySearchResults(vendorData);
+//                            displaySearchItems(vendorData);
+//                            
+//                            // display the rest after showing the first few
+//                            if (tracker == limit) {
+//                                tracker--;
+//                                $.ajaxSetup({async:true})
+//                                for (var j = limit; j < results.length; j++) {
+//                                   jQuery.post('searchvendors/get_search_details', {
+//                                        reference: results[j].reference
+//                                    }, function(data) {
+//                                        singleVendorInfo = jQuery.parseJSON(data);
+//                                        vendorDetails.push(singleVendorInfo);
+//                                        var vendorData = getVendorData(vendorDetails);
+////                                        displaySearchResults(vendorData);
+//                                        displaySearchItems(vendorData);
+//                                    });
+//                                }
+//                            }
+//                        });
+//                    }
+//                }
             });
 
         $('#search-content').removeClass("ui-tabs-hide");

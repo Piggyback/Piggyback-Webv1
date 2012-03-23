@@ -236,21 +236,24 @@ function bindReferDialogButtonFromSearch(friendList, vendorData) {
                             uidFriends: uidFriendsStr,
                             id: vendor.id, 
                             name: vendor.name,
-                            reference: vendor.reference,
+//                            reference: vendor.reference,
                             lat: vendor.lat,
                             lng: vendor.lng,
                             phone: vendor.phone,
                             addr: vendor.addr,
-                            addrNum: vendor.addrNum,
-                            addrStreet: vendor.addrStreet,
+//                            addrNum: vendor.addrNum,
+                            addrCrossStreet: vendor.addrCrossStreet,
                             addrCity: vendor.addrCity,
                             addrState: vendor.addrState,
                             addrCountry: vendor.addrCountry,
                             addrZip: vendor.addrZip,
                             website: vendor.website,
-                            icon: vendor.icon,
-                            rating: vendor.rating,
-                            vicinity: vendor.vicinity 
+//                            icon: vendor.icon,
+//                            rating: vendor.rating,
+//                            vicinity: vendor.vicinity 
+                            tags: vendor.tags,
+                            categories: vendor.categories,
+                            photos: vendor.photos
                         }, function(data) {
                             if (data == "Vendor referral could not be processed") {
                                 alert("Vendor referral could not be processed");
@@ -424,13 +427,13 @@ function bindAddToListButtonFromSearch(vendorData) {
         var vid_string = $(this).attr('id');
         var vid = vid_string.substring(vid_string.indexOf('id--') + 'id--'.length);
         var vendor;
-        
+
         for(var i = 0; i < vendorData.length; i++) {
             if (vendorData[i].id == vid) {
                 vendor = vendorData[i];
             }
         }
-                
+        
         // add comment box for adding to a list from the search
         var showCommentBoxHTML = "<label for='add-to-list-comment-box'>" + 
                                 "Add a comment to remember what you like about this place!" +
@@ -466,22 +469,25 @@ function bindAddToListButtonFromSearch(vendorData) {
                                 vid: vid,
                                 comment: comment,
                                 name: vendor.name,
-                                reference: vendor.reference,
+//                                reference: vendor.reference,
                                 id: vendor.id,
                                 lat: vendor.lat,
                                 lng: vendor.lng,
                                 phone: vendor.phone,
                                 addr: vendor.addr,
-                                addrNum: vendor.addrNum,
-                                addrStreet: vendor.addrStreet,
+//                                addrNum: vendor.addrNum,
+                                addrCrossStreet: vendor.addrCrossStreet,
                                 addrCity: vendor.addrCity,
                                 addrState: vendor.addrState,
                                 addrCountry: vendor.addrCountry,
                                 addrZip: vendor.addrZip,
                                 website: vendor.website,
-                                icon: vendor.icon,
-                                rating: vendor.rating,
-                                vicinity: vendor.vicinity  
+//                                icon: vendor.icon,
+//                                rating: vendor.rating,
+//                                vicinity: vendor.vicinity  
+                                tags: vendor.tags,
+                                categories: vendor.categories,
+                                photos: vendor.photos
                             }, function(data) {
                                 var parsedJSON = jQuery.parseJSON(data);
                                 if (parsedJSON == "Could not create list. Please try again!") {
@@ -516,22 +522,25 @@ function bindAddToListButtonFromSearch(vendorData) {
                                 lid: selectedList,
                                 comment: comment,
                                 name: vendor.name,
-                                reference: vendor.reference,
+//                                reference: vendor.reference,
                                 id: vendor.id,
                                 lat: vendor.lat,
                                 lng: vendor.lng,
                                 phone: vendor.phone,
                                 addr: vendor.addr,
-                                addrNum: vendor.addrNum,
-                                addrStreet: vendor.addrStreet,
+//                                addrNum: vendor.addrNum,
+                                addrCrossStreet: vendor.addrCrossStreet,
                                 addrCity: vendor.addrCity,
                                 addrState: vendor.addrState,
                                 addrCountry: vendor.addrCountry,
                                 addrZip: vendor.addrZip,
                                 website: vendor.website,
-                                icon: vendor.icon,
-                                rating: vendor.rating,
-                                vicinity: vendor.vicinity  
+//                                icon: vendor.icon,
+//                                rating: vendor.rating,
+//                                vicinity: vendor.vicinity
+                                tags: vendor.tags,
+                                categories: vendor.categories,
+                                photos: vendor.photos
                             }, function(data) {
                                 var vendorObj = jQuery.parseJSON(data);
                                 if (vendorObj == "Could not add to list. Please try again!") {

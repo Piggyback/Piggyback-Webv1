@@ -43,28 +43,31 @@ class List_controller extends CI_Controller {
     
     public function add_to_existing_list_from_search() {
         $name = $this->input->post('name');
-        $reference = $this->input->post('reference');
+//        $reference = $this->input->post('reference');
         $id = $this->input->post('id');
         $lat = $this->input->post('lat');
         $lng = $this->input->post('lng');
         $phone = $this->input->post('phone');
         $addr = $this->input->post('addr');
-        $addrNum = $this->input->post('addrNum');
-        $addrStreet = $this->input->post('addrStreet');
+//        $addrNum = $this->input->post('addrNum');
+        $addrCrossStreet = $this->input->post('addrCrossStreet');
         $addrCity = $this->input->post('addrCity');
         $addrState = $this->input->post('addrState');
         $addrCountry = $this->input->post('addrCountry');
         $addrZip = $this->input->post('addrZip');
-        $vicinity = $this->input->post('vicinity');
+//        $vicinity = $this->input->post('vicinity');
         $website = $this->input->post('website');
-        $icon = $this->input->post('icon');
-        $rating = $this->input->post('rating');
-        
+//        $icon = $this->input->post('icon');
+//        $rating = $this->input->post('rating');
+        $tags = $this->input->post('tags');
+        $categories = $this->input->post('categories');
+        $photos = $this->input->post('photos');
         $lid = $this->input->post('lid');
         $vid = $this->input->post('vid');
         $comment = $this->input->post('comment');
-        echo json_encode($this->list_model->add_to_existing_list_from_search($name, $reference, $id, $lat, $lng, $phone, $addr, $addrNum, $addrStreet, $addrCity, $addrState, 
-            $addrCountry, $addrZip, $vicinity, $website, $icon, $rating, $lid, $vid, $comment));
+
+        echo json_encode($this->list_model->add_to_existing_list_from_search($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
+            $addrCountry, $addrZip, $website, $tags, $categories, $photos, $lid, $vid, $comment));
     }
 
     public function add_list_to_new_list_from_nonsearch() {
@@ -112,31 +115,32 @@ class List_controller extends CI_Controller {
     
     public function add_to_new_list_from_search() {
         $name = $this->input->post('name');
-        $reference = $this->input->post('reference');
+//        $reference = $this->input->post('reference');
         $id = $this->input->post('id');
         $lat = $this->input->post('lat');
         $lng = $this->input->post('lng');
         $phone = $this->input->post('phone');
         $addr = $this->input->post('addr');
-        $addrNum = $this->input->post('addrNum');
-        $addrStreet = $this->input->post('addrStreet');
+//        $addrNum = $this->input->post('addrNum');
+        $addrCrossStreet = $this->input->post('addrCrossStreet');
         $addrCity = $this->input->post('addrCity');
         $addrState = $this->input->post('addrState');
         $addrCountry = $this->input->post('addrCountry');
         $addrZip = $this->input->post('addrZip');
-        $vicinity = $this->input->post('vicinity');
+//        $vicinity = $this->input->post('vicinity');
         $website = $this->input->post('website');
-        $icon = $this->input->post('icon');
-        $rating = $this->input->post('rating');
-        
+//        $icon = $this->input->post('icon');
+//        $rating = $this->input->post('rating');
+        $tags = $this->input->post('tags');
+        $categories = $this->input->post('categories');
+        $photos = $this->input->post('photos');
         $uid = $this->input->post('uid');
         $newListName = $this->input->post('newListName');
         
         $vid = $this->input->post('vid');
         $comment = $this->input->post('comment');
-        
-        echo json_encode($this->list_model->add_to_new_list_from_search($name, $reference, $id, $lat, $lng, $phone, $addr, $addrNum, $addrStreet, $addrCity, $addrState, 
-            $addrCountry, $addrZip, $vicinity, $website, $icon, $rating, $uid, $newListName, $vid, $comment));
+        echo json_encode($this->list_model->add_to_new_list_from_search($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
+            $addrCountry, $addrZip, $website, $tags, $categories, $photos, $uid, $newListName, $vid, $comment));
     }
     
     public function add_vendor_to_new_list_from_nonsearch() {
@@ -149,25 +153,23 @@ class List_controller extends CI_Controller {
     
     public function add_vendor() {
         $name = $this->input->post('name');
-        $reference = $this->input->post('reference');
         $id = $this->input->post('id');
         $lat = $this->input->post('lat');
         $lng = $this->input->post('lng');
         $phone = $this->input->post('phone');
         $addr = $this->input->post('addr');
-        $addrNum = $this->input->post('addrNum');
-        $addrStreet = $this->input->post('addrStreet');
+        $addrCrossStreet = $this->input->post('addrCrossStreet');
         $addrCity = $this->input->post('addrCity');
         $addrState = $this->input->post('addrState');
         $addrCountry = $this->input->post('addrCountry');
         $addrZip = $this->input->post('addrZip');
-        $vicinity = $this->input->post('vicinity');
         $website = $this->input->post('website');
-        $icon = $this->input->post('icon');
-        $rating = $this->input->post('rating');
+        $tags = $this->input->post('tags');
+        $categories = $this->input->post('categories');
+        $photos = $this->input->post('photos');
         
-        $this->list_model->add_vendor($name, $reference, $id, $lat, $lng, $phone, $addr, $addrNum, $addrStreet, $addrCity, $addrState, 
-            $addrCountry, $addrZip, $vicinity, $website, $icon, $rating);
+        $this->list_model->add_vendor($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
+            $addrCountry, $addrZip, $website, $tags, $categories, $photos);
     }
 }
 
