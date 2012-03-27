@@ -59,21 +59,16 @@ class Listapi extends REST_Controller
 
                         $vendor->vid = $row->vendor_vid;
                         $vendor->name = $row->vendor_name;
-                        $vendor->reference = $row->vendor_reference;
                         $vendor->lat = $row->vendor_lat;
                         $vendor->lng = $row->vendor_lng;
                         $vendor->phone = $row->vendor_phone;
                         $vendor->addr = $row->vendor_addr;
-                        $vendor->addrNum = $row->vendor_addrNum;
-                        $vendor->addrStreet = $row->vendor_addrStreet;
+                        $vendor->addrCrossStreet = $row->vendor_addrCrossStreet;
                         $vendor->addrCity = $row->vendor_addrCity;
                         $vendor->addrState = $row->vendor_addrState;
                         $vendor->addrCountry = $row->vendor_addrCountry;
                         $vendor->addrZip = $row->vendor_addrZip;
-                        $vendor->vicinity = $row->vendor_vicinity;
                         $vendor->website = $row->vendor_website;
-                        $vendor->icon = $row->vendor_icon;
-                        $vendor->rating = $row->vendor_rating;
 
                         // create listEntry object
                         $listEntry = new stdClass();
@@ -136,8 +131,8 @@ class Listapi extends REST_Controller
                 $incomingReferralsAssocArray = array();
                 if ($listsWithEntrysWithIncomingReferralsResult) {
                     foreach ($listsWithEntrysWithIncomingReferralsResult as $row) {
-                        if (!array_key_exists($row->referraldetails_vid, $incomingReferralsAssocArray)) {                            
-                            $incomingReferralsAssocArray[$row->referraldetails_vid] = array();
+                        if (!array_key_exists($row->referral_vid, $incomingReferralsAssocArray)) {                            
+                            $incomingReferralsAssocArray[$row->referral_vid] = array();
                         }
                         
                         $referredBy = new stdClass();
@@ -154,9 +149,9 @@ class Listapi extends REST_Controller
                         $referredBy->rid = $row->referral_rid;
                         $referredBy->referralLid = $row->referral_lid;
                         $referredBy->date = $row->referral_date;
-                        if (array_key_exists($row->referraldetails_vid, $listEntryCommentsOfIncomingReferralsAssocArray)) {
-                            if (array_key_exists($row->referral_lid, $listEntryCommentsOfIncomingReferralsAssocArray[$row->referraldetails_vid])) {
-                                $referredBy->listEntryComment = $listEntryCommentsOfIncomingReferralsAssocArray[$row->referraldetails_vid][$row->referral_lid];
+                        if (array_key_exists($row->referral_vid, $listEntryCommentsOfIncomingReferralsAssocArray)) {
+                            if (array_key_exists($row->referral_lid, $listEntryCommentsOfIncomingReferralsAssocArray[$row->referral_vid])) {
+                                $referredBy->listEntryComment = $listEntryCommentsOfIncomingReferralsAssocArray[$row->referral_vid][$row->referral_lid];
                             } else {
                                 $referredBy->listEntryComment = "";
                             }
@@ -164,7 +159,7 @@ class Listapi extends REST_Controller
                             $referredBy->listEntryComment = "";
                         }
                         
-                        array_push($incomingReferralsAssocArray[$row->referraldetails_vid], $referredBy);
+                        array_push($incomingReferralsAssocArray[$row->referral_vid], $referredBy);
                     }
                 }
 
@@ -177,21 +172,16 @@ class Listapi extends REST_Controller
 
                         $vendor->vid = $row->vendor_vid;
                         $vendor->name = $row->vendor_name;
-                        $vendor->reference = $row->vendor_reference;
                         $vendor->lat = $row->vendor_lat;
                         $vendor->lng = $row->vendor_lng;
                         $vendor->phone = $row->vendor_phone;
                         $vendor->addr = $row->vendor_addr;
-                        $vendor->addrNum = $row->vendor_addrNum;
-                        $vendor->addrStreet = $row->vendor_addrStreet;
+                        $vendor->addrCrossStreet = $row->vendor_addrCrossStreet;
                         $vendor->addrCity = $row->vendor_addrCity;
                         $vendor->addrState = $row->vendor_addrState;
                         $vendor->addrCountry = $row->vendor_addrCountry;
                         $vendor->addrZip = $row->vendor_addrZip;
-                        $vendor->vicinity = $row->vendor_vicinity;
                         $vendor->website = $row->vendor_website;
-                        $vendor->icon = $row->vendor_icon;
-                        $vendor->rating = $row->vendor_rating;
 
                         // create listEntry object
                         $listEntry = new stdClass();

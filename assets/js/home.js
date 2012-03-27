@@ -262,15 +262,15 @@ function initSearchAJAX() {
                 if (results[0] == "error") {
                     var errorType;
                     if (results[1] == "locationError") {
-                            errorType = "Error with Location";
+                            errorType = "Error with location. Please try again!";
                     }
 
                     // error with the search
                     else if (results[1] == "searchError") {
-                        errorType = "Error with Search";
+                        errorType = "Error with search. Please try again!";
                     }
-                    
-                    $('search-content').append(errorType);
+
+                    $('#search-content').append(errorType);
                 } else {
                     var vendorDetails = new Array();
 //                    var singleVendorInfo;

@@ -25,5 +25,17 @@ class VendorAPI extends REST_Controller
             $this->response($referredby,200);
         }
     }
+    
+    function vendorphotos_get() {
+        $vid = $this->get('id');
+        if (!$vid) {
+            $this->response(NULL,400);
+        } else {
+            $this->load->model('vendor_model');
+            $vendorPhotos = $this->vendor_model->get_vendor_photos($vid);
+            $this->response($vendorPhotos,200);
+        }
+    }
+        
 }
 ?>

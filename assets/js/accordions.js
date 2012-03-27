@@ -792,8 +792,9 @@ function createReferralsDetailsHTMLString(details) {
     // vendor details are here
 //    alert(details.website);
     var referralsDetailsHTMLString =
-        details.addrNum + " " + details.addrStreet + "<br>" +
-        details.addrCity + " " + details.addrState + " " + details.addrZip + "<br>" +
+        details.addr + "<br>" +
+        details.addrCity + ", " + details.addrState + " " + details.addrZip + "<br>" +
+//        details.formattedAddress + "<br>" + 
         details.phone;
     if (details.website != '') {
         referralsDetailsHTMLString += "<BR><a href='" + details.website + "' class ='website-link' target='_blank'>" + details.website + "</a>";
@@ -963,9 +964,9 @@ function createListHeaderHTMLString(row, itemType, listOrSingle) {
 function createListDetailsHTMLString(details) {
     // vendor details are here
     var listDetailsHTMLString =
-//        details.addrNum + " " + details.addrStreet + "<br>" +
         details.addr + "<br>" +
-        details.addrCity + " " + details.addrState + " " + details.addrZip + "<br>" +
+        details.addrCity + ", " + details.addrState + " " + details.addrZip + "<br>" +
+//        details.formattedAddress + "<br>" + 
         details.phone;
     if (details.website != '') {
         listDetailsHTMLString += "<BR><a href='" + details.website + "' class ='website-link' target='_blank'>" + details.website + "</a>";

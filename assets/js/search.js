@@ -71,6 +71,10 @@ function getVendorData(results) {
         if (singleVendor['addrZip'] == undefined) {
             singleVendor['addrZip'] = "";
         }
+        singleVendor['formattedAddress'] = results[i].response.venue.location.formattedAddress;
+        if (singleVendor['formattedAddress'] == undefined) {
+            singleVendor['formattedAddress'] = "";
+        }
         singleVendor['website'] = results[i].response.venue.url;
         if (singleVendor['website'] == undefined) {
             singleVendor['website'] = "";

@@ -74,6 +74,13 @@ class vendor_model extends CI_Model {
 //        //ORDER BY lid ASC , DATE DESC 
 //        //LIMIT 0 , 30
 //    }
+    
+    function get_vendor_photos($vid) {
+        $this->db->select();
+        $this->db->from('VendorsFoursquarePhotos');
+        $this->db->where('vid',$vid);
+        return $this->db->get()->result();
+    }
 }
 
 ?>

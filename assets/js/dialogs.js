@@ -108,7 +108,7 @@ function bindReferVendorButton(vid, vendor_name) {
                     var uidFriendsStr = JSON.stringify(uidFriendsObj);
 
                     // perform query to add referrals to Referrals and ReferralDetails databases
-                    jQuery.post('searchvendors/add_referral',{
+                    jQuery.post('referrals/add_referral',{
                         myUID: myUID,
                         comment: comment,
                         numFriends: friendList.length,
@@ -229,7 +229,7 @@ function bindReferDialogButtonFromSearch(friendList, vendorData) {
                         var uidFriendsStr = JSON.stringify(uidFriendsObj);
 
                         // perform query to add referrals to Referrals and ReferralDetails databases
-                        jQuery.post('searchvendors/refer_from_search',{
+                        jQuery.post('referrals/refer_from_search',{
                             myUID: myUID,
                             comment: comment,
                             numFriends: friendList.length,

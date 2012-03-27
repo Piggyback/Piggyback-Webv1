@@ -31,6 +31,37 @@ class inbox_model extends CI_Model {
         return $this->db->get()->result();
     }
     
+    /**
+     * returns all list inbox items
+     * 
+     * mikegao
+     */
+    function get_list_inbox_items($uid)
+    {
+        $this->db->distinct();
+        $this->db->select('Referrals.date AS referral_date, Referrals.rid AS referral_rid, Referrals.comment AS referral_comment, 
+            VendorsFoursquare.name AS vendor_name, VendorsFoursquare.id AS vendor_vid, VendorsFoursquare.lat AS vendor_lat, 
+            VendorsFoursquare.lng AS vendor_lng, VendorsFoursquare.phone AS vendor_phone, VendorsFoursquare.addr AS vendor_addr, 
+            VendorsFoursquare.addrCrossStreet AS vendor_addrCrossStreet, VendorsFoursquare.addrCity AS vendor_addrCity, 
+            VendorsFoursquare.addrState AS vendor_addrState, VendorsFoursquare.addrCountry AS vendor_addrCountry, VendorsFoursquare.addrZip AS vendor_addrZip, VendorsFoursquare.website AS vendor_website, 
+            Users.uid AS referrer_uid, Users.fbid AS referrer_fbid, Users.email AS referrer_email, Users.firstName AS referrer_firstName, Users.lastName AS referrer_lastName, 
+            Lists.lid AS list_lid, Lists.date AS listentry_date, Lists.comment AS listentry_comment,
+            UserLists.name AS list_name, UserLists.date AS list_date, UserLists.uid AS listowner_uid');
+        $this->db->from('Referrals');
+        $this->db->join('UserLists', 'Referrals.lid = UserLists.lid', 'left');
+        $this->db->join('Lists', 'Referrals.lid = Lists.lid', 'left');
+        $this->db->join('VendorsFoursquare', 'Lists.vid = VendorsFoursquare.id', 'left');
+        $this->db->join('Users', 'Referrals.uid1 = Users.uid', 'left');
+        $this->db->where('Referrals.uid2', $uid);
+        $this->db->where('Referrals.vid', 0);
+        $this->db->where('Referrals.deletedUID2', 0);
+        $this->db->where('Lists.date < Referrals.date');
+        $this->db->where('(Lists.deleted = 0 OR (Lists.deleted = 1 AND Lists.deletedDate > Referrals.date))');
+        $this->db->order_by('Referrals.date desc');
+        
+        return $this->db->get()->result();
+    }
+    
 
     // returns all comments to you for specific vid, ordered first by asc lid then by desc date
     function get_inbox_items($uid) {

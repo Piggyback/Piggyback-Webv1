@@ -94,7 +94,59 @@ class search_vendors_model extends CI_Model {
         $clientID = "LQYMHEIG05TK2HIQJGJ3MUGDNBAW1OKJKM4SSUFNYGSQMQIZ";
         $clientSecret = "AXDTUGX5AA1DXDI2HUWVSODSFGKIK2RQYYGUWSUBDC0R5OLX";
         
-        $vendorDetail = file_get_contents("https://api.foursquare.com/v2/venues/$id?client_id=$clientID&client_secret=$clientSecret&v=$date");
+        $vendorDetail = json_decode(file_get_contents("https://api.foursquare.com/v2/venues/$id?client_id=$clientID&client_secret=$clientSecret&v=$date"));
+        
+//        // get human readable address if only a lat/lng is provided by foursquare
+//        $vendorLocationDetails = $vendorDetail->response->venue->location;
+//        
+//        if (!(key_exists('address',$vendorLocationDetails)) || 
+//            !(key_exists('city',$vendorLocationDetails) || 
+//            !(key_exists('state',$vendorLocationDetails) || 
+//            !(key_exists('country',$vendorLocationDetails) || 
+//            !(key_exists('postalCode',$vendorLocationDetails)))))) {
+//            
+//            // no complete address, use google api to get human readable address from lat/lng
+//            $latlng = $vendorLocationDetails->lat . "," . $vendorLocationDetails->lng;
+//            $addrResults = json_decode(file_get_contents(MAPS_HOST."/geocode/json?latlng=".$latlng."&sensor=false"));
+//            
+//            // if no street num, then use google formatted address
+//            if (!(key_exists('address',$vendorLocationDetails))) {
+//                $formattedAddrComponents = explode(",",$addrResults->results[0]->formatted_address);
+//                $vendorLocationDetails->address = $formattedAddrComponents[0];
+//            } 
+//            
+//
+//            foreach ($addrResults->results[0]->address_components as $addrComponent) {
+//                switch ($addrComponent->types[0]) {
+//                    case "locality":
+//                        if (!(key_exists('city',$vendorLocationDetails))) {
+//                            $vendorLocationDetails->city = $addrComponent->short_name;
+//                        }
+//                        break;
+//                    case "administrative_area_level_1":
+//                        if (!(key_exists('state',$vendorLocationDetails))) {
+//                            $vendorLocationDetails->state = $addrComponent->short_name;
+//                        }
+//                        break;
+//                    case "country":
+//                        if (!(key_exists('country',$vendorLocationDetails))) {
+//                            $vendorLocationDetails->country = $addrComponent->short_name;
+//                        }
+//                        break;    
+//                    case "postal_code":
+//                        if (!(key_exists('postalCode',$vendorLocationDetails))) {
+//                            $vendorLocationDetails->postalCode = $addrComponent->short_name;
+//                        }
+//                        break;
+//                }
+//            }
+//        } 
+
+        // concatenate postal code to 5 digits
+        if (key_exists('postalCode',$vendorDetail->response->venue->location)) {
+            $vendorDetail->response->venue->location->postalCode = substr($vendorDetail->response->venue->location->postalCode,0,5);
+        }
+        
         return $vendorDetail;
     }
     
@@ -121,176 +173,73 @@ class search_vendors_model extends CI_Model {
         $retArray['myUID'] = $currentUID;
         return json_encode($retArray);
     }
-   
-    // add a referral to the database when a user refers a vendor to another user
-    function add_referral($id,$uid,$numFriends,$uidFriends,$comment)
-    {
-        $this->db->trans_start();
-        
-        $result = $this->refer($id,$uid,$numFriends,$uidFriends,$comment);
-        
-        $this->db->trans_complete();
-        if ($this->db->trans_status() === FALSE) {
-            return "Vendor referral could not be processed";
-        }
-        else {
-            return $result;
-        }
-    }
-    
-    function refer($id,$uid,$numFriends,$uidFriends,$comment) {
-        $date = date('Y-m-d H:i:s');
-
-        // add referrals to Referral table: one for each friend in uidFriends
-        if ($numFriends > 0) {
-
-            $q = "INSERT INTO Referrals VALUES ";
-            $newFriends = array();
-            $params = array();
-            
-            for ($i = 0; $i < $numFriends; $i++) {
-               $uidFriend = $uidFriends->$i;
-               $flag = 0;
-               
-               // check if this referral has already been made (user1 to user2 for this vendor)
-               $existsQuery = "SELECT rid FROM Referrals WHERE uid1 = ? AND uid2 = ? AND lid = 0 AND deletedUID2 != 1";
-               $result = $this->db->query($existsQuery,array($uid,$uidFriend));
-               
-               if ($result->num_rows() > 0) {
-                   foreach ($result->result() as $row) {
-                        $existsQuery = "SELECT rid FROM Referrals WHERE rid = ? AND vid = ?";
-                        $res = $this->db->query($existsQuery,array($row->rid,$id));
-                        if ($res->num_rows() > 0) {
-                            $flag = 1;
-                            break;
-                        }
-                   }
-               }
-
-               // if referral does not exist yet, then add it
-               if ($flag == 0) {
-                   $q = "$q (NULL, ?, ?, ?, 0, ?, ?, 0, 0),";
-                   array_push($newFriends,$uidFriend);
-                   array_push($params,$uid,$uidFriend,$date,$id,$comment);
-               }
-            }
-
-            // delete last comma
-            $q = substr($q,0,-1);
-            
-            if (count($newFriends) > 0) {
-                $result = $this->db->query($q,$params);
-                if (!$result) {
-                    return "Vendor referral could not be processed";
-                }
-            }
-            
-            // get RID that was just inserted into Referrals table and build query for adding to referral details: one for each friend
-//            $addReferralDetailQuery = "INSERT INTO ReferralDetails VALUES ";
-//            $params = array();
-//            
-//            for ($i = 0; $i < count($newFriends); $i++) {
-//                $uidFriend = $newFriends[$i];
-//                $getRIDquery = "SELECT rid FROM Referrals WHERE uid1 = ? AND uid2 = ? AND date = ? AND lid = 0 AND comment = ?";
+     
+//    
+//    // add vendor to db: called when a vendor is added to a list or referred to a friend using google api
+////    function add_vendor($name,$reference,$id,$lat,$lng,$phone,$addr,$addrNum,$addrStreet,$addrCity,$addrState,$addrCountry,$addrZip,$vicinity,$website,$icon,$rating) {   
+////        // find if vendor exists in db yet        
+////        $existingVendorQuery = "SELECT id FROM Vendors WHERE id = ?";
+////        $existingVendorResult = $this->db->query($existingVendorQuery,array($id));
+////        
+////        // add to vendor db if it does not exist yet
+////        if ($existingVendorResult->num_rows() == 0) {
+////           $addVendorQuery = "INSERT INTO Vendors 
+////                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+////           $this->db->query($addVendorQuery,array($name,$reference,$id,$lat,$lng,$phone,$addr,$addrNum,$addrStreet,$addrCity,$addrState,$addrCountry,$addrZip,$vicinity,$website,$icon,$rating));
+////        }
+////    }
+//    
+//    // add vendor to db for foursquare api
+//    function add_vendor($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
+//            $addrCountry, $addrZip, $website, $tags, $categories, $photos) {
 //
-//                $result = $this->db->query($getRIDquery,array($uid,$uidFriend,$date,$comment));
-//                if ($result->num_rows() > 0) {
-//                    $rid = $result->row()->rid;
-//                }
-//                $addReferralDetailQuery = "$addReferralDetailQuery (?,?,0,0),";
-//                array_push($params,$rid,$id);
-//            }
-//            
-//            // delete last comma
-//            $addReferralDetailQuery = substr($addReferralDetailQuery,0,-1);
-//            
-//            if (count($newFriends) > 0) {
-//                $result = $this->db->query($addReferralDetailQuery,$params);
-//            }
-        }
-        return false;
-    }
-    
-    // add vendor to db: called when a vendor is added to a list or referred to a friend using google api
-//    function add_vendor($name,$reference,$id,$lat,$lng,$phone,$addr,$addrNum,$addrStreet,$addrCity,$addrState,$addrCountry,$addrZip,$vicinity,$website,$icon,$rating) {   
 //        // find if vendor exists in db yet        
-//        $existingVendorQuery = "SELECT id FROM Vendors WHERE id = ?";
+//        $existingVendorQuery = "SELECT id FROM VendorsFoursquare WHERE id = ?";
 //        $existingVendorResult = $this->db->query($existingVendorQuery,array($id));
-//        
+//
 //        // add to vendor db if it does not exist yet
 //        if ($existingVendorResult->num_rows() == 0) {
-//           $addVendorQuery = "INSERT INTO Vendors 
-//                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-//           $this->db->query($addVendorQuery,array($name,$reference,$id,$lat,$lng,$phone,$addr,$addrNum,$addrStreet,$addrCity,$addrState,$addrCountry,$addrZip,$vicinity,$website,$icon,$rating));
+//            
+//            // add vendor info to vendor table
+//           $addVendorQuery = "INSERT INTO VendorsFoursquare
+//                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+//           $this->db->query($addVendorQuery,array($name,$id,$lat,$lng,$phone,$addr,$addrCrossStreet,$addrCity,$addrState,$addrCountry,$addrZip,$website));
+//        
+//           // add tags to tag table
+//           if (count($tags) > 0) {
+//               $addTagsQuery = "INSERT INTO VendorsFoursquareTags VALUES ";
+//               foreach ($tags as $tag) {
+//                   $addTagsQuery = "$addTagsQuery (\"$id\",\"$tag\"),";
+//               }
+//               $addTagsQuery = substr($addTagsQuery,0,-1);
+//               $this->db->query($addTagsQuery);
+//           }
+//           
+//           // add categories to category table
+//           if (count($categories) > 0) {
+//               $addCategoriesQuery = "INSERT INTO VendorsFoursquareCategories VALUES ";
+//               foreach ($categories as $category) {
+//                   $cid = $category['cid'];
+//                   $categoryName = $category['categoryName'];
+//                   $addCategoriesQuery = "$addCategoriesQuery (\"$id\",\"$cid\",\"$categoryName\"),";
+//               }
+//               $addCategoriesQuery = substr($addCategoriesQuery,0,-1);
+//               $this->db->query($addCategoriesQuery);
+//           }
+//           
+//           // add photos to photo table
+//           if (count($photos) > 0) {
+//               $addPhotosQuery = "INSERT INTO VendorsFoursquarePhotos VALUES ";
+//               foreach ($photos as $photo) {
+//                   $pid = $photo['pid'];
+//                   $photoURL = $photo['photoURL'];
+//                   $addPhotosQuery = "$addPhotosQuery (\"$id\",\"$pid\",\"$photoURL\"),";
+//               }
+//               $addPhotosQuery = substr($addPhotosQuery,0,-1);
+//               $this->db->query($addPhotosQuery);
+//           }
 //        }
 //    }
-    
-    // add vendor to db for foursquare api
-    function add_vendor($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
-            $addrCountry, $addrZip, $website, $tags, $categories, $photos) {
-
-        // find if vendor exists in db yet        
-        $existingVendorQuery = "SELECT id FROM VendorsFoursquare WHERE id = ?";
-        $existingVendorResult = $this->db->query($existingVendorQuery,array($id));
-
-        // add to vendor db if it does not exist yet
-        if ($existingVendorResult->num_rows() == 0) {
-            
-            // add vendor info to vendor table
-           $addVendorQuery = "INSERT INTO VendorsFoursquare
-                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-           $this->db->query($addVendorQuery,array($name,$id,$lat,$lng,$phone,$addr,$addrCrossStreet,$addrCity,$addrState,$addrCountry,$addrZip,$website));
-        
-           // add tags to tag table
-           if (count($tags) > 0) {
-               $addTagsQuery = "INSERT INTO VendorsFoursquareTags VALUES ";
-               foreach ($tags as $tag) {
-                   $addTagsQuery = "$addTagsQuery (\"$id\",\"$tag\"),";
-               }
-               $addTagsQuery = substr($addTagsQuery,0,-1);
-               $this->db->query($addTagsQuery);
-           }
-           
-           // add categories to category table
-           if (count($categories) > 0) {
-               $addCategoriesQuery = "INSERT INTO VendorsFoursquareCategories VALUES ";
-               foreach ($categories as $category) {
-                   $cid = $category['cid'];
-                   $categoryName = $category['categoryName'];
-                   $addCategoriesQuery = "$addCategoriesQuery (\"$id\",\"$cid\",\"$categoryName\"),";
-               }
-               $addCategoriesQuery = substr($addCategoriesQuery,0,-1);
-               $this->db->query($addCategoriesQuery);
-           }
-           
-           // add photos to photo table
-           if (count($photos) > 0) {
-               $addPhotosQuery = "INSERT INTO VendorsFoursquarePhotos VALUES ";
-               foreach ($photos as $photo) {
-                   $pid = $photo['pid'];
-                   $photoURL = $photo['photoURL'];
-                   $addPhotosQuery = "$addPhotosQuery (\"$id\",\"$pid\",\"$photoURL\"),";
-               }
-               $addPhotosQuery = substr($addPhotosQuery,0,-1);
-               $this->db->query($addPhotosQuery);
-           }
-        }
-    }
-    
-    function refer_from_search($id,$uid,$numFriends,$uidFriends,$comment,$name,$lat,$lng,$phone,$addr,$addrCrossStreet,$addrCity,$addrState,$addrCountry,$addrZip,$website,$tags,$categories,$photos) {
-        $this->db->trans_start();
-        
-        $this->add_vendor($name,$id,$lat,$lng,$phone,$addr,$addrCrossStreet,$addrCity,$addrState,$addrCountry,$addrZip,$website,$tags,$categories,$photos);
-        $result = $this->refer($id,$uid,$numFriends,$uidFriends,$comment);
-        
-        $this->db->trans_complete();
-        if ($this->db->trans_status() === FALSE) {
-            return "Vendor referral could not be processed";
-        }
-        else {
-            return $result;
-        }
-    }
 
 }
 ?>
