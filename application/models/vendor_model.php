@@ -6,6 +6,48 @@ class vendor_model extends CI_Model {
         // Call the Model consutrctor
         parent::__construct();
         $this->load->database();
+        $this->load->library('Subquery');
+    }
+    
+    function add_vendor($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
+            $addrCountry, $addrZip, $website, $vendorPhotos) {
+
+        // find if vendor exists in db yet        
+        $existingVendorQuery = "SELECT id FROM VendorsFoursquare WHERE id = ?";
+        $existingVendorResult = $this->db->query($existingVendorQuery,array($id));
+
+        // add to vendor db if it does not exist yet
+        if ($existingVendorResult->num_rows() == 0) {
+            
+            // add vendor info to vendor table
+           $addVendorQuery = "INSERT INTO VendorsFoursquare
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+           $this->db->query($addVendorQuery,array($name,$id,$lat,$lng,$phone,$addr,$addrCrossStreet,$addrCity,$addrState,$addrCountry,$addrZip,$website));
+        
+           // add vendor photos to vendor photos table
+           if ($vendorPhotos) {
+               $addPhotosQuery = "INSERT INTO VendorsFoursquarePhotos VALUES ";
+               foreach ($vendorPhotos as $photo) {
+                   $pid = $photo->pid;
+                   $photoURL = $photo->photoURL;
+                   $addPhotosQuery = "$addPhotosQuery (\"$id\",\"$pid\",\"$photoURL\"),";
+               }
+               $addPhotosQuery = substr($addPhotosQuery,0,-1);
+               $this->db->query($addPhotosQuery);
+           }
+        }
+    }
+    
+    function get_vendor_referral_comments_for_core_data($uid, $vid)
+    {
+        $this->db->select("* FROM (SELECT Referrals.rid AS referral_id, Referrals.comment AS referral_comment, Referrals.date AS referral_date, Referrals.vid AS referral_vid, Lists.vid AS list_vid,
+            Referrals.uid1 AS referrer_id, Users.firstName AS referrer_firstName, Users.lastName AS referrer_lastName, Users.fbid AS referrer_fbid, Users.email AS referrer_email,
+            Lists.comment AS listentry_comment FROM Referrals LEFT JOIN Users ON Referrals.uid1 = Users.uid LEFT JOIN Lists ON Referrals.lid = Lists.lid WHERE Referrals.uid2 = " . $uid . " AND
+                (Referrals.vid = '" . $vid . "' OR Lists.vid = '" . $vid . "') AND ((Referrals.lid = 0) OR ((Lists.deletedDate > Referrals.date OR Lists.deleted = 0)
+            and Lists.date < Referrals.date)) ORDER BY Referrals.vid DESC, Referrals.date DESC) AS ordered_referrals");
+        $this->db->group_by('referrer_id');
+        $this->db->order_by('referral_date DESC');
+        return $this->db->get()->result();
     }
     
     /**
@@ -39,7 +81,7 @@ class vendor_model extends CI_Model {
     function get_referred_by($uid, $vid) 
     {
         $this->db->distinct();
-        $this->db->select('uid1,comment,firstName,lastName,fbid,email,Referrals.lid,date');
+        $this->db->select('uid1,Referrals.comment,firstName,lastName,fbid,email,Referrals.lid,Referrals.date');
         $this->db->from('Referrals');
 //        $this->db->join('ReferralDetails','Referrals.rid = ReferralDetails.rid','left');
         $this->db->join('Lists', 'Referrals.lid = Lists.lid', 'left');

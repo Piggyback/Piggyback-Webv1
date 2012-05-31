@@ -396,7 +396,7 @@ function addContentToAccordionTemplate(lid, parsedJSON) {
 		"<div> <table class='formatted-table'>" +
                     "<tr>" +
 			"<td class='formatted-table-info'>" +
-                            parsedJSON[i].addrNum + " " + parsedJSON[i].addrStreet + "<br>" +
+                            parsedJSON[i].addr + "<br>" +
                             parsedJSON[i].addrCity + " " + parsedJSON[i].addrState + " " + parsedJSON[i].addrZip + "<br>" +
                             parsedJSON[i].phone +
 			"</td>" +

@@ -16,6 +16,112 @@ class List_model extends CI_Model {
      * Functions called by listapi.php
      */
     
+    public function core_data_delete_list($lid) {
+        $data = array('deleted' => 1);
+        $this->db->where('lid',$lid);
+        $this->db->update('UserLists',$data);
+    }
+    
+    public function core_data_delete_list_entry($leid,$date) {
+        $data = array('deleted' => 1,'deletedDate' => $date);
+        $this->db->where('leid',$leid);
+        $this->db->update('Lists',$data);
+    }
+//    
+//    public function get_lists_for_core_data($uid)
+//    {
+//        $this->db->distinct();
+//        $this->db->select('UserLists.lid AS list_id, UserLists.name AS list_name, UserLists.date AS list_createdDate, UserLists.uid AS list_ownerId, COUNT(Lists.deleted) AS list_count');
+//        $this->db->from('UserLists');
+//        $this->db->join('Lists', 'UserLists.lid = Lists.lid', 'left');
+//        $custom_where = 'UserLists.uid = ' . $uid . ' AND UserLists.deleted = 0';
+//        $this->db->where($custom_where);
+//        $this->db->group_by(array('UserLists.lid'));
+//        $this->db->order_by('UserLists.date desc');
+//        
+//        return $this->db->get()->result();
+//    }
+    
+    public function get_lists_for_core_data($uid)
+    {
+        $this->db->distinct();
+        $this->db->select('UserLists.lid AS list_id, UserLists.name AS list_name, UserLists.date AS list_createdDate, UserLists.uid AS list_ownerId, IFNULL(list_count, 0) AS list_count', false);
+        $this->db->from('UserLists');
+        $this->db->join('(select count(*) as list_count, UserLists.lid as lid from UserLists left join Lists on UserLists.lid = Lists.lid 
+            where Lists.deleted = 0 group by lid) AS list_count_join', 'UserLists.lid = list_count_join.lid', 'left');
+        $custom_where = 'UserLists.uid = ' . $uid . ' AND UserLists.deleted = 0';
+        $this->db->where($custom_where);
+        $this->db->group_by(array('UserLists.lid'));
+        $this->db->order_by('UserLists.date desc');
+        
+        return $this->db->get()->result();
+    }
+    
+    public function post_lists_for_core_data($uid, $date, $name)
+    {
+        $newList = array('uid' => $uid, 'date' => $date, 'name' => $name);
+        $this->db->insert('UserLists', $newList);
+        
+        return $this->db->insert_id();
+    }
+    
+    public function get_list_entrys_for_core_data($uid, $lid)
+    {
+        $this->db->distinct();
+        $this->db->select('Lists.leid AS listentry_id, Lists.lid AS listentry_assignedListID, Lists.comment AS listentry_comment, Lists.date AS listentry_addedDate, 
+            VendorsFoursquare.id AS vendor_id, VendorsFoursquare.name AS vendor_name, VendorsFoursquare.lat AS vendor_lat, VendorsFoursquare.lng AS vendor_lng, VendorsFoursquare.phone AS vendor_phone, VendorsFoursquare.addr AS vendor_addr,
+            VendorsFoursquare.addrCrossStreet AS vendor_addrCrossStreet, VendorsFoursquare.addrCity AS vendor_addrCity, VendorsFoursquare.addrState AS vendor_addrState, VendorsFoursquare.addrCountry AS vendor_addrCountry,
+            VendorsFoursquare.addrZip AS vendor_addrZip, VendorsFoursquare.website AS vendor_website, vendor_numReferrals');
+        $this->db->from('Lists');
+        $this->db->join('Referrals', 'Lists.lid = Referrals.lid', 'left');
+        $this->db->join('VendorsFoursquare', 'Lists.vid = VendorsFoursquare.id', 'left');
+        $this->db->join('(select if(Referrals.vid = 0, Lists.vid, Referrals.vid) as vid, count(distinct uid1) AS vendor_numReferrals
+            from Referrals
+            left join Lists 
+            on Referrals.lid = Lists.lid
+            where Referrals.uid2 = ' . $uid . '
+            AND (Referrals.lid = 0 OR (((Lists.deleted = 1 AND Lists.deletedDate > Referrals.date) OR Lists.deleted = 0)
+            AND Lists.date < Referrals.date))
+            group by vid) AS vendorCount', 'Lists.vid = vendorCount.vid', 'right');
+        $this->db->where(array('Lists.lid' => $lid, 'Referrals.uid2' => $uid));
+        $this->db->where('(Lists.date < Referrals.date)');
+        
+        return $this->db->get()->result();
+    }
+    
+    public function get_my_list_entrys_for_core_data($uid, $lid)
+    {
+        $this->db->distinct();
+        $this->db->select('Lists.leid AS listentry_id, Lists.lid AS listentry_assignedListID, Lists.comment AS listentry_comment, Lists.date AS listentry_addedDate, 
+            VendorsFoursquare.id AS vendor_id, VendorsFoursquare.name AS vendor_name, VendorsFoursquare.lat AS vendor_lat, VendorsFoursquare.lng AS vendor_lng, VendorsFoursquare.phone AS vendor_phone, VendorsFoursquare.addr AS vendor_addr,
+            VendorsFoursquare.addrCrossStreet AS vendor_addrCrossStreet, VendorsFoursquare.addrCity AS vendor_addrCity, VendorsFoursquare.addrState AS vendor_addrState, VendorsFoursquare.addrCountry AS vendor_addrCountry,
+            VendorsFoursquare.addrZip AS vendor_addrZip, VendorsFoursquare.website AS vendor_website, vendor_numReferrals');
+        $this->db->from('UserLists');
+        $this->db->join('Lists', 'UserLists.lid = Lists.lid', 'left');
+        $this->db->join('VendorsFoursquare', 'Lists.vid = VendorsFoursquare.id', 'left');
+        $this->db->join('(select if(Referrals.vid = 0, Lists.vid, Referrals.vid) as vid, count(distinct uid1) AS vendor_numReferrals
+            from Referrals
+            left join Lists 
+            on Referrals.lid = Lists.lid
+            where Referrals.uid2 = ' . $uid . '
+            AND (Referrals.lid = 0 OR ((Lists.deleted = 1 AND Lists.deletedDate > Referrals.date) OR Lists.deleted = 0)
+            AND Lists.date < Referrals.date)
+            group by vid) AS vendorCount', 'Lists.vid = vendorCount.vid', 'left');
+        $this->db->where(array('Lists.lid' => $lid, 'Lists.deleted' => 0, 'UserLists.uid' => $uid, 'UserLists.deleted' => 0));        
+        
+        return $this->db->get()->result();
+    }
+    
+    public function put_my_list_entrys_for_core_data($lid, $vid, $date, $comment)
+    {
+        $tempArray = array('lid' => $lid, 'vid' => $vid, 'date' => $date, 'comment' => $comment);
+        $this->db->insert('Lists', $tempArray);
+        
+        return $this->db->insert_id();
+//        $newListEntry = array('lid' => $lid, 'vid' => $vid, 'date' => $date, 'comment' => $comment);
+//        $this->db->insert('Lists', $newListEntry);
+    }
+    
     public function get_list_with_entrys($uid)
     {
         $this->db->distinct();
@@ -121,7 +227,7 @@ class List_model extends CI_Model {
         $existsResult = $this->db->query($existsQuery, array($lid,$vid));
 
         if ($existsResult->num_rows() == 0) {
-            $query = "INSERT INTO Lists VALUES (?, ?, ?, ?, 0, 0)";
+            $query = "INSERT INTO Lists(lid, vid, date, comment, deleted, deletedDate) VALUES (?, ?, ?, ?, 0, 0)";
             $result = $this->db->query($query, array($lid,$vid,$date,$comment));
             if (!$result) {
                 return "Could not add to list";
@@ -190,7 +296,7 @@ class List_model extends CI_Model {
             $result = $this->db->query($query,array($lid,$rid,$rid));
             
             foreach ($result->result() as $row) {    
-                $query = "INSERT INTO Lists VALUES (?, ?, ?, ?, 0, 0)";
+                $query = "INSERT INTO Lists(lid, vid, date, comment, deleted, deletedDate) VALUES (?, ?, ?, ?, 0, 0)";
                 $result = $this->db->query($query,array($newLid,$row->vid,$dateTime,$row->comment));
             }
 
@@ -219,7 +325,7 @@ class List_model extends CI_Model {
             $existsResult = $this->db->query($existsQuery,array($outerLid,$row->vid));
 
             if ($existsResult->num_rows() == 0) {
-                $query = "INSERT INTO Lists VALUES (?, ?, ?, ?, 0, 0)";
+                $query = "INSERT INTO Lists(lid, vid, date, comment, deleted, deletedDate) VALUES (?, ?, ?, ?, 0, 0)";
                 $this->db->query($query,array($outerLid,$row->vid,$dateTime,$row->comment));
             }    
         }
@@ -484,7 +590,7 @@ class List_model extends CI_Model {
             // ADD VENDOR TO NEW LIST
             $lid = $newListData->row()->lid;
 
-            $query = "INSERT INTO Lists VALUES (?, ?, ?, ?, 0, 0)";
+            $query = "INSERT INTO Lists(lid, vid, date, comment, deleted, deletedDate) VALUES (?, ?, ?, ?, 0, 0)";
             $result = $this->db->query($query,array($lid,$vid,$dateTime,$comment));
 
             // get vendor data so that the list html can be dynamically updated

@@ -3,6 +3,167 @@ require(APPPATH.'libraries/REST_Controller.php');
 
 class InboxAPI extends REST_Controller
 {
+    function coreDataInboxItemDelete_put() {
+        $rid = $this->put('rid');
+        
+        $this->load->model('inbox_model');
+        $this->inbox_model->core_data_delete_inbox_item($rid);
+        
+        $this->response($rid);
+    }
+    
+    function coreDataInbox_get()
+    {
+        $uid = $this->get('id');
+        if (!$uid) {
+            $this->response(NULL,400);
+        } else {
+            $this->load->model('inbox_model');
+            
+            $inboxItemsResult = $this->inbox_model->get_inbox_items_for_core_data($uid);
+            if ($inboxItemsResult) {
+                $inboxItemsArray = array();
+                $referrerAssocArray = array();
+                $vendorAssocArray = array();
+                $listAssocArray = array();
+                
+                foreach ($inboxItemsResult as $row) {
+                    $inboxItem = new stdClass();
+                    $inboxItem->referralID = $row->referral_id;
+                    $inboxItem->referralComment = $row->referral_comment;
+                    $inboxItem->referralDate = $row->referral_date;
+                    
+                    if (!array_key_exists($row->referrer_id, $referrerAssocArray)) {
+                        $referrer = new stdClass();
+                        $referrer->userID = $row->referrer_id;
+                        $referrer->fbid = $row->referrer_fbid;
+                        $referrer->email = $row->referrer_email;
+                        $referrer->firstName = $row->referrer_firstName;
+                        $referrer->lastName = $row->referrer_lastName;
+//                        $referrer->thumbnail = "http://graph.facebook.com/" . $row->referrer_fbid . "/picture";
+                        
+                        $referrerAssocArray[$row->referrer_id] = $referrer;
+                    }
+                    
+                    if (!array_key_exists($row->vendor_id, $vendorAssocArray)) {
+                        $vendor = new stdClass();
+                        $vendor->vendorID = $row->vendor_id;
+                        $vendor->name = $row->vendor_name;
+                        $vendor->lat = $row->vendor_lat;
+                        $vendor->lng = $row->vendor_lng;
+                        $vendor->phone = $row->vendor_phone;
+                        $vendor->addr = $row->vendor_addr;
+                        $vendor->addrCrossStreet = $row->vendor_addrCrossStreet;
+                        $vendor->addrCity = $row->vendor_addrCity;
+                        $vendor->addrState = $row->vendor_addrState;
+                        $vendor->addrCountry = $row->vendor_addrCountry;
+                        $vendor->addrZip = $row->vendor_addrZip;
+                        $vendor->website = $row->vendor_website;
+                        $vendor->vendorReferralCommentsCount = $row->vendor_numReferrals;
+                        
+                        $vendorAssocArray[$row->vendor_id] = $vendor;
+                    }
+                    
+                    if (!array_key_exists($row->list_id, $listAssocArray)) {
+                        $list = new stdClass();
+                        $list->listID = $row->list_id;
+                        $list->createdDate = $row->list_createdDate;
+                        $list->name = $row->list_name;
+                        $list->listOwnerID = $row->list_ownerId;
+                        $list->listCount = $row->list_count;
+                        
+                        $listAssocArray[$row->list_id] = $list;
+                    }
+                    
+                    $inboxItem->referrer = $referrerAssocArray[$row->referrer_id];
+                    
+                    if ($row->list_id > 0) {
+                        $inboxItem->vendor = null;
+                        $inboxItem->list = $listAssocArray[$row->list_id];
+                    }
+                    else {
+                        $inboxItem->vendor = $vendorAssocArray[$row->vendor_id];
+                        $inboxItem->list = null;
+                    }
+                    
+                    array_push($inboxItemsArray, $inboxItem);
+                }
+                
+                $this->response($inboxItemsArray);
+            } else {
+                $this->response(NULL, 404);
+            }
+        }
+    }
+    /**
+     * returns minimum data for inbox items
+     */
+    function minimumInbox_get() 
+    {
+        $uid = $this->get('id');
+        if (!$uid) {
+            $this->response(NULL,400);
+        } else {
+            $this->load->model('inbox_model');
+            
+            $inboxItemsResult = $this->inbox_model->get_minimum_inbox_items($uid);
+            if ($inboxItemsResult) {
+                $referrerAssocArray = array();
+                $vendorAssocArray = array();
+                $inboxItemsArray = array();
+                    
+                foreach ($inboxItemsResult as $row) {    
+                    // initialize referrer if not in assoc array
+                    if (!array_key_exists($row->referrer_uid, $referrerAssocArray)) {
+                        $referrer = new stdClass();
+                        $referrer->uid = $row->referrer_uid;
+                        $referrer->fbid = $row->referrer_fbid;
+                        $referrer->email = $row->referrer_email;
+                        $referrer->firstName = $row->referrer_firstName;
+                        $referrer->lastName = $row->referrer_lastName;
+                        
+                        $referrerAssocArray[$row->referrer_uid] = $referrer;
+                    }
+                    
+                    // initialize vendor if not in assoc array
+                    if (!array_key_exists($row->vendor_vid, $vendorAssocArray)) {
+                        $vendor = new stdClass();
+                        $vendor->vid = $row->vendor_vid;
+                        $vendor->name = $row->vendor_name;
+                        $vendor->lat = $row->vendor_lat;
+                        $vendor->lng = $row->vendor_lng;
+                        $vendor->phone = $row->vendor_phone;
+                        $vendor->addr = $row->vendor_addr;
+                        $vendor->addrCrossStreet = $row->vendor_addrCrossStreet;
+                        $vendor->addrCity = $row->vendor_addrCity;
+                        $vendor->addrState = $row->vendor_addrState;
+                        $vendor->addrCountry = $row->vendor_addrCountry;
+                        $vendor->addrZip = $row->vendor_addrZip;
+                        $vendor->website = $row->vendor_website;
+                        
+                        $vendorAssocArray[$row->vendor_vid] = $vendor;
+                    }
+                    
+                    $inboxItem = new stdClass();
+                    $inboxItem->rid = $row->referral_rid;
+                    $inboxItem->referralComment = $row->referral_comment;
+                    $inboxItem->referralDate = $row->referral_date;
+                    $inboxItem->referrer = $referrerAssocArray[$row->referrer_uid];
+                    $inboxItem->vendor = $vendorAssocArray[$row->vendor_vid];
+                    $inboxItem->lid = $row->list_lid;
+                    $inboxItem->listName = $row->list_name;
+                    $inboxItem->listCount = $row->list_count;
+                    
+                    array_push($inboxItemsArray, $inboxItem);
+                }
+                
+                $this->response($inboxItemsArray);
+            } else {
+                $this->response(array('error' => 'User has no inbox items'), 404);
+            }
+        }
+    }
+    
     /**
      * returns all single vendors referred to user
      */
@@ -191,12 +352,13 @@ class InboxAPI extends REST_Controller
                         $inboxItem->vendor = null;
                         $inboxItem->list = $listAssocArray[$row->list_lid];
                         $inboxItem->nonUniqueReferralComments = null;
-                        
+//
                         $listInboxItemsAssocArray[$row->referral_rid] = $inboxItem;
                     }
                 }
                 
-                $this->response(array_values($listInboxItemsAssocArray));
+                $this->response($listInboxItemsResult);
+//                $this->response(array_values($listInboxItemsAssocArray));
             } else {
                 $this->response(array('error' => 'User has no list inbox items'), 404);
             }
@@ -204,8 +366,8 @@ class InboxAPI extends REST_Controller
     }
     
     // get both single vendor and list inbox items
-    function inbox_get() {
-                $uid = $this->get('id');
+    function completeInbox_get() {
+        $uid = $this->get('id');
         if (!$uid) {
             $this->response(NULL,400);
         } else {
@@ -390,6 +552,8 @@ class InboxAPI extends REST_Controller
             }
         }
     }
+    
+    // KIM HSIAO
     
     // get inbox contents
 //    function inbox_get() {

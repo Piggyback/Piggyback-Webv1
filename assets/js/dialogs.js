@@ -463,7 +463,6 @@ function bindAddToListButtonFromSearch(vendorData) {
                             
                         }
                         else {
-                            alert(vendor.id);
 //                            if(vendor.tags instanceof Array) {
 //                                alert("the tags is an array lala!");
 //                            } else {

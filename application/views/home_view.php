@@ -315,7 +315,7 @@
                                                                             <div class="subaccordion-content">
                                                                                 <!-- vendor details here -->
                                                                                 <?php
-                                                                                    echo $vendorRow[0]->addrNum . " " . $vendorRow[0]->addrStreet . "<br>";
+                                                                                    echo $vendorRow[0]->addr . "<br>";
                                                                                     echo $vendorRow[0]->addrCity . " " . $vendorRow[0]->addrState . " " . $vendorRow[0]->addrZip . "<br>";
                                                                                     echo $vendorRow[0]->phone;
                                                                                     if ($vendorRow[0]->website != '') {

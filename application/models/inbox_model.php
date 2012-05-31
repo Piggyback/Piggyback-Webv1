@@ -8,6 +8,104 @@ class inbox_model extends CI_Model {
         $this->load->database();
     }
     
+    function core_data_delete_inbox_item($rid) {
+        $data = array('deletedUID2' => 1);
+        $this->db->where('rid',$rid);
+        $this->db->update('Referrals',$data);
+    }
+    
+    function get_inbox_items_for_core_data($uid)
+    {
+        $this->db->distinct();
+        $this->db->select('Referrals.rid AS referral_id, Referrals.comment AS referral_comment, Referrals.date AS referral_date, 
+            Referrals.uid1 AS referrer_id, Users.firstName AS referrer_firstName, Users.lastName AS referrer_lastName, Users.fbid AS referrer_fbid, Users.email AS referrer_email, 
+            Referrals.vid AS vendor_id, VendorsFoursquare.name AS vendor_name, VendorsFoursquare.lat AS vendor_lat, 
+            VendorsFoursquare.lng AS vendor_lng, VendorsFoursquare.phone AS vendor_phone, VendorsFoursquare.addr AS vendor_addr, 
+            VendorsFoursquare.addrCrossStreet AS vendor_addrCrossStreet, VendorsFoursquare.addrCity AS vendor_addrCity, 
+            VendorsFoursquare.addrState AS vendor_addrState, VendorsFoursquare.addrCountry AS vendor_addrCountry, VendorsFoursquare.addrZip AS vendor_addrZip, VendorsFoursquare.website AS vendor_website, 
+            Referrals.lid AS list_id, UserLists.name AS list_name, UserLists.date AS list_createdDate, UserLists.uid AS list_ownerId, COUNT(Lists.lid) AS list_count, vendor_numReferrals');
+        $this->db->from('Referrals');
+//        $this->db->join('(SELECT * FROM Users) AS Users', 'Referrals.uid1 = Users.uid', 'left');
+        $this->db->join('Users', 'Referrals.uid1 = Users.uid', 'left');
+        $this->db->join('VendorsFoursquare', 'Referrals.vid = VendorsFoursquare.id', 'left');
+        $this->db->join('UserLists', 'Referrals.lid = UserLists.lid', 'left');
+        $this->db->join('Lists', 'Referrals.lid = Lists.lid', 'left');
+        $this->db->join('(select if(Referrals.vid = 0, Lists.vid, Referrals.vid) as vid, count(distinct uid1) AS vendor_numReferrals
+            from Referrals
+            left join Lists 
+            on Referrals.lid = Lists.lid
+            where uid2 = ' . $uid . '
+            and ((Referrals.lid = 0) OR ((Lists.deletedDate > Referrals.date OR Lists.deleted = 0)
+            and Lists.date < Referrals.date))
+            group by vid) AS vendorCount', 'Referrals.vid = vendorCount.vid', 'left');
+        $this->db->where(array('Referrals.uid2' => $uid, 'Referrals.deletedUID2' => 0));
+        $this->db->where('(Referrals.lid = 0 OR (Lists.date < Referrals.date AND (Lists.deleted = 0 OR (Lists.deleted = 1 AND Lists.deletedDate > Referrals.date))))');
+        $this->db->group_by(array('Referrals.rid', 'Referrals.comment', 'Referrals.date', 
+            'Referrals.uid1', 'Users.firstName', 'Users.lastName', 
+            'Referrals.vid', 'VendorsFoursquare.name',
+            'Referrals.lid', 'UserLists.name'));
+        $this->db->order_by('Referrals.date desc');
+        
+        return $this->db->get()->result();
+    }
+    
+    /**
+     * returns minimum data for inbox items (both single vendors and lists)
+     * 
+     * mikegao
+     */
+    function get_minimum_inbox_items($uid)
+    {
+        $this->db->distinct();
+        $this->db->select('Referrals.rid AS referral_rid, Referrals.comment AS referral_comment, Referrals.date AS referral_date, 
+            Users.uid AS referrer_uid, Users.fbid AS referrer_fbid, Users.email AS referrer_email, Users.firstName AS referrer_firstName, Users.lastName AS referrer_lastName, 
+            VendorsFoursquare.name AS vendor_name, VendorsFoursquare.id AS vendor_vid, VendorsFoursquare.lat AS vendor_lat, 
+            VendorsFoursquare.lng AS vendor_lng, VendorsFoursquare.phone AS vendor_phone, VendorsFoursquare.addr AS vendor_addr, 
+            VendorsFoursquare.addrCrossStreet AS vendor_addrCrossStreet, VendorsFoursquare.addrCity AS vendor_addrCity, 
+            VendorsFoursquare.addrState AS vendor_addrState, VendorsFoursquare.addrCountry AS vendor_addrCountry, VendorsFoursquare.addrZip AS vendor_addrZip, VendorsFoursquare.website AS vendor_website, 
+            Referrals.lid AS list_lid, UserLists.name AS list_name, COUNT(Lists.lid) AS list_count');
+        $this->db->from('Referrals');
+        $this->db->join('Users', 'Referrals.uid1 = Users.uid', 'left');
+        $this->db->join('VendorsFoursquare', 'Referrals.vid = VendorsFoursquare.id', 'left');
+        $this->db->join('UserLists', 'Referrals.lid = UserLists.lid', 'left');
+        $this->db->join('Lists', 'Referrals.lid = Lists.lid', 'left');
+        $this->db->where(array('Referrals.uid2' => $uid, 'Referrals.deletedUID2' => 0));
+        $this->db->where('Referrals.lid = 0 OR (Lists.date < Referrals.date AND (Lists.deleted = 0 OR (Lists.deleted = 1 AND Lists.deletedDate > Referrals.date)))');
+        $this->db->group_by(array('Referrals.rid', 'Referrals.comment', 'Referrals.date', 
+            'Users.uid', 'Users.fbid', 'Users.email', 'Users.firstName', 'Users.lastName', 
+            'VendorsFoursquare.name', 'VendorsFoursquare.id', 'VendorsFoursquare.lat', 
+            'VendorsFoursquare.lng', 'VendorsFoursquare.phone', 'VendorsFoursquare.addr', 
+            'VendorsFoursquare.addrCrossStreet', 'VendorsFoursquare.addrCity', 
+            'VendorsFoursquare.addrState', 'VendorsFoursquare.addrCountry', 'VendorsFoursquare.addrZip', 'VendorsFoursquare.website', 
+            'Referrals.lid', 'UserLists.name'));
+        $this->db->order_by('Referrals.date desc');
+        
+        return $this->db->get()->result();
+        
+//select distinct Referrals.rid AS referral_rid, Referrals.comment AS referral_comment, Referrals.date AS referral_date, 
+//Users.uid AS referrer_uid, Users.fbid AS referrer_fbid, Users.email AS referrer_email, Users.firstName AS referrer_firstName, Users.lastName AS referrer_lastName, 
+//VendorsFoursquare.name AS vendor_name, VendorsFoursquare.id AS vendor_vid, VendorsFoursquare.lat AS vendor_lat, 
+//VendorsFoursquare.lng AS vendor_lng, VendorsFoursquare.phone AS vendor_phone, VendorsFoursquare.addr AS vendor_addr, 
+//VendorsFoursquare.addrCrossStreet AS vendor_addrCrossStreet, VendorsFoursquare.addrCity AS vendor_addrCity, 
+//VendorsFoursquare.addrState AS vendor_addrState, VendorsFoursquare.addrCountry AS vendor_addrCountry, VendorsFoursquare.addrZip AS vendor_addrZip, VendorsFoursquare.website AS vendor_website, 
+//Referrals.lid AS list_lid, UserLists.name AS list_name, COUNT(Lists.lid) AS list_count
+//from Referrals
+//left join Users on Referrals.uid1 = Users.uid
+//left join VendorsFoursquare on Referrals.vid = VendorsFoursquare.id
+//left join UserLists on Referrals.lid = UserLists.lid
+//left join Lists on Referrals.lid = Lists.lid
+//where Referrals.uid2 = 1 and Referrals.deletedUID2 = 0
+//and (Referrals.lid = 0 OR (Lists.date < Referrals.date AND (Lists.deleted = 0 OR (Lists.deleted = 1 AND Lists.deletedDate > Referrals.date))))
+//group by Referrals.rid, Referrals.comment, Referrals.date, 
+//Users.uid, Users.fbid, Users.email, Users.firstName, Users.lastName, 
+//VendorsFoursquare.name, VendorsFoursquare.id, VendorsFoursquare.lat, 
+//VendorsFoursquare.lng, VendorsFoursquare.phone, VendorsFoursquare.addr, 
+//VendorsFoursquare.addrCrossStreet, VendorsFoursquare.addrCity, 
+//VendorsFoursquare.addrState, VendorsFoursquare.addrCountry, VendorsFoursquare.addrZip, VendorsFoursquare.website, Referrals.lid, UserLists.name
+//order by Referrals.date desc
+        
+    }
+    
     /**
      * returns all single vendor inbox items
      * 

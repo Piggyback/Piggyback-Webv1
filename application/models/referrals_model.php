@@ -8,6 +8,27 @@ class Referrals_Model extends CI_Model {
         $this->load->database();
     }
     
+    /* restful api */
+    
+    public function add_referral_rest($senderUID, $receiverUID, $date, $lid, $vid, $comment)
+    {
+        $data = array(
+            'rid' => NULL,
+            'uid1' => $senderUID,
+            'uid2' => $receiverUID,
+            'date' => $date,
+            'lid' => $lid,
+            'vid' => $vid,
+            'comment' => $comment,
+            'deletedUID1' => 0,
+            'deletedUID2' => 0
+        );
+        
+        $this->db->insert('Referrals',$data);
+    }
+    
+    /* end restful api */
+    
     public function get_current_date()
     {
         $date = date("Y-m-d H:i:s");

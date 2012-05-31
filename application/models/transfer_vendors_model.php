@@ -10,7 +10,7 @@ class Transfer_Vendors_Model extends CI_Model {
     
     
     function transfer_google_vendor_table_to_foursquare_api() {
-        $getGoogleVendorData = "SELECT name,lat,lng FROM Vendors";
+        $getGoogleVendorData = "SELECT name,id,lat,lng FROM Vendors";
         $results = $this->db->query($getGoogleVendorData)->result();
         
         $radius = "1000";
@@ -23,7 +23,8 @@ class Transfer_Vendors_Model extends CI_Model {
         foreach($results as $vendor) {
             $searchQuery= urlencode($vendor->name);
             $locCoordinates = "$vendor->lat,$vendor->lng";
-
+            $vid = $vendor->id;
+            
             $venueMatch = json_decode(file_get_contents("https://api.foursquare.com/v2/venues/search?query=$searchQuery&ll=$locCoordinates&radius=$radius&intent=$intent&limit=$limit&client_id=$clientID&client_secret=$clientSecret&v=$date"));
              if (count($venueMatch->response->venues) > 0) {
                  if ($venueMatch->meta->code == 200) {
@@ -141,19 +142,20 @@ class Transfer_Vendors_Model extends CI_Model {
                     }
 
                     // add them to the foursquare tables for vendors, categories, photos, etc.
-                    $this->add_vendor($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, $addrCountry, $addrZip, $website, $tags, $categories, $photos);                
+                    $this->add_vendor($vid, $name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, $addrCountry, $addrZip, $website, $tags, $categories, $photos);                
                  } else {
-                     echo "Error returned for $searchQuery at $lat, $lng in foursquare database. Add manually\n\n";
+                     echo "Error returned for $searchQuery with vid $vid at $lat, $lng in foursquare database. Add manually\n\n";
                  }
              } else {
-                 echo "Could not find $searchQuery at $lat, $lng in foursquare database. Add manually\n\n";
+                 echo "Could not find $searchQuery with vid $vid at $lat, $lng in foursquare database. Add manually\n\n";
              }
         }   
     }
     
 
+    
     // add vendor to db for foursquare api
-    function add_vendor($name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
+    function add_vendor($vid,$name, $id, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, 
             $addrCountry, $addrZip, $website, $tags, $categories, $photos) {
 
         // find if vendor exists in db yet        
@@ -162,6 +164,10 @@ class Transfer_Vendors_Model extends CI_Model {
 
         // add to vendor db if it does not exist yet
         if ($existingVendorResult->num_rows() == 0) {
+            
+            // add google to foursquare id mapping
+           $addMappingQuery = "INSERT INTO GoogleToFoursquareMapping VALUES (?,?)";
+           $this->db->query($addMappingQuery,array($vid,$id));
             
             // add vendor info to vendor table
            $addVendorQuery = "INSERT INTO VendorsFoursquare
@@ -201,6 +207,15 @@ class Transfer_Vendors_Model extends CI_Model {
                $addPhotosQuery = substr($addPhotosQuery,0,-1);
                $this->db->query($addPhotosQuery);
            }
+           
+           $updateReferralsVidQuery = "UPDATE Referrals SET foursquareVID = ? WHERE vid = ?";
+           $this->db->query($updateReferralsVidQuery,array($id,$vid));
+           
+           $updateListsVidQuery = "UPDATE Lists SET foursquareVID = ? WHERE vid = ?";
+           $this->db->query($updateListsVidQuery,array($id,$vid));
+           
+           $updateRefDetsVidQuery = "UPDATE ReferralDetails SET foursquareVID = ? WHERE vid = ?";
+           $this->db->query($updateRefDetsVidQuery,array($id,$vid));
         }
     }
 }

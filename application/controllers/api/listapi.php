@@ -4,6 +4,254 @@ require(APPPATH.'libraries/REST_Controller.php');
 
 class Listapi extends REST_Controller
 {   
+    function coreDataListDelete_put() {
+        $lid = $this->put('lid');
+        
+        $this->load->model('list_model');
+        $this->list_model->core_data_delete_list($lid);
+        
+        $this->response($lid);
+    }
+    
+    function coreDataListEntryDelete_put() {
+        $leid = $this->put('leid');
+        $date = $this->put('date');
+        
+        $this->load->model('list_model');
+        $this->list_model->core_data_delete_list_entry($leid,$date);
+        
+        $this->response($leid);
+    }
+    
+    function coreDataLists_get()
+    {
+        $uid = $this->get('id');
+        if (!$uid) {
+            $this->response(NULL, 400);
+        } else {
+            $this->load->model('list_model');
+            
+            $listsResult = $this->list_model->get_lists_for_core_data($uid);
+            if ($listsResult) {
+                $listsArray = array();
+                
+                foreach ($listsResult as $row) {
+                    $list = new stdClass();
+                    $list->listID = $row->list_id;
+                    $list->createdDate = $row->list_createdDate;
+                    $list->name = $row->list_name;
+                    $list->listOwnerID = $row->list_ownerId;
+                    $list->listCount = $row->list_count;
+
+                    array_push($listsArray, $list);
+                }
+                
+                $this->response($listsArray);
+            } else {
+                $this->response(NULL, 404);
+            }
+        }
+    }
+    
+    function coreDataLists_post()
+    {
+        $data = json_decode(file_get_contents("php://input"));
+        
+        // vendor info
+//        $vid = $this->post('vid');
+//        $vendorName = $this->post('vendorName');
+//        $lat = $this->post('lat');
+//        $lng = $this->post('lng');
+//        $phone = $this->post('phone');
+//        $addr = $this->post('addr');
+//        $addrCrossStreet = $this->post('addrCrossStreet');
+//        $addrCity = $this->post('addrCity');
+//        $addrState = $this->post('addrState');
+//        $addrCountry = $this->post('addrCountry');
+//        $addrZip = $this->post('addrZip');
+//        $website = $this->post('website');
+        
+        
+        $this->load->model('list_model');
+        $lid = $this->list_model->post_lists_for_core_data($data->uid, $data->date, $data->name);
+//        $this->list_model->add_new_vendor($vid, $vendorName, $lat, $lng, $phone, $addr, $addrCrossStreet, $addrCity, $addrState, $addrCountry, $addrZip, $website);
+        
+        $list = new stdClass();
+        $list->listID = $lid;
+
+        $this->response($list);        
+    }
+    
+    function coreDataListEntrys_get()
+    {
+        $lid = $this->get('list');
+        $uid = $this->get('user');
+        if (!$lid or !$uid) {
+            $this->response(NULL, 400);
+        } else {
+            $this->load->model('list_model');
+            
+            $listEntrysResult = $this->list_model->get_list_entrys_for_core_data($uid, $lid);
+            if ($listEntrysResult) {
+                $listEntrysArray = array();
+                $vendorAssocArray = array();
+                
+                foreach ($listEntrysResult as $row) {
+                    if (!array_key_exists($row->vendor_id, $vendorAssocArray)) {
+                        $vendor = new stdClass();
+                        $vendor->vendorID = $row->vendor_id;
+                        $vendor->name = $row->vendor_name;
+                        $vendor->lat = $row->vendor_lat;
+                        $vendor->lng = $row->vendor_lng;
+                        $vendor->phone = $row->vendor_phone;
+                        $vendor->addr = $row->vendor_addr;
+                        $vendor->addrCrossStreet = $row->vendor_addrCrossStreet;
+                        $vendor->addrCity = $row->vendor_addrCity;
+                        $vendor->addrState = $row->vendor_addrState;
+                        $vendor->addrCountry = $row->vendor_addrCountry;
+                        $vendor->addrZip = $row->vendor_addrZip;
+                        $vendor->website = $row->vendor_website;
+                        $vendor->vendorReferralCommentsCount = $row->vendor_numReferrals;
+
+                        $vendorAssocArray[$row->vendor_id] = $vendor;
+                    }
+                
+                    $listEntry = new stdClass();
+                    $listEntry->listEntryID = $row->listentry_id;
+                    $listEntry->assignedListID = $row->listentry_assignedListID;
+                    $listEntry->comment = $row->listentry_comment;
+                    $listEntry->addedDate = $row->listentry_addedDate;
+                    $listEntry->vendor = $vendorAssocArray[$row->vendor_id];
+                    
+                    array_push($listEntrysArray, $listEntry);
+                }
+                
+                $this->response($listEntrysArray);
+            } else {
+                $this->response(NULL, 404);
+            }
+        }
+    }
+    
+    function coreDataMyListEntrys_get()
+    {
+        $lid = $this->get('list');
+        $uid = $this->get('user');
+        if (!$lid or !$uid) {
+            $this->response(NULL, 400);
+        } else {
+            $this->load->model('list_model');
+            
+            $listEntrysResult = $this->list_model->get_my_list_entrys_for_core_data($uid, $lid);
+            if ($listEntrysResult) {
+                $listEntrysArray = array();
+                $vendorAssocArray = array();
+                
+                foreach ($listEntrysResult as $row) {
+                    if (!array_key_exists($row->vendor_id, $vendorAssocArray)) {
+                        $vendor = new stdClass();
+                        $vendor->vendorID = $row->vendor_id;
+                        $vendor->name = $row->vendor_name;
+                        $vendor->lat = $row->vendor_lat;
+                        $vendor->lng = $row->vendor_lng;
+                        $vendor->phone = $row->vendor_phone;
+                        $vendor->addr = $row->vendor_addr;
+                        $vendor->addrCrossStreet = $row->vendor_addrCrossStreet;
+                        $vendor->addrCity = $row->vendor_addrCity;
+                        $vendor->addrState = $row->vendor_addrState;
+                        $vendor->addrCountry = $row->vendor_addrCountry;
+                        $vendor->addrZip = $row->vendor_addrZip;
+                        $vendor->website = $row->vendor_website;
+                        $vendor->vendorReferralCommentsCount = $row->vendor_numReferrals;
+
+                        $vendorAssocArray[$row->vendor_id] = $vendor;
+                    }
+                
+                    $listEntry = new stdClass();
+                    $listEntry->listEntryID = $row->listentry_id;
+                    $listEntry->assignedListID = $row->listentry_assignedListID;
+                    $listEntry->comment = $row->listentry_comment;
+                    $listEntry->addedDate = $row->listentry_addedDate;
+                    $listEntry->vendor = $vendorAssocArray[$row->vendor_id];
+                    
+                    array_push($listEntrysArray, $listEntry);
+                }
+                
+                $this->response($listEntrysArray);
+            } else {
+                $this->response(NULL, 404);
+            }
+        }
+    }
+    
+    // add new list entry
+    // add vendor to vendor database
+    function coreDataMyListEntrys_post()
+    {
+        $data = json_decode(file_get_contents("php://input"));
+//        ob_start();
+//        var_dump($data);
+//        $result = ob_get_clean();
+//        $fp = fopen('mikegaoerror.txt', 'a');
+//        fwrite($fp, $result . '\n');
+//        fclose($fp);
+        
+//        if (!$lid) {
+//            $this->response(NULL, 400);
+//        } else {
+            $this->load->model('list_model');
+            $this->load->model('vendor_model');
+            
+            $vendor = $data->vendor;
+            if (!property_exists($vendor, "name")) {
+                $vendor->name = "";
+            }
+            if (!property_exists($vendor, "vendorID")) {
+                // should never be blank
+                $vendor->vendorID = "";
+            }
+            if (!property_exists($vendor, "lat")) {
+                $vendor->lat = 0;
+            }
+            if (!property_exists($vendor, "lng")) {
+                $vendor->lng = 0;
+            }
+            if (!property_exists($vendor, "phone")) {
+                $vendor->phone = "";
+            }
+            if (!property_exists($vendor, "addr")) {
+                $vendor->addr = "";
+            }
+            if (!property_exists($vendor, "addrCrossStreet")) {
+                $vendor->addrCrossStreet = "";
+            }
+            if (!property_exists($vendor, "addrCity")) {
+                $vendor->addrCity = "";
+            }
+            if (!property_exists($vendor, "addrState")) {
+                $vendor->addrState = "";
+            }
+            if (!property_exists($vendor, "addrCountry")) {
+                $vendor->addrCountry = "";
+            }
+            if (!property_exists($vendor, "addrZip")) {
+                $vendor->addrZip = "";
+            }
+            if (!property_exists($vendor, "website")) {
+                $vendor->website = "";
+            }
+
+            $leid = $this->list_model->put_my_list_entrys_for_core_data($data->lid, $vendor->vendorID, $data->date, $data->comment);
+            $this->vendor_model->add_vendor($vendor->name, $vendor->vendorID, $vendor->lat, $vendor->lng, $vendor->phone, $vendor->addr, $vendor->addrCrossStreet, $vendor->addrCity, $vendor->addrState, 
+                                            $vendor->addrCountry, $vendor->addrZip, $vendor->website, $vendor->vendorPhotos);
+            
+            $listEntry = new stdClass();
+            $listEntry->listEntryID = $leid;
+
+            $this->response($listEntry);
+//        }
+    }
+    
     /**
      * returns all lists
      */

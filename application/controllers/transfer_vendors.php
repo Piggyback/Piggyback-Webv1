@@ -13,11 +13,11 @@ class transfer_vendors extends CI_Controller {
     public function index()
     {
         $this->load->view('transfer_vendors_view');
-        $this->transfer_google_vendor_table_to_foursquare_api();
+//        $this->transfer_google_vendor_table_to_foursquare_api();
     }
     
     public function transfer_google_vendor_table_to_foursquare_api() {
-        $this->transfer_vendors_model->transfer_google_vendor_table_to_foursquare_api();
+//        $this->transfer_vendors_model->transfer_google_vendor_table_to_foursquare_api();
     }
 
 }

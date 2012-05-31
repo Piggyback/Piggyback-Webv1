@@ -36,7 +36,7 @@ class VendorAPI extends REST_Controller
                     $referrer->email = $row->referrer_email;
                     $referrer->firstName = $row->referrer_firstName;
                     $referrer->lastName = $row->referrer_lastName;
-//                    $referrer->thumbnail = "http://graph.facebook.com/" . $row->referrer_fbid . "/picture";
+                    $referrer->thumbnail = "http://graph.facebook.com/" . $row->referrer_fbid . "/picture";
                     
                     $vendorReferralComment->referrer = $referrer;
                     
@@ -45,11 +45,10 @@ class VendorAPI extends REST_Controller
                 
                 $this->response($vendorReferralCommentsArray);
             } else {
-                $this->response($vendorReferralCommentsResult, 404);
+                $this->response(NULL, 404);
             }
         }
     }
-    
     
     function vendor_get() {
         $vid = $this->get('vid');
