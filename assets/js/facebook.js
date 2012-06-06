@@ -71,7 +71,7 @@ function loadFbApiForLogin() {
 function loadFbApiForLoginClosedBeta() {
     window.fbAsyncInit = function() {
         FB.init({
-            appId      : '163970203713342',
+            appId      : '251920381531962',
             channelUrl : 'channel', // does this file even exist?
             status     : true,
             cookie     : true,
@@ -178,7 +178,7 @@ function loadFbApiForHome() {
 function loadFbApiForHomeClosedBeta() {
     window.fbAsyncInit = function() {
         FB.init({
-            appId      : '163970203713342',
+            appId      : '251920381531962',
             channelUrl : 'channel',
             status     : true,
             cookie     : true,

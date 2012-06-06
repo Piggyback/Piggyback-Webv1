@@ -64,6 +64,7 @@ class Userapi extends REST_Controller
             $user->friends = $friends;
         } else {
             $uid = $this->user_model->add_user($data->fbid, $data->email, $data->firstName, $data->lastName);
+            $this->user_model->add_todo_list($uid);
 
             // check which FB friends are using piggyback
             $allUsersFromDB = $this->user_model->get_all_users();

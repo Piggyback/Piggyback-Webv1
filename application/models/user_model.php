@@ -86,6 +86,14 @@ class User_model extends CI_Model {
             $this->db->insert_batch('Friends', $insertData);
         }
     }
+    
+    function add_todo_list($uid)
+    {
+        $today = date("Y-m-d H:i:s");
+        $insertData = array('uid' => $uid, 'date' => $today, 'name' => 'To-Do');
+        
+        $this->db->insert('UserLists', $insertData);
+    }
 }
 
 ?>
